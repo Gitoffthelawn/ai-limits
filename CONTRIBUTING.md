@@ -2,6 +2,14 @@
 
 Keep changes focused and update the relevant documentation when behaviour or setup changes.
 
+## Local development
+
+Run the desktop app in development mode:
+
+```sh
+npm run tauri:dev
+```
+
 ## Changelog
 
 Add each user-visible change to the `Unreleased` section of [CHANGELOG.md](CHANGELOG.md). Write short statements that users can understand; omit internal refactoring, routine maintenance, and documentation-only changes.
