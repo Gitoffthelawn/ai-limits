@@ -10,6 +10,8 @@ Run the desktop app in development mode:
 npm run tauri:dev
 ```
 
+The dev command builds and opens the app once. It does not watch files or rebuild after code changes; stop and run the command again when you intentionally want a fresh build.
+
 ## Changelog
 
 Add each user-visible change to the `Unreleased` section of [CHANGELOG.md](CHANGELOG.md). Write short statements that users can understand; omit internal refactoring, routine maintenance, and documentation-only changes.
