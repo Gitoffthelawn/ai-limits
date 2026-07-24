@@ -187,9 +187,11 @@
       const PROVIDER_INTERVALS_STORAGE_KEY = "ai-limits-provider-intervals";
       const THEME_STORAGE_KEY = "ai-limits-theme";
       const PROVIDER_IDS = ["codex", "claude", "cursor"];
-      const CLI_SETUP_LINKS = {
+      const EXTERNAL_LINKS = {
         claude: "https://github.com/md2it/ai-limits/blob/main/docs/setup/claude-cli.md",
         codex: "https://github.com/md2it/ai-limits/blob/main/docs/setup/codex-cli.md",
+        github: "https://github.com/md2it/ai-limits",
+        license: "https://github.com/md2it/ai-limits/blob/main/LICENSE",
       };
 
       const SOURCE_PRIORITY_OPTIONS = ["fast", "full", "best"];
@@ -202,7 +204,59 @@
       // Help sub-pages. Each chapter is one entry in the left menu and, on macOS,
       // one item in the native Help menu (kept in sync in src-tauri/src/main.rs).
       // Adding a chapter here adds it to the in-app menu automatically.
+      //
+      // Keep this content in sync with the app: whenever a change here affects
+      // what a section describes (a setting, a state, a permission, a link),
+      // update the matching chapter in the same change.
       const HELP_CHAPTERS = [
+        {
+          id: "about",
+          label: "About",
+          title: "About AI-Limits",
+          render() {
+            return `
+              <p>
+                AI-Limits shows how much of your Codex, Claude, and Cursor subscription
+                limits you have left, in one place, without opening each provider's site.
+              </p>
+              <p>
+                It's free and open source, and runs on macOS, Windows, and Linux. It can
+                notify you before you run out, so limits don't catch you mid-task.
+              </p>
+              <p class="info-note">
+                All data comes from your own local setup or account. No sign-up, no
+                separate service in between.
+              </p>
+            `;
+          },
+        },
+        {
+          id: "providers",
+          label: "Providers",
+          title: "Providers",
+          render() {
+            return `
+              <dl class="info-terms">
+                <div>
+                  <dt>Codex</dt>
+                  <dd>Reads local Codex data, or the Codex CLI depending on source priority.</dd>
+                </div>
+                <div>
+                  <dt>Claude</dt>
+                  <dd>Reads local Claude data, or the Claude CLI depending on source priority.</dd>
+                </div>
+                <div>
+                  <dt>Cursor</dt>
+                  <dd>Uses the Cursor access token from Keychain to query the Cursor API.</dd>
+                </div>
+              </dl>
+              <p>
+                Each provider can be shown or hidden in settings. Hiding a provider also
+                excludes it from the next refresh.
+              </p>
+            `;
+          },
+        },
         {
           id: "source-priority",
           label: "Source priority",
@@ -234,6 +288,168 @@
                 </button>
                 <button type="button" class="info-link" data-open-external="codex">
                   Codex&nbsp;guide&nbsp;on&nbsp;GitHub
+                </button>
+              </div>
+            `;
+          },
+        },
+        {
+          id: "data-errors",
+          label: "Data errors",
+          title: "Data errors",
+          render() {
+            return `
+              <p>
+                A provider block shows "no fresh data" when its source didn't return a
+                usable result in time.
+              </p>
+              <dl class="info-terms">
+                <div>
+                  <dt>CLI</dt>
+                  <dd>The provider CLI isn't installed, or isn't logged in.</dd>
+                </div>
+                <div>
+                  <dt>Network</dt>
+                  <dd>The request failed or timed out.</dd>
+                </div>
+                <div>
+                  <dt>Cursor</dt>
+                  <dd>The Keychain access token is missing or has expired.</dd>
+                </div>
+              </dl>
+              <p class="info-note">Try a manual refresh first; most errors are transient.</p>
+              <div class="info-links">
+                <button type="button" class="info-link" data-open-help="source-priority">
+                  Source&nbsp;priority
+                </button>
+              </div>
+            `;
+          },
+        },
+        {
+          id: "notifications",
+          label: "Notifications",
+          title: "Notifications",
+          render() {
+            return `
+              <p>
+                When enabled, AI-Limits sends a system notification when a provider's
+                remaining limit crosses a low threshold, so you don't have to keep the
+                app open to notice.
+              </p>
+              <p>Toggle notifications on or off any time in settings.</p>
+              <p class="info-note">Currently supported on macOS only. Windows and Linux are next.</p>
+            `;
+          },
+        },
+        {
+          id: "permissions",
+          label: "Permissions",
+          title: "Permissions",
+          render() {
+            return `
+              <dl class="info-terms">
+                <div>
+                  <dt>Network</dt>
+                  <dd>To query the Cursor API and check for available data.</dd>
+                </div>
+                <div>
+                  <dt>Keychain</dt>
+                  <dd>Read-only access to the Cursor access token.</dd>
+                </div>
+                <div>
+                  <dt>Local files</dt>
+                  <dd>Read-only access to local Codex and Claude data folders.</dd>
+                </div>
+                <div>
+                  <dt>Notifications</dt>
+                  <dd>To alert you when a limit runs low.</dd>
+                </div>
+                <div>
+                  <dt>CLI</dt>
+                  <dd>Runs the <code>claude</code> or <code>codex</code> CLI, only in Full or Best mode.</dd>
+                </div>
+              </dl>
+              <p class="info-note">
+                External links only open from a fixed allowlist. Nothing else is read,
+                written, or sent anywhere.
+              </p>
+            `;
+          },
+        },
+        {
+          id: "cli-mode",
+          label: "CLI mode",
+          title: "CLI mode",
+          render() {
+            return `
+              <p>
+                The terminal interface is stateless: one query per run, no saved settings,
+                no background refresh or notifications.
+              </p>
+              <dl class="info-terms">
+                <div>
+                  <dt>Good for</dt>
+                  <dd>Scripts, CI, and quick checks, with plain, structured, or raw output.</dd>
+                </div>
+                <div>
+                  <dt>Not for</dt>
+                  <dd>Ongoing monitoring; use the desktop app for that.</dd>
+                </div>
+              </dl>
+              <div class="info-links">
+                <button type="button" class="info-link" data-copy-text="./bin/ai-limits">
+                  Copy&nbsp;command
+                </button>
+              </div>
+            `;
+          },
+        },
+        {
+          id: "limitations",
+          label: "Limitations",
+          title: "Limitations",
+          render() {
+            return `
+              <p>The desktop app is in beta and improving. Current known limits:</p>
+              <dl class="info-terms">
+                <div>
+                  <dt>macOS</dt>
+                  <dd>Signed and notarized; no DMG installer yet.</dd>
+                </div>
+                <div>
+                  <dt>Windows / Linux</dt>
+                  <dd>Builds are unsigned and still being tested with real users.</dd>
+                </div>
+                <div>
+                  <dt>Notifications</dt>
+                  <dd>macOS only for now.</dd>
+                </div>
+                <div>
+                  <dt>Local sources</dt>
+                  <dd>Some Codex and Claude local sources aren't available yet outside macOS.</dd>
+                </div>
+              </dl>
+              <p class="info-note">CLI-backed sources are the most reliable option across platforms today.</p>
+            `;
+          },
+        },
+        {
+          id: "for-developers",
+          label: "For developers",
+          title: "For developers",
+          render() {
+            return `
+              <p>
+                AI-Limits is open source under the MIT License. A Rust core is shared
+                between the Tauri desktop app and a stateless command-line interface.
+              </p>
+              <div class="info-links">
+                <button type="button" class="info-link" data-open-external="github">
+                  Source&nbsp;on&nbsp;GitHub
+                </button>
+                <button type="button" class="info-link" data-open-external="license">
+                  MIT&nbsp;License
                 </button>
               </div>
             `;
@@ -566,6 +782,30 @@
             openExternalSetup(button.dataset.openExternal);
           });
         }
+        for (const button of helpContent.querySelectorAll("[data-open-help]")) {
+          button.addEventListener("click", () => {
+            selectHelpChapter(button.dataset.openHelp);
+          });
+        }
+        for (const button of helpContent.querySelectorAll("[data-copy-text]")) {
+          button.addEventListener("click", () => {
+            copyHelpText(button);
+          });
+        }
+      }
+
+      async function copyHelpText(button) {
+        const text = button.dataset.copyText;
+        const originalLabel = button.textContent;
+        try {
+          await navigator.clipboard.writeText(text);
+          button.textContent = "Copied";
+        } catch {
+          button.textContent = "Copy failed";
+        }
+        setTimeout(() => {
+          button.textContent = originalLabel;
+        }, 1500);
       }
 
       function isHelpOpen() {
@@ -1138,8 +1378,8 @@
         }
       }
 
-      async function openExternalSetup(providerId) {
-        const url = CLI_SETUP_LINKS[providerId];
+      async function openExternalSetup(linkId) {
+        const url = EXTERNAL_LINKS[linkId];
         if (!url) {
           return;
         }

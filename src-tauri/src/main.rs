@@ -8,7 +8,17 @@ use std::sync::{Arc, Mutex};
 /// `HELP_CHAPTERS` list in the frontend (frontend/index.html) so the native menu
 /// mirrors the in-app Help sidebar.
 #[cfg(target_os = "macos")]
-const HELP_CHAPTERS: &[(&str, &str)] = &[("source-priority", "Source priority")];
+const HELP_CHAPTERS: &[(&str, &str)] = &[
+    ("about", "About"),
+    ("providers", "Providers"),
+    ("source-priority", "Source priority"),
+    ("data-errors", "Data errors"),
+    ("notifications", "Notifications"),
+    ("permissions", "Permissions"),
+    ("cli-mode", "CLI mode"),
+    ("limitations", "Limitations"),
+    ("for-developers", "For developers"),
+];
 
 fn main() {
     tauri::Builder::default()

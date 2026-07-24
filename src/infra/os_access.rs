@@ -15,6 +15,8 @@ pub const EXPECT_COMMAND: &str = "expect";
 pub const ALLOWED_EXTERNAL_URLS: &[&str] = &[
     "https://github.com/md2it/ai-limits/blob/main/docs/setup/claude-cli.md",
     "https://github.com/md2it/ai-limits/blob/main/docs/setup/codex-cli.md",
+    "https://github.com/md2it/ai-limits",
+    "https://github.com/md2it/ai-limits/blob/main/LICENSE",
 ];
 
 pub fn codex_local_root() -> io::Result<PathBuf> {
