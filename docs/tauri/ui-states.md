@@ -22,9 +22,9 @@ Below the control, show a text button:
 More details
 ```
 
-The button opens the shared source priority modal instead of navigating away.
+The button opens the [Help page](ui-help.md) on its Source priority section.
 
-Modal copy:
+Help section copy:
 
 ```text
 Source priority
@@ -62,4 +62,4 @@ Backend state:
 Frontend-only state:
 
 - inline source priority control state comes from `appSettings.sourcePriority`.
-- source priority modal open/closed state is frontend state.
+- help view open/closed state and the selected help chapter are frontend state.

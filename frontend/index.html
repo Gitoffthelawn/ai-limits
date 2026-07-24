@@ -9,8 +9,33 @@
   </head>
   <body>
     <main class="app">
+      <div class="view" id="home-view">
       <section class="app-toolbar" aria-label="Refresh controls">
         <div class="toolbar-actions">
+          <button
+            type="button"
+            class="help-button"
+            id="help-button"
+            aria-label="Help"
+          >
+            <svg
+              class="help-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4" />
+              <path d="M12 8h.01" />
+            </svg>
+          </button>
           <button type="button" class="refresh-button" id="refresh-button">
             UPDATE ALL NOW
           </button>
@@ -113,55 +138,39 @@
       <section class="providers" aria-label="Provider limits" id="provider-list"></section>
 
       <section class="status-line" aria-live="polite" id="status-line" hidden></section>
-    </main>
+      </div>
 
-    <div class="modal-backdrop" id="source-priority-modal" hidden>
-      <section
-        class="modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="source-priority-title"
-      >
-        <div class="modal-header">
-          <h2 id="source-priority-title">Source priority</h2>
+      <section class="help-view" id="help-view" aria-label="Help" hidden>
+        <header class="help-header">
           <button
             type="button"
-            class="modal-close"
-            data-close-source-priority
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <dl class="modal-terms">
-            <div>
-              <dt>Fast</dt>
-              <dd>Quick sources only.</dd>
-            </div>
-            <div>
-              <dt>Full</dt>
-              <dd>Quick sources first, CLI as fallback.</dd>
-            </div>
-            <div>
-              <dt>Best</dt>
-              <dd>CLI first, quick sources as fallback.</dd>
-            </div>
-          </dl>
-          <p>Applies to <b>Codex</b> and <b>Claude</b> only. <b>Cursor</b> is not affected.</p>
-          <p class="modal-note">
-            CLI data is usually more accurate and current, but slower. Providers refresh
-            independently, so a slow one won't block the rest.
-          </p>
-          <div class="modal-links" aria-label="Setup guides">
-            <button type="button" class="modal-link" data-open-external="claude">
-              Claude&nbsp;guide&nbsp;on&nbsp;GitHub
-            </button>
-            <button type="button" class="modal-link" data-open-external="codex">
-              Codex&nbsp;guide&nbsp;on&nbsp;GitHub
-            </button>
-          </div>
+            class="help-back"
+            id="help-back"
+            aria-label="Back"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+          </button>
+          <h1 class="help-title">Help</h1>
+        </header>
+        <div class="help-layout">
+          <nav class="help-menu" id="help-menu" aria-label="Help sections"></nav>
+          <div class="help-content" id="help-content"></div>
         </div>
       </section>
-    </div>
+    </main>
 
     <script>
       const updateFrequencyOptions = [
@@ -190,6 +199,49 @@
         best: "Best",
       };
 
+      // Help sub-pages. Each chapter is one entry in the left menu and, on macOS,
+      // one item in the native Help menu (kept in sync in src-tauri/src/main.rs).
+      // Adding a chapter here adds it to the in-app menu automatically.
+      const HELP_CHAPTERS = [
+        {
+          id: "source-priority",
+          label: "Source priority",
+          title: "Source priority",
+          render() {
+            return `
+              <dl class="info-terms">
+                <div>
+                  <dt>Fast</dt>
+                  <dd>Quick sources only.</dd>
+                </div>
+                <div>
+                  <dt>Full</dt>
+                  <dd>Quick sources first, CLI as fallback.</dd>
+                </div>
+                <div>
+                  <dt>Best</dt>
+                  <dd>CLI first, quick sources as fallback.</dd>
+                </div>
+              </dl>
+              <p>Applies to <b>Codex</b> and <b>Claude</b> only. <b>Cursor</b> is not affected.</p>
+              <p class="info-note">
+                CLI data is usually more accurate and current, but slower. Providers refresh
+                independently, so a slow one won't block the rest.
+              </p>
+              <div class="info-links" aria-label="Setup guides">
+                <button type="button" class="info-link" data-open-external="claude">
+                  Claude&nbsp;guide&nbsp;on&nbsp;GitHub
+                </button>
+                <button type="button" class="info-link" data-open-external="codex">
+                  Codex&nbsp;guide&nbsp;on&nbsp;GitHub
+                </button>
+              </div>
+            `;
+          },
+        },
+      ];
+      const DEFAULT_HELP_CHAPTER = HELP_CHAPTERS[0].id;
+
       const DEFAULT_APP_SETTINGS = {
         notifications: true,
         cursor: true,
@@ -211,7 +263,12 @@
       const settingsMenu = document.querySelector("#settings-menu");
       const settingsButton = document.querySelector("#settings-button");
       const settingsDropdown = document.querySelector("#settings-dropdown");
-      const sourcePriorityModal = document.querySelector("#source-priority-modal");
+      const helpButton = document.querySelector("#help-button");
+      const helpView = document.querySelector("#help-view");
+      const homeView = document.querySelector("#home-view");
+      const helpMenu = document.querySelector("#help-menu");
+      const helpContent = document.querySelector("#help-content");
+      const helpBack = document.querySelector("#help-back");
       const settingInputs = {
         notifications: document.querySelector("#setting-notifications"),
         cursor: document.querySelector("#setting-cursor"),
@@ -478,8 +535,53 @@
         settingsButton.setAttribute("aria-expanded", String(isOpen));
       }
 
-      function setSourcePriorityModalOpen(isOpen) {
-        sourcePriorityModal.hidden = !isOpen;
+      function findHelpChapter(chapterId) {
+        return HELP_CHAPTERS.find((chapter) => chapter.id === chapterId) ?? HELP_CHAPTERS[0];
+      }
+
+      function renderHelpMenu() {
+        helpMenu.innerHTML = HELP_CHAPTERS.map(
+          (chapter) =>
+            `<button type="button" class="help-menu-item" data-help-chapter="${chapter.id}">${escapeHtml(chapter.label)}</button>`,
+        ).join("");
+
+        for (const button of helpMenu.querySelectorAll("[data-help-chapter]")) {
+          button.addEventListener("click", () => {
+            selectHelpChapter(button.dataset.helpChapter);
+          });
+        }
+      }
+
+      function selectHelpChapter(chapterId) {
+        const chapter = findHelpChapter(chapterId);
+
+        for (const button of helpMenu.querySelectorAll("[data-help-chapter]")) {
+          const isCurrent = button.dataset.helpChapter === chapter.id;
+          button.setAttribute("aria-current", isCurrent ? "page" : "false");
+        }
+
+        helpContent.innerHTML = chapter.render();
+        for (const button of helpContent.querySelectorAll("[data-open-external]")) {
+          button.addEventListener("click", () => {
+            openExternalSetup(button.dataset.openExternal);
+          });
+        }
+      }
+
+      function isHelpOpen() {
+        return !helpView.hidden;
+      }
+
+      function openHelp(chapterId = DEFAULT_HELP_CHAPTER) {
+        setSettingsMenuOpen(false);
+        selectHelpChapter(chapterId);
+        homeView.hidden = true;
+        helpView.hidden = false;
+      }
+
+      function closeHelp() {
+        helpView.hidden = true;
+        homeView.hidden = false;
       }
 
       function cacheProviderData(provider) {
@@ -1031,7 +1133,7 @@
         const detailsButton = block.querySelector("[data-open-source-priority]");
         if (detailsButton) {
           detailsButton.addEventListener("click", () => {
-            setSourcePriorityModalOpen(true);
+            openHelp("source-priority");
           });
         }
       }
@@ -1176,26 +1278,22 @@
 
       settingInputs.sourcePriorityInfo.addEventListener("click", (event) => {
         event.stopPropagation();
-        setSourcePriorityModalOpen(true);
+        openHelp("source-priority");
       });
 
-      sourcePriorityModal.addEventListener("click", (event) => {
-        if (event.target === sourcePriorityModal) {
-          setSourcePriorityModalOpen(false);
-        }
+      helpButton.addEventListener("click", (event) => {
+        event.stopPropagation();
+        openHelp();
       });
 
-      sourcePriorityModal
-        .querySelector("[data-close-source-priority]")
-        .addEventListener("click", () => {
-          setSourcePriorityModalOpen(false);
-        });
+      helpBack.addEventListener("click", () => {
+        closeHelp();
+      });
 
-      for (const button of sourcePriorityModal.querySelectorAll("[data-open-external]")) {
-        button.addEventListener("click", () => {
-          openExternalSetup(button.dataset.openExternal);
-        });
-      }
+      // Bridge for the macOS native Help menu (see src-tauri/src/main.rs).
+      window.__openHelpFromNative = (chapterId) => {
+        openHelp(chapterId);
+      };
 
       for (const input of Object.values(settingInputs)) {
         if (input === settingInputs.sourcePriority || input === settingInputs.sourcePriorityInfo) {
@@ -1224,10 +1322,13 @@
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") {
           setSettingsMenuOpen(false);
-          setSourcePriorityModalOpen(false);
+          if (isHelpOpen()) {
+            closeHelp();
+          }
         }
       });
 
+      renderHelpMenu();
       initProviderIntervals();
       applyAppTheme();
       syncSettingsInputs();

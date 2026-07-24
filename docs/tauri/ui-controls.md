@@ -52,7 +52,7 @@ Source priority behavior:
 - Best usually provides more accurate and current Codex and Claude data because it starts provider CLI checks first.
 - Cursor uses its existing Cursor source and is not affected by source priority.
 
-The behavior section includes an information action. It opens the shared source priority modal explaining the Fast, Full, and Best modes, their source chains, the speed/accuracy tradeoff, and the provider scope.
+The behavior section includes an information action. It opens the [Help page](ui-help.md) on its Source priority section, which explains the Fast, Full, and Best modes, their source chains, the speed/accuracy tradeoff, and the provider scope. The no-fresh-data provider state links to the same Help section.
 
 The provider visibility section has toggles:
 

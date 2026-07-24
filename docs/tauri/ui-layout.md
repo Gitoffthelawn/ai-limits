@@ -28,10 +28,13 @@ Global update controls live above provider blocks.
 
 The top action row contains:
 
+- help button
 - `UPDATE ALL NOW` button
 - settings button
 
-The `UPDATE ALL NOW` button takes all available row width except the settings button area. Its label is centered.
+The `UPDATE ALL NOW` button takes all available row width except the help and settings button areas. Its label is centered.
+
+The help button is a small square button on the left side of the row, mirroring the settings button, with a Lucide `info` icon. It opens the [Help page](ui-help.md).
 
 The settings button is a small square button on the right side of the same row.
 

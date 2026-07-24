@@ -5,6 +5,7 @@ This file records user-visible changes. Its version sections are used automatica
 ## Unreleased
 
 - Disabled automatic desktop app rebuilds after code changes; development builds now run only on explicit command.
+- Added a desktop Help page with a sidebar of sections, reached from a new info button in the top action row and, on macOS, from the Help menu bar; moved the source priority explanation there and removed its modal.
 - Made the CLI stateless: one query per run, built-in defaults, no config file or watch mode.
 - Exposed available Codex limit resets in the terminal and desktop UI.
 - Removed the unsupported Claude statusline source and setup.

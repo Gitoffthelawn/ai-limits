@@ -148,5 +148,5 @@ External URL is not allowed
 
 Frontend usage:
 
-- called from CLI setup guide buttons in the modal.
+- called from CLI setup guide buttons on the Help page source priority section.
 - if Tauri is unavailable, the frontend falls back to `window.open`.

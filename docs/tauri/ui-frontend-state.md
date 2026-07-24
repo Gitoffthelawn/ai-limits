@@ -40,7 +40,7 @@ These values are not returned by the backend:
 - transient provider status: `Updating`, `Updated`, `Failed`.
 - global `Last updated` timestamp.
 - settings dropdown open/closed state.
-- source priority modal open/closed state.
+- help view open/closed state and the selected help chapter.
 
 `selectedUpdateFrequency` exists in the backend response and is currently always `"5 min"`, but persisted frontend intervals override it after the user changes a provider dropdown.
 
