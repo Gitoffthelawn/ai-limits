@@ -39,7 +39,6 @@
 - Multi-tool coverage remains a likely differentiator against Claude-only monitors.
 - Its normal local source is `~/.claude/projects/**/*.jsonl` (or explicit `--data-paths`), so it does not cover every Claude data root that ccusage checks by default.
 - WSL discovery only broadens where `~/.claude/projects` can be found; it is still the same Claude Code transcript source model.
-- Official `rate_limits` from Claude Code statusline are a different, stronger signal for live quota than JSONL token reconstruction, and should be treated separately.
 
 ## META
 

@@ -36,7 +36,7 @@ watch_interval = "5m"
 
 A list of source identifiers queried when the command runs without explicit source flags and without `--all` or `--best`.
 
-Valid identifiers: `codex_local`, `codex_cli`, `claude_statusline`, `claude_cli`, `claude_local`, `cursor_api2`.
+Valid identifiers: `codex_local`, `codex_cli`, `claude_cli`, `claude_local`, `cursor_api2`.
 
 When `default_sources` is empty, not set, or the config file does not exist, the command uses the `fast_free` source chain from [get-info/source-chains.md](get-info/source-chains.md).
 

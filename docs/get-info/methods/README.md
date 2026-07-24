@@ -20,7 +20,6 @@ The product goal is to show the user current limits locally with minimal setup. 
 |---|---|---|---|---|
 | Official API | Preferred when available | Stability, clear support, low risk | Often requires a key, enabling the API, or an Enterprise plan | Cursor Enterprise; potentially Codex/Claude/API providers |
 | Local transcript/telemetry files | Candidate for MVP usage history | Fast, local, no network requests and no quota consumption | Usually gives usage history, but not always the official remaining limit/reset | Claude (`~/.config/claude/projects`, `~/.claude/projects`, Xcode ClaudeAgentConfig), Codex (`~/.codex`), Gemini (`~/.gemini/tmp`) |
-| Statusline runtime capture | Live-limit method | Can provide an official live signal (`rate_limits`) without TUI parsing | Works only inside a supported statusline context; requires setup and cache capture | Claude Code |
 | Local derived DB/cache | Auxiliary layer | Speeds up the dashboard, incremental recalculation, and history after upstream cleanup | Not the primary source of truth; must stay in sync with source files | Claude (`~/.claude/usage.db`, tool-specific caches) |
 | Provider CLI | Used in PoC | Works in a minimal user scenario using an already configured CLI | Slow, fragile TUI parsing, requests may consume resources | Codex, Claude; Cursor partially |
 | Local token/client backend | Used in PoC for Cursor | Can work without a separate API key, using an existing login | Unofficial contract, subject to change, needs careful security review | Cursor |
@@ -32,7 +31,7 @@ The product goal is to show the user current limits locally with minimal setup. 
 | Provider | Primary known option | Status | Documents |
 |---|---|---|---|
 | Codex | Local JSONL history and `rate_limits` snapshots from `${CODEX_HOME:-~/.codex}` (`codex_local`) | Default implemented source. Provides token usage and current local limit/reset snapshots when present; CLI `/status` (`codex_cli`) remains a broader fallback for `--best`. | [../providers/codex.md](../providers/codex.md) |
-| Claude | Claude Code statusline runtime capture (`claude_statusline`) with local transcript reconstruction fallback (`claude_local`) | Default implemented chain. Statusline `rate_limits` is the strongest known local live-limit signal; local transcripts provide usage/history and estimated limits; CLI `/usage` (`claude_cli`) remains a broader fallback for `--best`. | [../providers/claude.md](../providers/claude.md), [statusline.md](statusline.md) |
+| Claude | Local transcript reconstruction (`claude_local`) | Default implemented source. Local transcripts provide usage/history and estimated limits; CLI `/usage` (`claude_cli`) remains a broader fallback for `--best`. | [../providers/claude.md](../providers/claude.md) |
 | Cursor | `api2.cursor.sh` `GetCurrentPeriodUsage` via Cursor Agent token (`cursor_api2`) | Default implemented source. Provides numeric usage/limits through an unofficial backend contract; `cursor agent about/status` is diagnostic only and does not provide numeric limits in the verified build. | [../providers/cursor.md](../providers/cursor.md), [../../references/cursor-api2-cursor-sh.md](../../references/cursor-api2-cursor-sh.md) |
 
 ## Method selection principles
@@ -52,8 +51,6 @@ Source chain order, usable-data rules, and interface mappings are defined in [..
 
 - [from-provider-cli.md](from-provider-cli.md) — technical model for provider methods that retrieve data via the provider CLI/TUI.
 - [from-local-files.md](from-local-files.md) — technical model for provider methods that retrieve data from local transcript/telemetry files.
-- [statusline.md](statusline.md) — current technical model for statusline runtime capture and cache handoff.
-- [from-statusline-hook.md](from-statusline-hook.md) — earlier technical model for provider methods that retrieve live limits from statusline stdin payload.
 - [../providers/codex.md](../providers/codex.md) — ways to retrieve Codex limits.
 - [../providers/claude.md](../providers/claude.md) — ways to retrieve Claude limits.
 - [../providers/cursor.md](../providers/cursor.md) — ways to retrieve Cursor limits.

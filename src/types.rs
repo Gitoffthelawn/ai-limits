@@ -2,39 +2,31 @@
 pub enum Source {
     CodexLocal,
     CodexCli,
-    ClaudeStatusline,
     ClaudeCli,
     ClaudeLocal,
     CursorApi2,
 }
 
 impl Source {
-    pub const ALL: [Self; 6] = [
+    pub const ALL: [Self; 5] = [
         Self::CodexLocal,
         Self::CodexCli,
-        Self::ClaudeStatusline,
         Self::ClaudeCli,
         Self::ClaudeLocal,
         Self::CursorApi2,
     ];
 
-    pub const DEFAULTS: [Self; 4] = [
-        Self::CodexLocal,
-        Self::ClaudeStatusline,
-        Self::ClaudeLocal,
-        Self::CursorApi2,
-    ];
+    pub const DEFAULTS: [Self; 3] = [Self::CodexLocal, Self::ClaudeLocal, Self::CursorApi2];
 
     pub fn parse(value: &str) -> Result<Self, String> {
         match value {
             "codex_local" => Ok(Self::CodexLocal),
             "codex_cli" => Ok(Self::CodexCli),
-            "claude_statusline" => Ok(Self::ClaudeStatusline),
             "claude_cli" => Ok(Self::ClaudeCli),
             "claude_local" => Ok(Self::ClaudeLocal),
             "cursor_api2" => Ok(Self::CursorApi2),
             _ => Err(format!(
-                "unknown source `{value}`; expected one of: codex_local, codex_cli, claude_statusline, claude_cli, claude_local, cursor_api2"
+                "unknown source `{value}`; expected one of: codex_local, codex_cli, claude_cli, claude_local, cursor_api2"
             )),
         }
     }
@@ -43,7 +35,6 @@ impl Source {
         match self {
             Self::CodexLocal => "codex-local",
             Self::CodexCli => "codex-cli",
-            Self::ClaudeStatusline => "claude-statusline",
             Self::ClaudeCli => "claude-cli",
             Self::ClaudeLocal => "claude-local",
             Self::CursorApi2 => "cursor-api2",
@@ -54,7 +45,6 @@ impl Source {
         match self {
             Self::CodexLocal => "CODEX-LOCAL",
             Self::CodexCli => "CODEX-CLI",
-            Self::ClaudeStatusline => "CLAUDE-STATUSLINE",
             Self::ClaudeCli => "CLAUDE-CLI",
             Self::ClaudeLocal => "CLAUDE-LOCAL",
             Self::CursorApi2 => "CURSOR-API2",

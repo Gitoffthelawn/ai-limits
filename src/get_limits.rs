@@ -1,8 +1,6 @@
 use std::io;
 
-use crate::providers::{
-    claude_cli, claude_local, claude_statusline, codex_cli, codex_local, cursor_api2,
-};
+use crate::providers::{claude_cli, claude_local, codex_cli, codex_local, cursor_api2};
 use crate::types::{Source, SourceData, SourceReport};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -24,23 +22,15 @@ impl SourcePlan {
 }
 
 const FAST_CODEX_CHAIN: &[Source] = &[Source::CodexLocal];
-const FAST_CLAUDE_CHAIN: &[Source] = &[Source::ClaudeStatusline, Source::ClaudeLocal];
+const FAST_CLAUDE_CHAIN: &[Source] = &[Source::ClaudeLocal];
 const FAST_CURSOR_CHAIN: &[Source] = &[Source::CursorApi2];
 
 const CLI_FALLBACK_CODEX_CHAIN: &[Source] = &[Source::CodexLocal, Source::CodexCli];
-const CLI_FALLBACK_CLAUDE_CHAIN: &[Source] = &[
-    Source::ClaudeStatusline,
-    Source::ClaudeLocal,
-    Source::ClaudeCli,
-];
+const CLI_FALLBACK_CLAUDE_CHAIN: &[Source] = &[Source::ClaudeLocal, Source::ClaudeCli];
 const CLI_FALLBACK_CURSOR_CHAIN: &[Source] = &[Source::CursorApi2];
 
 const CLI_FIRST_CODEX_CHAIN: &[Source] = &[Source::CodexCli, Source::CodexLocal];
-const CLI_FIRST_CLAUDE_CHAIN: &[Source] = &[
-    Source::ClaudeCli,
-    Source::ClaudeStatusline,
-    Source::ClaudeLocal,
-];
+const CLI_FIRST_CLAUDE_CHAIN: &[Source] = &[Source::ClaudeCli, Source::ClaudeLocal];
 const CLI_FIRST_CURSOR_CHAIN: &[Source] = &[Source::CursorApi2];
 
 pub fn default_source_plan() -> Vec<SourcePlan> {
@@ -204,7 +194,6 @@ pub fn get_source_limits(source: Source) -> io::Result<SourceReport> {
     let data = match source {
         Source::CodexLocal => codex_local::get_usage()?,
         Source::CodexCli => codex_cli::collect_usage()?,
-        Source::ClaudeStatusline => claude_statusline::collect()?,
         Source::ClaudeCli => claude_cli::collect_usage()?,
         Source::ClaudeLocal => claude_local::collect()?,
         Source::CursorApi2 => cursor_api2::collect_usage()?,

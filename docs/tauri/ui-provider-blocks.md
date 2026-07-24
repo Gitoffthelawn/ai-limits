@@ -118,9 +118,9 @@ Local files, as of Jul 5, 22:12
 
 The line has two parts:
 
-- origin label, for example `Local files`, `CLI`, `Statusline`, or `API2`
+- origin label, for example `Local files`, `CLI`, or `API2`
 - timestamp from `dataTimestamp`, rendered as `as of {timestamp}`
 
-Possible origin labels: `Local files`, `CLI`, `Statusline`, `API2`, `Unknown`.
+Possible origin labels: `Local files`, `CLI`, `API2`, `Unknown`.
 
 Each part is a non-breaking unit: `{origin label},` and `as of {timestamp}` must not wrap in the middle. If the provider block is too narrow for the full line, the line may break only between these two units.

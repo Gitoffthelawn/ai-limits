@@ -184,14 +184,6 @@ mod tests {
     }
 
     #[test]
-    fn parse_config_accepts_claude_statusline() {
-        let parsed = parse_config("default_sources = [\"claude_statusline\"]")
-            .expect("claude statusline should be accepted");
-
-        assert_eq!(parsed.default_sources, vec![Source::ClaudeStatusline]);
-    }
-
-    #[test]
     fn parses_watch_interval() {
         let parsed = parse_config("watch_interval = \"30s\"").expect("watch interval should parse");
 

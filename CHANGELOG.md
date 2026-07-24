@@ -5,6 +5,7 @@ This file records user-visible changes. Its version sections are used automatica
 ## Unreleased
 
 - Exposed available Codex limit resets in the terminal and desktop UI.
+- Removed the unsupported Claude statusline source and setup.
 
 ## [v0.0.13](https://github.com/md2it/ai-limits/releases/tag/v0.0.13) — 2026-07-08
 

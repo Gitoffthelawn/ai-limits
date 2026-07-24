@@ -276,7 +276,7 @@ fn print_source_report(
 fn failed_source_block(label: &str, error: &str) -> ProviderBlock {
     let provider = match label {
         "codex" | "codex-local" | "codex-cli" => "CODEX",
-        "claude" | "claude-statusline" | "claude-cli" | "claude-local" => "CLAUDE",
+        "claude" | "claude-cli" | "claude-local" => "CLAUDE",
         "cursor" | "cursor-api2" => "CURSOR",
         _ => "AI LIMITS",
     };
@@ -399,9 +399,6 @@ fn parse_args(args: impl Iterator<Item = String>) -> io::Result<CliArgs> {
             "--claude-cli" => {
                 parsed.sources.push(Source::ClaudeCli);
             }
-            "--claude-statusline" => {
-                parsed.sources.push(Source::ClaudeStatusline);
-            }
             "--claude-local" => {
                 parsed.sources.push(Source::ClaudeLocal);
             }
@@ -473,7 +470,6 @@ Options:
 Technical source options:
   --codex-local       Query Codex from local session JSONL files
   --codex-cli         Query Codex through the Codex CLI
-  --claude-statusline Query Claude live limits from statusline cache/stdin
   --claude-cli        Query Claude through the Claude CLI
   --claude-local      Query Claude from local transcript JSONL files
   --cursor-api2       Query Cursor through api2.cursor.sh
@@ -616,13 +612,6 @@ mod tests {
         let selected = resolve_source_plan(args, None).expect("best plan should resolve");
 
         assert_eq!(selected, crate::get_limits::best_source_plan());
-    }
-
-    #[test]
-    fn supports_claude_statusline_flag() {
-        let args = parse(&["--claude-statusline"]);
-
-        assert_eq!(args.sources, vec![Source::ClaudeStatusline]);
     }
 
     #[test]

@@ -18,7 +18,7 @@ Fast local/provider-native chain. It avoids provider CLI checks.
 
 ```text
 Codex: codex_local
-Claude: claude_statusline -> claude_local
+Claude: claude_local
 Cursor: cursor_api2
 ```
 
@@ -28,7 +28,7 @@ Local/provider-native chain with CLI fallback for Codex and Claude.
 
 ```text
 Codex: codex_local -> codex_cli
-Claude: claude_statusline -> claude_local -> claude_cli
+Claude: claude_local -> claude_cli
 Cursor: cursor_api2
 ```
 
@@ -38,7 +38,7 @@ CLI-first chain for more accurate and current Codex and Claude data. CLI checks 
 
 ```text
 Codex: codex_cli -> codex_local
-Claude: claude_cli -> claude_statusline -> claude_local
+Claude: claude_cli -> claude_local
 Cursor: cursor_api2
 ```
 

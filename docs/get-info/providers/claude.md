@@ -2,11 +2,10 @@
 
 ## Current Status
 
-PoC uses two Claude sources and one live-limit method:
+PoC uses two Claude sources:
 
 - `claude_cli_usage`: launches `claude --no-chrome`, sends `/usage`, parses TUI lines.
 - `claude_local_usage`: scans local transcript JSONL files and aggregates token usage history.
-- `claude_statusline`: reads Claude Code statusline stdin payload and extracts live `rate_limits` when available.
 
 ---
 
@@ -133,43 +132,12 @@ Do not treat as confirmed yet:
 - whether the weekly window is always exactly `reset - 7 days`
 - whether the CLI/UI percentage is rounded, floored, or otherwise bucketed
 
----
-
-## Provider Method: `claude_statusline`
-
-Method details: [../methods/statusline.md](../methods/statusline.md).
-
-Minimal source:
-
-- Claude Code statusline stdin payload
-- no TUI parsing and no transcript reconstruction for current limits
-
-How to get data:
-
-1. configure a Claude Code statusline command in `~/.claude/settings.json` or `~/.config/claude/settings.json`
-2. Claude Code runs the configured command when it refreshes the statusline
-3. Claude Code passes a JSON payload to the command through stdin
-4. the command saves the latest valid payload to a local ai-limits cache file
-5. ai-limits reads the cache file and parses `rate_limits`
-6. ai-limits normalizes live fields for current windows (5h/7d), used progress, and reset time
-
-Behavior:
-
-- when statusline payload includes `rate_limits`, this method provides an official live signal for current Claude limits
-- when statusline context is unavailable or payload has no `rate_limits`, method returns unavailable/unknown for live limits
-- this method is for current live limits, not full historical usage aggregation
-- this method primarily covers Claude Code CLI; Claude Desktop and browser-extension flows are not confirmed to run the same statusline command
-
----
-
 ## Limitations
 
 - for `claude_cli_usage`, full output remains a TUI stream and depends on current CLI text/layout
 - for `claude_cli_usage`, request/parse can take noticeable time
-- for `claude_statusline`, data is available only after a properly configured Claude Code statusline command receives a payload
-- for `claude_statusline`, unavailable statusline context means live limits are unavailable even if transcript history exists
 - for `claude_local_usage`, reset remains an estimate unless a server reset anchor is available
-- for Claude Desktop and browser-extension flows, local-file coverage remains unverified separately from Claude Code statusline behavior
+- for Claude Desktop and browser-extension flows, local-file coverage remains unverified separately from Claude Code behavior
 
 ---
 
@@ -179,7 +147,6 @@ Behavior:
 |---|---|---|
 | Official API | Not investigated | May apply to API accounts, but not necessarily to Claude Code subscription limits |
 | Local transcript JSONL (`claude_local_usage`) | Implemented in PoC | Scans local transcript roots and aggregates token usage history by assistant turns; official remaining limit/reset may be unavailable |
-| Claude Code statusline `rate_limits` | Live-limit method | Statusline command receives JSON via stdin from Claude Code and can provide an official live signal for 5h/7d limits; requires statusline configuration and cache capture |
 | Local SQLite/cache | Auxiliary layer | e.g. `~/.claude/usage.db` from `claude-usage`: convenient for dashboard and incremental scanning, but this is derived data, not a primary source |
 | Frontend/dashboard API | Research-only | Possible only with a clear and safe way to handle cookie/session tokens |
 | Traffic observation | Research-only | Not to be considered as a product mechanism |

@@ -30,7 +30,6 @@ Options:
 Technical source options:
   --codex-local       Query Codex from local session JSONL files
   --codex-cli         Query Codex through the Codex CLI
-  --claude-statusline Query Claude live limits from statusline cache/stdin
   --claude-cli        Query Claude through the Claude CLI
   --claude-local      Query Claude from local transcript JSONL files
   --cursor-api2       Query Cursor through api2.cursor.sh
