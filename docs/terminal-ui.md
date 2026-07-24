@@ -1,6 +1,8 @@
 # Terminal UI
 
-This document describes the actual terminal interface of `ai-limits`.
+This document describes the stateless terminal interface of `ai-limits`.
+
+The desktop application is the primary product interface. The terminal interface is a stable headless contract for automation, diagnostics, and source inspection. Each invocation performs one query and exits.
 
 ---
 
@@ -19,10 +21,8 @@ Usage:
 
 Options:
   --help, -h       Show this help
-  --init-config    Create / overwrite the user config file
-  --all, -a        Query all current sources, ignoring config defaults
+  --all, -a        Query all current sources
   --best, -b       Query best available source per provider
-  --watch, -w      Repeat the query on an interval
   --usage          Show user-facing usage summary
   --raw, -r        Return raw source data
   --structured, -s Return structured source data
@@ -37,27 +37,19 @@ Technical source options:
 Examples:
   ai-limits --all
   ai-limits --best
-  ai-limits --watch
-  ai-limits --watch=10m
   ai-limits --all --usage
   ai-limits --all --raw
   ai-limits --all --structured
-
-Config:
-  ~/.config/ai-limits/config.toml
-
-  # Leave empty to use the built-in fast free provider chains.
-  default_sources = []
-  watch_interval = "5m"
-
 
 =-=-= DONE 2026-07-02 15:04:05 =-=-=
 
 ```
 
-Default output is the user-facing limits presentation. `--usage` is the user-facing usage presentation. `--raw` and `--structured` are technical output modes for source-level data. They support development, testing, and provider contract checks. `--watch` repeats the default query on an interval; see [Watch Mode](#watch-mode).
+Default output is the user-facing limits presentation. `--usage` is the user-facing usage presentation. `--raw` returns captured source data, and `--structured` returns normalized source data as formatted JSON. These technical modes support automation, development, testing, diagnostics, and provider contract checks.
 
-Without a config file and without explicit source flags, default limits output uses the `fast_free` source chain from [get-info/source-chains.md](get-info/source-chains.md).
+Without explicit source flags, default limits output uses the built-in `fast_free` source chain from [get-info/source-chains.md](get-info/source-chains.md).
+
+The terminal interface has no configuration file and does not read desktop settings. Runtime behavior is determined only by built-in defaults and explicit command-line arguments.
 
 `--best`/`-b` uses the `cli_fallback` source chain and prints one selected block per provider.
 
@@ -102,6 +94,14 @@ Statuses:
 | `DONE` | All requested sources returned a result or a valid unavailable state. |
 | `PART` | Some sources returned a result; some ended with an error. |
 | `FAIL` | The command did not obtain a usable result. |
+
+---
+
+### Exit Codes
+
+The process exits with code `0` for `DONE` and `PART`, because both statuses contain at least one usable source result. It exits with a non-zero code for `FAIL`, invalid arguments, and command-level errors.
+
+The bottom-frame status and process exit code are part of the stable headless contract.
 
 ---
 
@@ -311,14 +311,6 @@ On each update:
 When a source finishes, the loader is cleared before the result is printed.
 
 When `TerminalUi` shuts down, the loader is cleared via `Drop`.
-
----
-
-## Watch Mode
-
-`--watch`/`-w` repeats the query on a fixed interval instead of running once. `--watch={duration}` (for example `--watch=10m`) sets the interval for that run; without a value, the interval comes from the config.
-
-Each cycle prints a full response inside the common frame, exactly as a single default run would. Cycles repeat until the process is interrupted (`Ctrl+C`).
 
 ---
 

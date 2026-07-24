@@ -18,7 +18,7 @@ Allowed:
 - Network client: Cursor usage API and local notification bridge.
 - Keychain read: `cursor-access-token` only.
 - Local read: provider data under `~/.codex`, `~/.claude`, `~/.config/claude`, and Xcode Claude agent project data.
-- Local write: ai-limits cache/config under `~/.config/ai-limits`.
+- Local write: application-managed WebView storage for desktop settings.
 - External browser open: documented setup links only.
 - CLI execution: `claude` and `codex` only when Full or Best source priority is selected.
 

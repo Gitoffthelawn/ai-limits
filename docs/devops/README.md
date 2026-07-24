@@ -34,7 +34,7 @@ Confirmed:
 - `src/` is the shared Rust core and CLI.
 - `src-tauri/` is the Tauri desktop adapter.
 - Tauri uses structured data from the Rust core through commands.
-- Tauri must not duplicate provider logic, limit semantics, configuration, or notification rules.
+- Tauri must not duplicate provider logic, limit semantics, or notification rules.
 - Local macOS production `.app` build is confirmed.
 - The produced macOS `.app` was manually launched and checked by the user.
 - GitHub Actions desktop build workflow is implemented and verified.

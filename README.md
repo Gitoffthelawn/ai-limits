@@ -4,11 +4,13 @@ English | [Русский](README.ru.md)
 
 Check AI subscription limits easily. Codex, Claude, Cursor.
 
-`ai-limits` is a local tool for viewing available AI usage and limit data from supported providers. It can be used as a desktop app or from the terminal.
+`ai-limits` is a desktop-first local tool for viewing available AI usage and limit data from supported providers. A stateless command-line interface is also available for automation and diagnostics.
 
 ## Interfaces
 
 ### Desktop App
+
+The desktop app is the primary product interface for configuration, notifications, and interactive use.
 
 The desktop app is currently in beta.
 
@@ -20,7 +22,7 @@ Download: https://github.com/md2it/ai-limits/releases
 
 ### Terminal UI
 
-The terminal interface remains available.
+The terminal interface is a stateless headless interface for automation and diagnostics. It performs one query per invocation, uses built-in defaults unless source flags are provided, and does not maintain a separate configuration.
 
 Run from the repository:
 
@@ -42,7 +44,6 @@ For terminal UI details, see [docs/terminal-ui.md](docs/terminal-ui.md).
 - Usage information when a supported source can provide it.
 - Results from local files, provider CLIs, and other supported sources.
 - Default, structured, and raw output views in the terminal.
-- Repeated checks with terminal watch mode.
 
 ## Current Limitations
 
@@ -56,7 +57,6 @@ For terminal UI details, see [docs/terminal-ui.md](docs/terminal-ui.md).
 ## Documentation
 
 - [Terminal UI](docs/terminal-ui.md)
-- [Configuration](docs/config.md)
 - [Developer documentation](docs/)
 
 ## License

@@ -6,15 +6,15 @@ This document defines the target structure of `src/` after moving from a PoC mon
 
 ## Goal
 
-The code should support:
+The code supports:
 
-- a CLI interface
-- a future desktop interface
+- a primary desktop interface
+- a stateless CLI for automation and diagnostics
 - multiple providers
 - multiple ways to fetch data for a single provider
 - small files with a clear area of responsibility
 
-The CLI and the future desktop should share a common core, not separate business logic.
+The desktop and CLI share a common core, not separate business logic.
 
 ---
 
@@ -25,7 +25,6 @@ Target structure for the near term:
 ```text
 src/
   cli/
-  config/
   infra/
   notifications/
   presentation/
@@ -38,7 +37,6 @@ src/
 Purpose:
 
 - `cli/` — terminal interface, arguments, retrieval scenario flags, output, exit codes
-- `config/` — user settings, defaults, and paths to config files
 - `infra/` — technical primitives for processes, HTTP, and timeouts
 - `notifications/` — shared notification service with platform adapters
 - `presentation/` — user-facing display models built from structured data
@@ -111,7 +109,7 @@ Purpose:
 - call provider methods in the right order
 - apply provider fallback-chain logic for default and best-source runs
 - apply desktop source priority logic for Fast, Full, and Best modes
-- assemble a shared result for the CLI and the future desktop
+- assemble a shared result for the desktop and CLI
 
 Boundaries:
 
@@ -168,16 +166,18 @@ Rules:
 
 ---
 
-## Configuration
+## Settings
 
-User settings must not be baked into the compiled binary.
+The desktop application owns user settings. The frontend stores current desktop settings in `localStorage` and passes them to Tauri commands as request parameters.
 
-Model:
+The CLI is stateless:
 
-- defaults live in code
-- user config is stored in a separate runtime file
-- the CLI and the future desktop use the same config
-- platform-specific config file paths are defined inside `config/`
+- it has no configuration file
+- it does not read desktop settings
+- built-in defaults apply when no explicit source flags are provided
+- command-line arguments affect only the current single query
+
+A shared desktop/CLI settings contract is not part of the current architecture.
 
 ---
 
@@ -192,7 +192,7 @@ Rules:
 - Tauri is a separate interface to the same core
 - `src-tauri/` is a desktop adapter, not a separate business core
 - Tauri must use structured data returned by the existing Rust core
-- provider logic, limit semantics, configuration, and notification rules stay in `src/`
+- provider logic, limit semantics, and notification rules stay in `src/`
 - Tauri commands delegate to core functions instead of duplicating application logic
 
 Structure:
@@ -249,7 +249,7 @@ notifications/
 Rules:
 
 - notifications should be a shared service, not part of desktop only
-- the CLI can use notifications if the platform supports it and it is enabled in config
+- the CLI can request notifications only through an explicit command-line action
 - platform differences must be isolated inside the notifications module
 - the application should call one common notification interface, not platform-specific adapters directly
 - notification requirements are documented in [notifications.md](notifications.md)
@@ -261,7 +261,7 @@ Rules:
 When making changes, first identify the business area of the task:
 
 - terminal behavior — `cli/`
-- settings — `config/`
+- desktop settings — Tauri frontend state
 - data fetching — `providers/`
 - presentation — `presentation/`
 - limits-fetching scenario — `get_limits.rs`
