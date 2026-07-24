@@ -823,8 +823,7 @@ select {
 }
 
 .help-back:hover {
-  border-color: var(--accent-success);
-  background: color-mix(in srgb, var(--accent-success) var(--mix-hover-success), var(--surface));
+  background: var(--surface-hover);
 }
 
 .help-back:focus-visible {
@@ -870,8 +869,9 @@ select {
 }
 
 .help-menu-item[aria-current="page"] {
-  border-color: var(--accent-success);
-  background: color-mix(in srgb, var(--accent-success) var(--mix-hover-success), var(--surface));
+  border-color: var(--accent-warning);
+  background: color-mix(in srgb, var(--accent-warning) var(--mix-active-warning), var(--surface));
+  color: var(--text);
 }
 
 .help-menu-item:focus-visible {
@@ -880,8 +880,9 @@ select {
 }
 
 .help-content {
-  display: grid;
+  display: flex;
   flex: 1 1 auto;
+  flex-direction: column;
   gap: var(--space-12);
   border: var(--border-surface);
   border-radius: var(--radius-md);
@@ -928,7 +929,10 @@ select {
 .info-links {
   display: grid;
   gap: var(--space-10);
-  padding-top: var(--space-2);
+  /* Pin the action group to the bottom of the frame so text stays at the top
+     and buttons form a consistent footer, however tall the frame is. */
+  margin-top: auto;
+  padding-top: var(--space-12);
 }
 
 .info-link {
@@ -940,7 +944,7 @@ select {
   border: var(--border-control);
   border-radius: var(--radius-sm);
   background: var(--surface);
-  color: var(--success-text);
+  color: var(--text);
   font: inherit;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
@@ -951,7 +955,7 @@ select {
 }
 
 .info-link:hover {
-  background: color-mix(in srgb, var(--accent-success) var(--mix-hover-success), var(--surface));
+  background: var(--surface-hover);
 }
 
 /* Trailing glyph marking where a link leads: an out-of-app arrow for external
@@ -971,15 +975,20 @@ select {
   --info-link-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6'/%3E%3Cpath d='M10 14 21 3'/%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'/%3E%3C/svg%3E");
 }
 
-/* Internal links read as navigation, not an outbound jump: neutral color and an
-   in-page arrow, so they are clearly distinct from external links. */
+/* Internal links read as navigation: an in-page arrow instead of the external
+   out-of-app arrow, so the two are clearly distinct. */
 .info-link--internal {
   --info-link-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E");
-  color: var(--text);
 }
 
-.info-link--internal:hover {
-  background: var(--surface-hover);
+/* Help navigation controls are neutral, so they warm to yellow on hover, like
+   the settings and help icon buttons. See docs/tauri/ui-styleguide.md. */
+:root[data-theme="dark"] .help-back:hover,
+:root[data-theme="dark"] .help-menu-item:hover,
+:root[data-theme="dark"] .info-link:hover {
+  border-color: var(--accent-warning);
+  background: color-mix(in srgb, var(--accent-warning) 32%, var(--surface));
+  color: var(--text);
 }
 
 @media (max-width: 525px) {

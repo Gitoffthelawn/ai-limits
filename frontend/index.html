@@ -218,14 +218,24 @@
                 AI-Limits shows how much of your Codex, Claude, and Cursor subscription
                 limits you have left, in one place, without opening each provider's site.
               </p>
-              <p>
-                It's free and open source, and runs on macOS, Windows, and Linux. It can
-                notify you before you run out, so limits don't catch you mid-task.
-              </p>
-              <p class="info-note">
-                All data comes from your own local setup or account. No sign-up, no
-                separate service in between.
-              </p>
+              <dl class="info-terms">
+                <div>
+                  <dt>Free</dt>
+                  <dd>Open source, no sign-up, and no service in between.</dd>
+                </div>
+                <div>
+                  <dt>Cross-platform</dt>
+                  <dd>Runs on macOS, Windows, and Linux.</dd>
+                </div>
+                <div>
+                  <dt>Proactive</dt>
+                  <dd>Can notify you before you run out, so limits don't catch you mid-task.</dd>
+                </div>
+                <div>
+                  <dt>Local</dt>
+                  <dd>All data comes from your own setup or account.</dd>
+                </div>
+              </dl>
             `;
           },
         },
@@ -332,12 +342,24 @@
           render() {
             return `
               <p>
-                When enabled, AI-Limits sends a system notification when a provider's
-                remaining limit crosses a low threshold, so you don't have to keep the
-                app open to notice.
+                When enabled, AI-Limits sends a system notification as a provider's
+                remaining limit runs low, so you don't have to keep the app open to
+                notice.
               </p>
-              <p>Toggle notifications on or off any time in settings.</p>
-              <p class="info-note">Currently supported on macOS only. Windows and Linux are next.</p>
+              <dl class="info-terms">
+                <div>
+                  <dt>Trigger</dt>
+                  <dd>A provider's remaining limit crosses a low threshold.</dd>
+                </div>
+                <div>
+                  <dt>Control</dt>
+                  <dd>Toggle notifications on or off any time in settings.</dd>
+                </div>
+                <div>
+                  <dt>Platform</dt>
+                  <dd>macOS only for now; Windows and Linux are next.</dd>
+                </div>
+              </dl>
             `;
           },
         },
@@ -439,10 +461,21 @@
           title: "For developers",
           render() {
             return `
-              <p>
-                AI-Limits is open source under the MIT License. A Rust core is shared
-                between the Tauri desktop app and a stateless command-line interface.
-              </p>
+              <p>AI-Limits is open source under the MIT License.</p>
+              <dl class="info-terms">
+                <div>
+                  <dt>Core</dt>
+                  <dd>A shared Rust core powers both interfaces.</dd>
+                </div>
+                <div>
+                  <dt>Desktop</dt>
+                  <dd>A Tauri app with a web-technology UI.</dd>
+                </div>
+                <div>
+                  <dt>CLI</dt>
+                  <dd>A stateless command-line interface for scripts and CI.</dd>
+                </div>
+              </dl>
               <div class="info-links">
                 <button type="button" class="info-link info-link--external" data-open-external="github">
                   Source&nbsp;on&nbsp;GitHub
