@@ -50,8 +50,7 @@ Other sources may still provide limit data.\n",
 }
 
 fn format_limit_resets(info: &StructuredSourceInfo) -> String {
-    let Some(count) = info.available_limit_resets.filter(|count| *count > 0)
-    else {
+    let Some(count) = info.available_limit_resets.filter(|count| *count > 0) else {
         return String::new();
     };
 

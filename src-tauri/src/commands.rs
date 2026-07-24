@@ -242,9 +242,7 @@ fn provider_error(id: &str, message: String) -> ProviderLimits {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ai_limits::types::{
-        AccountInfo, SourceStatus, UsageInfo,
-    };
+    use ai_limits::types::{AccountInfo, SourceStatus, UsageInfo};
 
     fn structured_with_resets(available_limit_resets: Option<u64>) -> StructuredSourceInfo {
         StructuredSourceInfo {
