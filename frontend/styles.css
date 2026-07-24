@@ -300,9 +300,9 @@ body {
 }
 
 .segmented-control button[aria-pressed="true"] {
-  border-color: var(--segmented-track-border);
-  background: var(--segmented-selected-bg);
-  color: var(--segmented-selected-text);
+  border-color: var(--accent-success);
+  background: color-mix(in srgb, var(--accent-success) var(--mix-hover-success), var(--surface));
+  color: var(--text);
   box-shadow: var(--shadow-control);
 }
 
