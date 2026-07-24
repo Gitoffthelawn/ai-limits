@@ -132,7 +132,6 @@
             </div>
           </div>
         </div>
-        <p class="last-updated" id="last-updated">Last updated: —</p>
       </section>
 
       <section class="providers" aria-label="Provider limits" id="provider-list"></section>
@@ -475,7 +474,6 @@
       const providerList = document.querySelector("#provider-list");
       const statusLine = document.querySelector("#status-line");
       const refreshButton = document.querySelector("#refresh-button");
-      const lastUpdatedLine = document.querySelector("#last-updated");
       const settingsMenu = document.querySelector("#settings-menu");
       const settingsButton = document.querySelector("#settings-button");
       const settingsDropdown = document.querySelector("#settings-dropdown");
@@ -1401,10 +1399,6 @@
         return block;
       }
 
-      function formatLastUpdated(date) {
-        return formatLocalDateTime(date);
-      }
-
       function setErrorState(message) {
         statusLine.hidden = false;
         statusLine.classList.remove("loading");
@@ -1416,10 +1410,6 @@
         statusLine.textContent = "";
         statusLine.hidden = true;
         statusLine.classList.remove("loading", "error");
-      }
-
-      function setLastUpdated(date) {
-        lastUpdatedLine.textContent = `Last updated: ${formatLastUpdated(date)}`;
       }
 
       async function fetchSingleProviderLimits(providerId) {
@@ -1464,7 +1454,6 @@
 
           if (isProviderRefreshSuccess(provider)) {
             setProviderStatus(providerId, "updated", "Updated");
-            setLastUpdated(new Date());
           } else {
             setProviderStatus(providerId, "failed", "Failed");
           }

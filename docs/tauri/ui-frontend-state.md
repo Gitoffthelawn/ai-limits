@@ -38,7 +38,6 @@ These values are not returned by the backend:
 - provider refresh timers.
 - provider refresh in-flight markers.
 - transient provider status: `Updating`, `Updated`, `Failed`.
-- global `Last updated` timestamp.
 - settings dropdown open/closed state.
 - help view open/closed state and the selected help chapter.
 

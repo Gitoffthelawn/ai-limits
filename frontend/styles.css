@@ -341,14 +341,6 @@ body {
   outline-offset: var(--space-2);
 }
 
-.last-updated {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: var(--font-size-xs);
-  line-height: var(--line-height-normal);
-  text-align: center;
-}
-
 .refresh-button {
   flex: 1 1 auto;
   border: var(--border-control);

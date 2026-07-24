@@ -226,7 +226,7 @@ Contract boundaries:
 - `open_external_url` opens only allowlisted setup guide URLs.
 - provider response fields are display-oriented and camelCase in the frontend.
 - provider source, data timestamp, reset time, error state, and no-fresh-data state come from the backend response.
-- provider update interval, pending state, global last-updated text, provider status badges, and saved UI settings are frontend state.
+- provider update interval, pending state, provider status badges, and saved UI settings are frontend state.
 - frontend settings are passed to commands as request parameters; they are not currently read from a shared backend config file.
 
 ---
