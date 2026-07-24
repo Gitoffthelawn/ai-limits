@@ -17,12 +17,6 @@ pub const ALLOWED_EXTERNAL_URLS: &[&str] = &[
     "https://github.com/md2it/ai-limits/blob/main/docs/setup/codex-cli.md",
 ];
 
-pub fn ai_limits_config_dir() -> io::Result<PathBuf> {
-    let home = env::var_os("HOME")
-        .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "HOME is not set"))?;
-    Ok(PathBuf::from(home).join(".config").join("ai-limits"))
-}
-
 pub fn codex_local_root() -> io::Result<PathBuf> {
     if let Some(value) = env::var_os("CODEX_HOME") {
         return Ok(PathBuf::from(value));

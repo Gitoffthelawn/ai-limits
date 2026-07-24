@@ -4,6 +4,7 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+- Made the CLI stateless: one query per run, built-in defaults, no config file or watch mode.
 - Exposed available Codex limit resets in the terminal and desktop UI.
 - Removed the unsupported Claude statusline source and setup.
 
