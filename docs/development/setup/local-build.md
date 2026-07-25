@@ -31,5 +31,5 @@ Distribution meaning:
 Related documents:
 
 - [Dev run](dev-run.md)
-- [GitHub builds](../devops/github-builds.md)
+- [Desktop builds](../devops/builds.md)
 - [macOS signing](../devops/macos-signing.md)

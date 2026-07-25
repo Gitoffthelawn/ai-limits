@@ -10,7 +10,7 @@ Detailed checks stay in the documents that own the relevant behavior. Keep this 
 - Notification trigger and delivery tests: [notifications](../../runtime/notifications/notification-testing.md#testing).
 - Local desktop dev run: [dev run](../setup/dev-run.md).
 - Local macOS debug build: [local build](../setup/local-build.md).
-- Release artifact verification: [temporary artifact verification](../devops/artifact-verification-temp.md) and `scripts/verify-macos-app.sh`.
+- Release artifact verification: `scripts/verify-macos-app.sh`.
 - Analog research hands-on checks: [analogs research process](../../product/analogs/research-process.md).
 
 The macOS permission reset procedure used before a clean permission check is documented in [macos-permission-reset.md](macos-permission-reset.md).
