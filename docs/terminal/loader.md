@@ -47,7 +47,7 @@ Color is based on remaining limit:
 | --- | --- |
 | `>= 75%` | green |
 | `>= 50%` | yellow |
-| `>= 25%` | yellow or orange, depending on terminal support |
+| `>= 25%` | orange |
 | `>= 10%` | red |
 | `< 10%` | bright red |
 

@@ -48,6 +48,7 @@ Response on success:
       "resetTime": "20:48"
     }
   ],
+  "creditsRemaining": null,
   "availableLimitResets": 1,
   "errorMessage": null,
   "noFreshData": false

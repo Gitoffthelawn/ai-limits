@@ -12,11 +12,11 @@ Responsibilities:
 - build 25-character remaining-limit bars;
 - choose `Source {source}` text from structured `source` and `data_as_of`;
 - prepare unavailable or no-data messages from structured status data.
-- render the selected source report; fallback order is decided before presentation.
+- render the selected source report; fallback order is decided before presentation;
+- format the raw and structured output modes (`--raw`, `--structured`) from a source report.
 
 Boundaries:
 
 - does not call providers;
 - does not parse raw source data;
-- does not own raw or structured serialization;
 - does not draw terminal frames or loaders.

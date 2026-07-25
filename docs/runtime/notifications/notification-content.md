@@ -51,7 +51,7 @@ Notification text template:
 
 ```text
 $EMOJI AI Limits
-$PROVIDER_NAME $TYPE - NN% limit remains
+$PROVIDER_NAME $TYPE - NN% left
 reset $TIME
 ```
 

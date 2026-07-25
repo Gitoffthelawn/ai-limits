@@ -4,8 +4,6 @@ This directory is the source of truth for desktop build, artifacts, and release 
 
 Detailed Tauri integration rules remain in [architecture](../../architecture.md) and [desktop docs](../../desktop/).
 
-The step-by-step release plan is documented in [release-plan.md](release-plan.md).
-
 ## Goal
 
 Build and publish desktop artifacts for the Tauri app across supported platforms:
@@ -52,15 +50,6 @@ Known issue:
 - Default `npm exec tauri -- build` currently reaches DMG packaging and fails on the DMG bundling step.
 - DMG is not a blocker for the current `.app` artifact stage.
 - DMG packaging should be handled as a later, separate task.
-
-Verified GitHub Actions run:
-
-```text
-URL: https://github.com/md2it/ai-limits/actions/runs/28758826398
-Run ID: 28758826398
-Trigger: workflow_dispatch
-Status: success
-```
 
 ## Scope
 

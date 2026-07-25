@@ -2,9 +2,9 @@
 
 ## Current status
 
-The PoC retrieves numeric Cursor usage/limits through the internal endpoint `api2.cursor.sh` and an access token created by `cursor agent login`.
+The PoC retrieves numeric Cursor usage/limits through the internal endpoint `api2.cursor.sh` and an access token created by `cursor agent login`. This is currently the only implemented Cursor source; there is no Cursor CLI fallback source in code.
 
-If the token is not found, the request is rejected, or the response format has changed, the PoC falls back to the standard `cursor` command and the `agent` subcommand. This fallback shows only identity/status/model/tier, because the currently verified Cursor Agent build does not expose numeric usage/limits through a stable CLI command.
+If the token is not found, the request is rejected, or the response format has changed, the source reports the failure as unavailable data.
 
 Research on `api2.cursor.sh`: [../../../product/analogs/cursor-api2-cursor-sh.md](../../../product/analogs/cursor-api2-cursor-sh.md).
 

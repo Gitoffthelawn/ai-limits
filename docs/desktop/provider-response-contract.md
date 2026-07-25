@@ -12,6 +12,7 @@
 | `dataTimestamp` | string or null | formatted `data_as_of`, `"unknown"` when source timestamp is absent, or null on provider error | `as of {timestamp}`; null displays `unknown` |
 | `selectedUpdateFrequency` | string | currently always `"5 min"` | used only as fallback when frontend has no saved interval |
 | `limits` | array | displayable limit rows | rendered as rows and meters |
+| `creditsRemaining` | number or null | account credits remaining from structured data, or null on provider error | shown as `Credits: {value}`; hidden when null |
 | `availableLimitResets` | number or null | manual reset count from structured data | renders informational reset availability |
 | `errorMessage` | string or null | unavailable/no-data message or provider error | controls failed status and message rendering |
 | `noFreshData` | boolean | true when access is available but neither displayable limit rows nor a known manual-reset count exist | selects the no-fresh-data empty state |

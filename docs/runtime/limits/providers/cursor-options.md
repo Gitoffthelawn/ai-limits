@@ -5,7 +5,7 @@
 | Option | Plan/availability | Status | Notes |
 |---|---|---|---|
 | IDE backend `api2.cursor.sh` | Pro/Ultra/Team | Implemented in PoC | Uses access token after `cursor agent login`; unofficial contract |
-| Cursor CLI `about/status` | Pro/Ultra/Team | Fallback in PoC | Provides identity/auth/model/tier, but not billing usage |
+| Cursor CLI `about/status` | Pro/Ultra/Team | Not implemented | Provides identity/auth/model/tier, but not billing usage; no CLI-based source exists in code |
 | Dashboard API `cursor.com/api/...` | Any | Research-only | Requires web session cookie; high security risk |
 | Admin API `api.cursor.com` | Enterprise | Official | Suitable for Enterprise monitoring; 403 expected on Pro/Teams without Enterprise |
 

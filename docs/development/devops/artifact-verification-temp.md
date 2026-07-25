@@ -1,15 +1,28 @@
-# Temporary Artifact Verification
+# Artifact Verification
 
 ## Verify Downloaded Artifacts
 
-Status: in progress.
+Manually verify that downloaded release artifacts can be opened or installed on each target platform before pointing users at a pre-release:
 
-Plan:
+```text
+macOS:
+  extract with ditto -x -k
+  run scripts/verify-macos-app.sh
+  launch the .app
+  check signing and notarization mode / Gatekeeper UX
 
-- Verify that downloaded artifacts can be opened or installed on target platforms.
-- Keep this as a manual verification step before GitHub Releases.
-- Do not change signing or notarization during artifact verification.
-- Do not create GitHub Releases during artifact verification.
+Windows:
+  install or run the NSIS setup
+  optionally install the MSI
+  launch the app after installation
+
+Linux:
+  run the AppImage
+  optionally install the DEB
+  launch the app after installation
+```
+
+Do not change signing or notarization during artifact verification. Do not create GitHub Releases during artifact verification.
 
 ## macOS release artifact checks
 
@@ -42,4 +55,4 @@ spctl --assess
 xcrun stapler validate   # only in full mode
 ```
 
-Manual check checklist and current verification results are documented in [artifact-verification-results.md](artifact-verification-results.md).
+Verification should note the platform, the artifact file used, the installation/opening result, the launch result, and any blocking UX or security warning. Current results are recorded in [artifact-verification-results.md](artifact-verification-results.md).

@@ -23,7 +23,7 @@ The available sections are listed in [help-sections.md](help-sections.md).
 The Help page opens from:
 
 - the help button in the [top action row](layout.md), which opens the first section
-- the source priority information action in [settings](controls.md) and the no-fresh-data provider state, which open the `source-priority` section
+- the source priority information action in [settings](settings.md) and the no-fresh-data provider state, which open the `source-priority` section
 - on macOS, the `Help` menu bar items, which mirror the section list
 
 ## macOS Menu Bar

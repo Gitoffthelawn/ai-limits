@@ -5,4 +5,4 @@
 - Linux artifact size is materially larger than macOS and Windows artifacts:
   `ai-limits-linux-unsigned` was 80,837,949 bytes in the verified run.
 - Downloaded artifacts used for verification were stored in `/private/tmp`, which is not durable storage.
-- Artifact install/open verification has not been completed yet.
+- Windows and Linux artifact install/open verification has not been completed yet; macOS launch verification has passed only on the development device.

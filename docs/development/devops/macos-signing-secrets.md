@@ -6,7 +6,6 @@ Required for signing:
 APPLE_CERTIFICATE
 APPLE_CERTIFICATE_PASSWORD
 KEYCHAIN_PASSWORD
-APPLE_TEAM_ID
 ```
 
 Required for `submit-only` and `full` notarization:

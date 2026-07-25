@@ -10,7 +10,7 @@ Example:
 
 ```text
      --------- CODEX ---------
-Tokens        input 120k | cached 80k | output 30k | total 230k
+Tokens        input 120,000 | cached 80,000 | output 30,000 | total 230,000
 Activity      14 sessions | 128 turns | latest Jul 3, 21:41
 Models        top: gpt-5
 Money         $12.40 used

@@ -13,10 +13,10 @@ The UI contains:
 - top action row with global manual update and settings
 - centered last update line below the top action row
 - provider blocks as the main content
-- three inline rounded squares for providers:
+- three inline rounded squares for providers, in order:
   - Codex
-  - Cursor
   - Claude
+  - Cursor
 
 Each provider square represents one provider and contains that provider's limit details.
 

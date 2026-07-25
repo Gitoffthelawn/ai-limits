@@ -6,7 +6,7 @@ Current sections, in menu order:
 
 - `about` — what the app does, that it's free, cross-platform, and notification-driven, and where its data comes from.
 - `providers` — how each provider (Codex, Claude, Cursor) gets its data, and that visibility is controlled in settings.
-- `source-priority` — the Fast, Full, and Best modes, their source chains, the speed/accuracy tradeoff, the provider scope, and the CLI setup guide links. See [controls.md](controls.md).
+- `source-priority` — the Fast, Full, and Best modes, the speed/accuracy tradeoff, the provider scope, and the CLI setup guide links. See [settings.md](settings.md).
 - `data-errors` — why a provider shows "no fresh data" and what to check, with a link to `source-priority`.
 - `notifications` — what triggers a system notification and the current macOS-only limitation.
 - `permissions` — the OS-level access the app uses (network, Keychain, local files, notifications, CLI execution) and why.

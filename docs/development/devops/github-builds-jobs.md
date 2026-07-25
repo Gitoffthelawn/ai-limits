@@ -1,5 +1,14 @@
 # GitHub Builds Jobs
 
+Job order:
+
+```text
+validate-release-version -> rust-format -> build-macos, build-windows, build-linux -> publish-unstable-release
+```
+
+- `validate-release-version` checks the release runs from `main`, that the version input matches `vMAJOR.MINOR.PATCH`, that the tag and release do not already exist, and that `CHANGELOG.md` has a non-empty `Unreleased` section.
+- `rust-format` runs `cargo fmt --all -- --check` and gates all platform build jobs.
+
 Verified jobs:
 
 ```text

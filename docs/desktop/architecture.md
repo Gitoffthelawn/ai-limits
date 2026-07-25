@@ -36,12 +36,14 @@ src-tauri/
   src/
     main.rs
     commands.rs
+    notifications.rs
 ```
 
 Purpose:
 
 - `main.rs` — Tauri application bootstrap, window setup, plugins, and command registration
 - `commands.rs` — desktop commands exposed to the frontend and delegated to the shared core
+- `notifications.rs` — desktop notification bridge that delivers core notifications through Tauri
 
 Boundaries:
 

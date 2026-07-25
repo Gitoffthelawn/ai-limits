@@ -9,9 +9,11 @@ Example:
 ```text
 providers/
   mod.rs
-  codex_cli_usage.rs
-  claude_cli_usage.rs
-  cursor_api2_usage.rs
+  claude_cli.rs
+  claude_local.rs
+  codex_cli.rs
+  codex_local.rs
+  cursor_api2.rs
 ```
 
 Rules:
