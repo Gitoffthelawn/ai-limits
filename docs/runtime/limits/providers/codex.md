@@ -9,68 +9,7 @@ PoC uses two Codex sources:
 
 Codex CLI also exposes manually redeemable limit resets through `/usage`. `/usage` is Codex terminology; in ai-limits these records are part of limits, not token usage. They are separate from the automatic `resets_at` time shown for a rate-limit window.
 
----
-
-## Provider Method: `codex_cli_usage`
-
-Minimum commands:
-
-- verify CLI availability: `command -v codex`
-- verify CLI version: `codex --version`
-- official website: https://openai.com/codex
-- CLI documentation: https://developers.openai.com/codex/cli
-
-Verified PoC details:
-
-- launches the standard `codex` command without a custom path to the CLI
-- Codex CLI refuses to launch the interactive TUI if `stdin`/`stderr` are not TTYs
-- for PoC, the system `expect` command is used as a minimal PTY adapter
-- runtime sets `TERM=xterm-256color`, `COLUMNS=120`, `LINES=40` and runs `stty cols 120 rows 40`
-- PoC sends `/status` via bracketed paste
-- the first `/status` call sometimes triggers a limit refresh
-- a second `/status` call returns the actual breakdown
-- the parser waits for response indicators: startup screen, `refresh requested`, limit lines, or `Credits`
-- user-facing output shows only the found summary: `5h limit`, `Weekly limit`, and `Credits`
-
-### Manual Limit Resets
-
-Verified CLI behavior:
-
-- `/usage` reports the number of available manual resets, for example `You have 1 usage limit reset available`;
-The collector reads `/usage` after `/status` in the same PTY session, then interrupts the CLI. It never confirms or redeems a reset. The source is the rendered `/usage` TUI stream; no local JSON object or array for these records has been verified. The implementation extracts only `available_limit_resets`; it never enters the redemption path. The normalized field is defined in [structured-info.md](../structured-info.md).
-
----
-
-## Provider Method: `codex_local_usage`
-
-Minimal source:
-
-- root: `${CODEX_HOME:-~/.codex}`
-- scanned directories: `sessions/`, `archived_sessions/`
-- scanned files: `**/*.jsonl`
-
-What is extracted:
-
-- events with `"type":"token_count"` and `"last_token_usage"`
-- totals: input, cached input, output, reasoning output, total
-- latest activity timestamp (ISO 8601 UTC from the latest `token_count` event with `rate_limits`)
-- `rate_limits` snapshot when present: `primary.used_percent`, `primary.window_minutes`, `primary.resets_at`, `secondary.used_percent`, `secondary.window_minutes`, `secondary.resets_at`, `credits` (`balance` or scalar), `plan_type`
-
-How to get these fields from local files:
-
-1. read `${CODEX_HOME:-~/.codex}/sessions/**/*.jsonl` and `${CODEX_HOME:-~/.codex}/archived_sessions/**/*.jsonl`
-2. keep only records where `type = "event_msg"` and `payload.type = "token_count"`
-3. for usage, aggregate `payload.info.last_token_usage.*`
-4. for limits/reset, read `payload.rate_limits.*` from the latest timestamped event that includes `rate_limits`
-5. show `Latest activity` and `resets_at` as ISO 8601 UTC (`YYYY-MM-DDTHH:MM:SSZ`)
-
-Behavior:
-
-- if root is missing, returns `not found`
-- if no token events are found, returns `token events: not found`
-- local Codex JSONL can provide current local snapshot for limit percent and reset time (5h/weekly windows when present)
-- local Codex JSONL usually does not provide absolute quota size (`used_tokens`/`max_tokens`), only percent and reset window
-- local Codex JSONL and the local Codex state database did not expose manual reset count, type, or expiry during verification; they must not be used as a source for `available_limit_resets`
+Provider method details are documented in [codex-cli-usage.md](codex-cli-usage.md) and [codex-local-usage.md](codex-local-usage.md).
 
 ---
 

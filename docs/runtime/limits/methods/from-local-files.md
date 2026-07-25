@@ -2,6 +2,8 @@
 
 This document describes provider methods that fetch usage/limits from local transcript or telemetry files.
 
+Source discovery flow and data quality/freshness rules are documented in [local-files-data-quality.md](local-files-data-quality.md).
+
 ---
 
 ## Base Flow
@@ -25,34 +27,6 @@ sequenceDiagram
 
 ---
 
-## Source Discovery and Scan
-
-The diagram below describes local-file discovery and scan behavior.
-
-```mermaid
-stateDiagram-v2
-    [*] --> Limit_request
-
-    Limit_request --> Provider_selected
-    Provider_selected --> Method_selected
-    Method_selected --> Source_discovery
-
-    Source_discovery --> No_roots: No roots found
-    Source_discovery --> Roots_found: One or more roots found
-
-    Roots_found --> Scan_files
-    Scan_files --> Parse_records
-    Parse_records --> Normalize_data
-
-    Normalize_data --> Limits_shown_to_user
-    No_roots --> Limits_unavailable
-
-    Limits_shown_to_user --> [*]
-    Limits_unavailable --> [*]
-```
-
----
-
 ## Rules
 
 - each provider may define one or more local roots and file patterns
@@ -64,15 +38,6 @@ stateDiagram-v2
 - if limit fields are snapshots, the output must include freshness metadata
 - if only percentages are available and absolute quota is unknown, this must be shown explicitly
 - local-file methods must be read-only and must not modify provider files
-
----
-
-## Data Quality and Freshness
-
-- data quality must include source type, timestamp of latest relevant record, and confidence level
-- if the latest relevant record is older than the configured staleness threshold, mark data as stale
-- if files exist but no relevant records are found, return a clear `no data found` result
-- if roots are missing, return a clear `source not found` result with searched roots
 
 ---
 

@@ -2,6 +2,8 @@
 
 This document describes provider methods that fetch usage/limits through the local CLI or the provider's local client tool.
 
+Virtual terminal session lifecycle for interactive CLIs is documented in [provider-cli-sessions.md](provider-cli-sessions.md).
+
 ---
 
 ## Base Flow
@@ -24,33 +26,6 @@ sequenceDiagram
 
 ---
 
-## Virtual Terminal and CLI Sessions
-
-The diagram below describes the runtime session for interactive CLIs that require a pseudoterminal.
-
-```mermaid
-stateDiagram-v2
-    [*] --> Limit_request
-
-    Limit_request --> Provider_selected
-    Provider_selected --> Method_selected
-    Method_selected --> Session_check
-
-    Session_check --> Open_session: Session exists
-    Session_check --> New_session: No session
-
-    Open_session --> Data_request
-    New_session --> Data_request
-
-    Data_request --> Data_received
-    Data_received --> Normalization
-    Normalization --> Limits_shown_to_user
-
-    Limits_shown_to_user --> [*]
-```
-
----
-
 ## Rules
 
 - each provider may have multiple provider methods
@@ -63,14 +38,6 @@ stateDiagram-v2
 - the application must not leave background terminals or provider CLI sessions running after it exits
 - if the provider CLI supports context cleanup within an open session, the application may clear context instead of starting a new session
 - context cleanup may be used to reuse a session and reduce unnecessary token consumption
-
----
-
-## Runtime Shutdown
-
-A virtual terminal lives only for the duration of the active application runtime. When the runtime terminates, the application must synchronously shut down all open virtual terminals and associated provider sessions.
-
-This rule is for resource control: the application must not create terminals uncontrollably and leave them running after the user exits or the process stops.
 
 ---
 

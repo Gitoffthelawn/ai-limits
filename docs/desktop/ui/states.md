@@ -53,13 +53,4 @@ The setup links must open externally from the Tauri app:
 
 Each setup guide opens with helper copy for sharing the guide with an agent.
 
-Backend state:
-
-- selected by `noFreshData: true`.
-- shown when `limits` is empty.
-- does not use `errorMessage` text in this state.
-
-Frontend-only state:
-
-- inline source priority control state comes from `appSettings.sourcePriority`.
-- help view open/closed state and the selected help chapter are frontend state.
+Backend and frontend state details are documented in [states-data.md](states-data.md).

@@ -36,27 +36,4 @@ Modes:
 
 First notarization for a new Apple Developer team can stay `In Progress` for hours or longer. After the first `Accepted` result, later `full` runs are usually much faster. See [GitHub builds](github-builds.md).
 
-## Secrets
-
-Required for signing:
-
-```text
-APPLE_CERTIFICATE
-APPLE_CERTIFICATE_PASSWORD
-KEYCHAIN_PASSWORD
-APPLE_TEAM_ID
-```
-
-Required for `submit-only` and `full` notarization:
-
-```text
-APPLE_API_KEY_CONTENT
-APPLE_API_KEY_ID
-APPLE_API_ISSUER
-```
-
-Example file:
-
-[macOS signing secrets example](../../../scripts/macos-signing-secrets.example)
-
-Do not set `APPLE_SIGNING_IDENTITY` in GitHub secrets when using `APPLE_CERTIFICATE`. The workflow imports the `.p12` certificate into a temporary keychain, and Tauri derives the signing identity from that certificate.
+Required secrets are documented in [macos-signing-secrets.md](macos-signing-secrets.md).

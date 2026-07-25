@@ -1,5 +1,7 @@
 # GitHub Builds
 
+Job details are documented in [github-builds-jobs.md](github-builds-jobs.md) and [github-builds-macos.md](github-builds-macos.md).
+
 ## Desktop build workflow
 
 Status: active.
@@ -47,100 +49,6 @@ xcrun notarytool history --key ... --key-id ... --issuer ...
 - If you used `submit-only` and Apple later reports `Accepted`, either rerun the workflow with `full` or staple the same `.app` locally with `xcrun stapler staple`.
 
 See [macOS signing](macos-signing.md) for secrets and signing details.
-
-## Jobs
-
-Verified jobs:
-
-```text
-build-macos:   signed macOS app, notarization verified when full, artifact uploaded
-build-windows: passed, artifact uploaded
-build-linux:   passed, artifact uploaded
-```
-
-Common GitHub job setup:
-
-- checkout repository;
-- install Node.js 22;
-- install Rust stable through `dtolnay/rust-toolchain@stable`;
-- install npm dependencies with `npm ci`;
-- upload artifacts with `actions/upload-artifact@v4`;
-- keep artifact retention at 14 days.
-
-### macOS job
-
-```text
-runner: macos-latest
-command: npm exec tauri -- build --bundles app --target universal-apple-darwin
-artifact name: ai-limits-macos-app
-artifact path: target/release/bundle/macos/AI Limits.app.zip
-```
-
-The workflow imports a Developer ID Application `.p12`, writes the App Store Connect API key, and lets Tauri sign the universal `.app` bundle. In `full` mode, Tauri also notarizes and staples before the zip is uploaded.
-
-Entitlements: `src-tauri/Entitlements.plist` with hardened runtime enabled in `tauri.conf.json`.
-
-The workflow verifies the final `.app` before archive upload:
-
-```text
-scripts/verify-macos-app.sh --notarization <mode> "target/universal-apple-darwin/release/bundle/macos/AI Limits.app"
-```
-
-In `full` mode, the script also verifies notarization and stapling:
-
-```text
-xcrun stapler validate "target/universal-apple-darwin/release/bundle/macos/AI Limits.app"
-```
-
-The `.app` bundle is archived with `ditto` after signing to preserve bundle structure, symlinks, and extended attributes:
-
-```text
-ditto -c -k --keepParent "AI Limits.app" "AI Limits.app.zip"
-```
-
-Do not use `--sequesterRsrc` for release archives. It moves extended attributes into `__MACOSX` AppleDouble files and can break stapled notarization tickets after extraction.
-
-After archiving, the workflow extracts the zip with `ditto` and reruns the same verification on the round-tripped artifact:
-
-```text
-scripts/verify-macos-app.sh --notarization <mode> "target/release/bundle/macos/AI Limits.app.zip"
-```
-
-Local verification after download must also use `ditto`, not `unzip`. See [artifact verification](artifact-verification-temp.md).
-
-### Windows job
-
-```text
-runner: windows-latest
-command: npm exec tauri -- build --bundles nsis,msi
-artifact name: ai-limits-windows-unsigned
-artifact paths:
-  target/release/bundle/nsis/*.exe
-  target/release/bundle/msi/*.msi
-```
-
-Windows signing is not included.
-
-### Linux job
-
-```text
-runner: ubuntu-latest
-command: npm exec tauri -- build --bundles deb,appimage
-artifact name: ai-limits-linux-unsigned
-artifact paths:
-  target/release/bundle/deb/*.deb
-  target/release/bundle/appimage/*.AppImage
-```
-
-Linux system dependencies added to the workflow:
-
-```text
-libwebkit2gtk-4.1-dev
-libgtk-3-dev
-libayatana-appindicator3-dev
-librsvg2-dev
-patchelf
-```
 
 ## Verification result
 
