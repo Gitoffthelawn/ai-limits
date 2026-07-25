@@ -17,9 +17,9 @@ Benefits:
 ## Download
 
 <p align="center">
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://img.shields.io/badge/macOS-v0.0.13-000000?logo=apple&amp;logoColor=white" alt="Download for macOS"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://img.shields.io/badge/Windows-v0.0.13-0078D4?logo=windows&amp;logoColor=white" alt="Download for Windows"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://img.shields.io/badge/Linux-v0.0.13-FCC624?logo=linux&amp;logoColor=black" alt="Download for Linux"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Download for macOS"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=windows" alt="Download for Windows"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="Download for Linux"></a>
 </p>
 
 The buttons download the latest desktop build in one click.
@@ -55,9 +55,6 @@ The full comparison covers 18 alternatives and 16 criteria: [alternatives catalo
 - Desktop notifications are currently available only on macOS,
 - Some local Codex and Claude sources may not work on Windows and Linux yet; CLI sources work everywhere.
 
-## License and collaboration
+## License
 
-<p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
-  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/Contributions-welcome-blue.svg" alt="Contributions welcome"></a>
-</p>
+[MIT License](LICENSE)

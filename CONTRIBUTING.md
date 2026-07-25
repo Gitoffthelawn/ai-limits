@@ -2,6 +2,12 @@
 
 Keep changes focused and update the relevant documentation when behaviour or setup changes.
 
+## Entry points
+
+- Start documentation navigation with [Documentation](docs/documentation.md); use [Architecture](docs/architecture.md) for code boundaries.
+- Start code navigation with `src/lib.rs` for the shared core, `src/main.rs` for the CLI, and `src-tauri/src/main.rs` for the desktop app.
+- [Testing](docs/testing/testing.md) as the entry point for applicable test guidance.
+
 ## Local development
 
 Run the desktop app in development mode:
@@ -24,7 +30,3 @@ The release workflow takes the version entered at launch and automatically:
 - uses the versioned section for the annotated Git tag and GitHub Release notes.
 
 Do not create or edit release sections manually.
-
-## Testing
-
-Use [Testing](docs/testing/testing.md) as the entry point for applicable test guidance.

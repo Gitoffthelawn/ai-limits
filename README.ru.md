@@ -17,9 +17,9 @@
 ## Скачать
 
 <p align="center">
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://img.shields.io/badge/macOS-v0.0.13-000000?logo=apple&amp;logoColor=white" alt="Скачать для macOS"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://img.shields.io/badge/Windows-v0.0.13-0078D4?logo=windows&amp;logoColor=white" alt="Скачать для Windows"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://img.shields.io/badge/Linux-v0.0.13-FCC624?logo=linux&amp;logoColor=black" alt="Скачать для Linux"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Скачать для macOS"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=windows" alt="Скачать для Windows"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="Скачать для Linux"></a>
 </p>
 
 Кнопки загружают последнюю desktop-сборку в один клик.
@@ -55,9 +55,6 @@
 - Уведомления desktop-приложения пока доступны только на macOS,
 - Некоторые локальные источники Codex и Claude пока могут не работать в Windows и Linux (источники через CLI работают везде).
 
-## Лицензия и коллаборация
+## Лицензия
 
-<p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/Лицензия-MIT-green.svg" alt="Лицензия MIT"></a>
-  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/Участие-в%20разработке-blue.svg" alt="Участие в разработке"></a>
-</p>
+[Лицензия MIT](LICENSE)
