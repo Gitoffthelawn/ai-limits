@@ -1,0 +1,20 @@
+name	link	Sum	Desktop app	CLI UI	Displays limits	Displays usage	Displays subscription details	Works without API subscription	Codex	Claude	Cursor	OS notifications	No service in the middle	Doesn't require login	100% free	Open Source	macOS	Windows	Linux
+ai-limits	https://github.com/md2it/ai-limits	16	true	true	true	true	null	true	true	true	true	true	true	true	true	true	true	true	true
+CodexBar	https://github.com/steipete/CodexBar	16	true	true	true	true	true	true	true	true	true	true	true	true	true	true	true	false	true
+caut (Coding Agent Usage Tracker)	https://github.com/Dicklesworthstone/coding_agent_usage_tracker	14	false	true	true	true	true	true	true	true	true	null	true	true	true	true	true	null	true
+OpenUsage	https://github.com/janekbaraniewski/openusage	14	false	true	true	true	true	true	true	true	true	false	true	true	true	true	true	null	true
+Claude Usage Tracker	https://github.com/hamed-elfayome/Claude-Usage-Tracker	12	true	false	true	true	true	true	false	true	false	true	true	true	true	true	true	false	false
+ClaudeBar	https://github.com/tddworks/ClaudeBar	12	true	false	true	true	null	true	true	true	false	true	true	true	true	true	true	false	false
+Usage4Claude	https://github.com/f-is-h/Usage4Claude	12	true	false	true	true	true	true	true	true	false	true	true	false	true	true	true	false	false
+Codex Usage (MacSteini)	https://github.com/MacSteini/Codex-Usage	12	false	true	true	true	false	true	true	false	false	false	true	true	true	true	true	true	true
+ccusage	https://github.com/ryoppippi/ccusage	12	false	true	null	true	null	true	true	true	false	false	true	true	true	true	true	true	true
+Claude Code Usage Monitor	https://github.com/Maciek-roboblog/Claude-Code-Usage-Monitor	12	false	true	true	true	null	true	false	true	false	null	true	true	true	true	true	true	true
+tokcat	https://github.com/handlecusion/tokcat	11	true	false	null	true	null	true	true	true	true	null	true	true	true	true	true	null	null
+Codex Usage Tracker	https://github.com/CasperKristiansson/codex-usage-tracker	11	false	true	null	true	false	true	true	false	false	false	true	true	true	true	true	true	true
+Cursor Requests Limit Tracker	https://github.com/OsmanByrm/Cursor-Requests-Limit-Tracker	11	null	true	true	true	false	null	false	false	true	true	true		true	true	true	true	true
+Code Meter: Claude Codex Usage	https://apps.apple.com/us/app/code-meter-claude-codex-usage/id6760511858?mt=12	10	true	false	true	true	true	false	true	true	true	true	true	false	false	false	true	false	false
+Codex Limits	https://github.com/thrr87/codex-limits	10	true	false	true	true	false	true	true	false	false	false	true	true	true	true	true	false	false
+Usage for Claude	https://apps.apple.com/us/app/usage-for-claude/id6755173244	9	true	false	true	true	true	true	false	true	false	true	true	false	false	false	true	null	null
+Editor Usage for Cursor AI	https://apps.apple.com/us/app/editor-usage-for-cursor-ai/id6737570010?mt=12	8	true	false	true	true	true	false	false	false	true	true	true	false	false	false	true	null	null
+Usage for Codex	https://apps.apple.com/us/app/usage-for-codex/id6760105257?mt=12	7	true	false	true	true	null	false	true	false	false	true	true	false	false	false	true	null	null
+llmeter	https://github.com/awslabs/llmeter	5	false	false	false	false	false	false	null	null	false	false	null	null	true	true	true	true	true

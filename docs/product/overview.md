@@ -22,6 +22,12 @@ This creates several practical risks:
 
 A lightweight local tracker focused on AI usage through CLIs.
 
+## Market comparison
+
+The feature comparison is available in [`analogues.tsv`](analogues.tsv).
+
+> Note: The table was populated by AI agents and cross-checked several times by other AI agents. Detailed manual verification by a human has been carried out only for a subset of the applications and their capabilities.
+
 ## Interfaces
 
 The product ships as two interfaces sharing one core:
