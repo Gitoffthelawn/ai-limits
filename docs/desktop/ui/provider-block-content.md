@@ -10,6 +10,8 @@ Each limit row is rendered as a vertical group:
 
 The limit type, such as `5h`, `7d`, `plan`, `auto`, or `api`, must not consume a separate left column. This lets every bar use 100% of the provider block content width.
 
+The remaining-limit value follows the shared [limit display rules](../../presentation/limit-display.md).
+
 The remaining bar shows:
 
 - filled segment width equal to remaining percentage

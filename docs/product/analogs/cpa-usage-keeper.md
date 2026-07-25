@@ -86,7 +86,7 @@ CPA Usage Keeper is a self-hosted observability sidecar for CLIProxyAPI (CPA). I
 
 - Local SQLite/dashboard: historical CPA request events, token totals, cost estimates, latency diagnostics, trend/heatmap analysis, per-API-key usage queries, request-event filtering, and CSV/JSON export.
 - Requires live CPA/Redis: new event ingestion from the CPA Redis queue, CPA metadata sync, credential health/quota refresh and inspection, provider quota-window display, reset timing, and Codex quota cache updates from CPA response headers.
-- Not confirmed from docs/runtime: notifications, enforced usage/spend stopping, forecasts, or burn-rate tracking.
+- Not confirmed from docs: notifications, enforced usage/spend stopping, forecasts, or burn-rate tracking.
 
 ## HANDS-ON CHECK
 

@@ -12,6 +12,8 @@ Each provider square contains:
 - update frequency dropdown near the bottom
 - provider-specific manual update button at the bottom
 
+Provider names follow the shared [provider naming rules](../../presentation/provider-names.md).
+
 The provider content should roughly match the current terminal output model.
 
 Example data shape:

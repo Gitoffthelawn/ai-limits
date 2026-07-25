@@ -12,7 +12,7 @@ Block header:
      --------- CURSOR --------
 ```
 
-Provider headers are 25 visible characters wide and indented by 5 spaces, matching the start column of the limit bar. An empty line is printed before each provider header except the first header after the top frame. No empty line is printed between a provider header and its body.
+Provider headers are 25 visible characters wide and indented by 5 spaces, matching the start column of the limit bar. An empty line is printed before each provider header except the first header after the top frame. No empty line is printed between a provider header and its body. Provider names follow the shared [provider naming rules](../presentation/provider-names.md).
 
 Each provider block contains:
 
@@ -43,9 +43,9 @@ The bar width is `25` characters. Each filled bar character `■` represents `4%
 
 Limit rows use fixed visible column widths: `{window}` is 4 characters, `{bar}` is 25 characters, and `{left}` is 11 characters right-aligned. The ` | reset ` separator starts at the same column on every row.
 
-The `{left}` percentage label is always shown with one decimal place (`8.0% left`, `54.0% left`, `62.5% left`). Structured source data may keep finer precision; presentation normalizes the displayed value and uses the same normalized value for the bar and color thresholds.
+The `{left}` percentage label follows the shared [limit display rules](../presentation/limit-display.md). Structured source data may keep finer precision; terminal rendering uses the displayed value for bar and color thresholds.
 
-User-facing timestamps follow the shared rules in [time-display.md](../runtime/time-display.md): local system timezone, `HH:MM` for today, `MMM D, HH:MM` for another date, and no timezone suffix. Terminal rows keep their own contextual labels, for example `reset {time}` for limit reset time and `Source {source}: {time}` for provider data time. If a source timestamp cannot be parsed reliably, presentation keeps the original source text.
+User-facing timestamps follow the shared rules in [time-display.md](../presentation/time-display.md): local system timezone, `HH:MM` for today, `MMM D, HH:MM` for another date, and no timezone suffix. Terminal rows keep their own contextual labels, for example `reset {time}` for limit reset time and `Source {source}: {time}` for provider data time. If a source timestamp cannot be parsed reliably, keep the original source text.
 
 The filled bar characters show available remaining limit, not used limit. The whole filled part uses one color based on remaining limit. The empty bar characters are not colored.
 
@@ -55,7 +55,7 @@ If `data_as_of` is unavailable, print:
 Source codex-cli: unknown
 ```
 
-If the source is unavailable, print the provider block with the status message:
+The shared [limit data-state semantics](../presentation/data-states.md) distinguish unavailable and no-fresh-data results. If the source is unavailable, print the provider block with the status message:
 
 ```text
      --------- CLAUDE --------

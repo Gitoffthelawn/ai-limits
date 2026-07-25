@@ -2,7 +2,7 @@
 
 ## No Fresh Data State
 
-If checked sources return no fresh usable limit records, the provider block must show an empty state instead of a technical error like `No usable limit records from this source`.
+The shared [limit data-state semantics](../../presentation/data-states.md) define this as distinct from a source error. If checked sources return no fresh usable limit records, the provider block must show an empty state instead of a technical error like `No usable limit records from this source`.
 
 Short copy:
 

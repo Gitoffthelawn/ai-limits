@@ -43,4 +43,4 @@ These values are not returned by the backend:
 
 `selectedUpdateFrequency` exists in the backend response and is currently always `"5 min"`, but persisted frontend intervals override it after the user changes a provider dropdown.
 
-`appSettings.sourcePriority` is `"full"` by default. Fast maps to `fast_free`, Full maps to `cli_fallback`, and Best maps to `cli_first`. Source chain order is defined in [../../runtime/limits/source-chains.md](../../runtime/limits/source-chains.md).
+`appSettings.sourcePriority` is `"full"` by default. Fast maps to `fast_free`, Full maps to `cli_fallback`, and Best maps to `cli_first`. Source chain order is defined in [../../get-limits/source-chains.md](../../get-limits/source-chains.md).

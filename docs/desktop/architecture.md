@@ -53,14 +53,4 @@ Boundaries:
 - `src-tauri/` may provide desktop-specific notification transport when needed
 - `src-tauri/` may provide desktop-specific window, tray, menu, and permission integration
 
-Current desktop command and response contract is factual and documented in [commands.md](commands.md) and [provider-contract.md](provider-contract.md).
-
-Contract boundaries:
-
-- `get_provider_limits` returns all enabled providers for the passed query.
-- `get_single_provider_limits` returns one enabled provider for the passed provider id and query.
-- `open_external_url` opens only allowlisted setup guide URLs.
-- provider response fields are display-oriented and camelCase in the frontend.
-- provider source, data timestamp, reset time, error state, and no-fresh-data state come from the backend response.
-- provider update interval, pending state, provider status badges, and saved UI settings are frontend state.
-- frontend settings are passed to commands as request parameters; they are not currently read from a shared backend config file.
+IPC goals, constraints, and command rules are documented in [inter-process-communication.md](inter-process-communication.md).

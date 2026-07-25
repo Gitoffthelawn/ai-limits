@@ -10,7 +10,7 @@ use crate::types::{
 
 const PROVIDER: &str = "cursor";
 const SOURCE: &str = "cursor_api2";
-const SOURCE_LINK: &str = "docs/runtime/limits/providers/cursor.md";
+const SOURCE_LINK: &str = "docs/get-limits/providers/cursor.md";
 
 pub fn collect_usage() -> io::Result<SourceData> {
     let token_output = read_cursor_access_token();

@@ -27,4 +27,4 @@ Do not create or edit release sections manually.
 
 ## Testing
 
-Use [Testing](docs/development/testing/testing.md) as the entry point for applicable test guidance.
+Use [Testing](docs/testing/testing.md) as the entry point for applicable test guidance.

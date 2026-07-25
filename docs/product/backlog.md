@@ -6,7 +6,11 @@ This file is the current working backlog for the project.
 
 ## Planned
 
-1. Investigate unnecessary permission prompts.
+- README.md
+- simplify the logo
+- macOS widgets
+- macOS menu bar
+- macOS .dmg
 
 ## Ideas
 

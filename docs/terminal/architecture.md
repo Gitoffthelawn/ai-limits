@@ -39,12 +39,7 @@ src/cli/mod.rs
   - starts provider worker threads
   - receives events via channel
   - passes state to terminal renderer
-  - prints provider presentation results
-
-src/presentation/*
-  - converts structured data into user-facing provider blocks
-  - selects display labels, limit rows, bar values, and fallback messages
-  - does not fetch source data
+  - formats and prints provider blocks from structured source reports
 
 src/infra/loader.rs
   - selects unicode/ascii spinner

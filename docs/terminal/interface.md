@@ -49,13 +49,15 @@ Examples:
 
 Default output is the user-facing limits presentation. `--usage` is the user-facing usage presentation. `--raw` returns captured source data, and `--structured` returns normalized source data as formatted JSON. These technical modes support automation, development, testing, diagnostics, and provider contract checks.
 
-Without explicit source flags, default limits output uses the built-in `fast_free` source chain from [runtime/limits/source-chains.md](../runtime/limits/source-chains.md).
+Without explicit source flags, default limits output uses the built-in `fast_free` source chain from [get-limits/source-chains.md](../get-limits/source-chains.md).
 
 The terminal interface has no configuration file and does not read desktop settings. Runtime behavior is determined only by built-in defaults and explicit command-line arguments.
 
 `--best`/`-b` uses the `cli_fallback` source chain and prints one selected block per provider.
 
-Fallback chains print only the selected source report for each provider. Failed earlier attempts are not printed unless that source is selected directly or through `--all`.
+Fallback chains print only the selected source report for each provider. Fallback order is decided before formatting. Failed earlier attempts are not printed unless that source is selected directly or through `--all`.
+
+Default limits and `--usage` output are built from structured source reports: provider labels, fixed-width limit rows, remaining-limit bars, `Source` lines, and unavailable or no-data messages. Frame and loader drawing are separate from that formatting and are documented in [output-format.md](output-format.md) and [loader.md](loader.md).
 
 `--best` applies to limits output and can be combined with `--raw` or `--structured` for the selected source reports. It cannot be combined with `--usage`.
 

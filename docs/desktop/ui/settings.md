@@ -18,7 +18,7 @@ Default value:
 
 Source priority behavior:
 
-- Fast uses the `fast_free` source chain from [../../runtime/limits/source-chains.md](../../runtime/limits/source-chains.md).
+- Fast uses the `fast_free` source chain from [../../get-limits/source-chains.md](../../get-limits/source-chains.md).
 - Full uses the `cli_fallback` source chain.
 - Best uses the `cli_first` source chain.
 - Full and Best may take longer than Fast because they can run provider CLI checks.
