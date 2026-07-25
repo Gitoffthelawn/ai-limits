@@ -26,28 +26,6 @@ Endpoint details: [../../references/cursor-api2-cursor-sh.md](../../references/c
 
 ---
 
-## Provider Method: `cursor_cli_agent_status`
-
-Minimal commands:
-
-- check CLI availability: `command -v cursor`
-- check CLI version: `cursor --version`
-- official site: https://cursor.com
-- install page: https://cursor.com/install
-
-The fallback PoC method does not return numeric usage/limits, but helps show Cursor Agent state.
-
-Verified details:
-
-- runs the standard `cursor` command and the `agent` subcommand
-- no explicit `usage`/`limits` command found in the currently verified Cursor Agent build
-- the interactive TUI starts, but does not expose a numeric usage summary through a stable CLI command
-- the fallback PoC runs `cursor agent about` and `cursor agent status`
-- available data: subscription tier, current model, CLI version, and auth status
-- user output explicitly shows that the current CLI build does not return numeric usage/limits
-
----
-
 ## Known usage retrieval options
 
 | Option | Plan/availability | Status | Notes |

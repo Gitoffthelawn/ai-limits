@@ -231,31 +231,6 @@ Contract boundaries:
 
 ---
 
-## Notifications
-
-The `notifications/` directory contains the shared notification service.
-
-Target structure:
-
-```text
-notifications/
-  mod.rs
-  macos.rs
-  windows.rs
-  linux.rs
-  noop.rs
-```
-
-Rules:
-
-- notifications should be a shared service, not part of desktop only
-- the CLI can request notifications only through an explicit command-line action
-- platform differences must be isolated inside the notifications module
-- the application should call one common notification interface, not platform-specific adapters directly
-- notification requirements are documented in [notifications.md](notifications.md)
-
----
-
 ## Rule for Agents
 
 When making changes, first identify the business area of the task:
