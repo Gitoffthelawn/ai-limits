@@ -14,7 +14,7 @@ use crate::types::{
 
 const PROVIDER: &str = "codex";
 const SOURCE: &str = "codex_local";
-const SOURCE_LINK: &str = "docs/get-info";
+const SOURCE_LINK: &str = "docs/runtime/limits";
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct CodexLocalRaw {
@@ -496,7 +496,7 @@ mod tests {
 
         assert_eq!(structured.provider, "codex");
         assert_eq!(structured.source, "codex_local");
-        assert_eq!(structured.source_link, "docs/get-info");
+        assert_eq!(structured.source_link, "docs/runtime/limits");
         assert!(structured.status.access_available);
         assert!(structured.status.data_available);
         assert!(structured.raw_data_available);

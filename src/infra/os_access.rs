@@ -13,8 +13,8 @@ pub const CODEX_CLI_COMMAND: &str = "codex";
 pub const EXPECT_COMMAND: &str = "expect";
 
 pub const ALLOWED_EXTERNAL_URLS: &[&str] = &[
-    "https://github.com/md2it/ai-limits/blob/main/docs/setup/claude-cli.md",
-    "https://github.com/md2it/ai-limits/blob/main/docs/setup/codex-cli.md",
+    "https://code.claude.com/docs/en/setup",
+    "https://developers.openai.com/codex/cli",
     "https://github.com/md2it/ai-limits",
     "https://github.com/md2it/ai-limits/blob/main/LICENSE",
 ];
@@ -166,17 +166,16 @@ mod tests {
     }
 
     #[test]
-    fn external_urls_are_limited_to_setup_links() {
+    fn external_urls_are_limited_to_the_allowlist() {
         assert!(is_allowed_external_url(
-            "https://github.com/md2it/ai-limits/blob/main/docs/setup/claude-cli.md"
+            "https://code.claude.com/docs/en/setup"
         ));
         assert!(is_allowed_external_url(
-            "https://github.com/md2it/ai-limits/blob/main/docs/setup/codex-cli.md"
+            "https://developers.openai.com/codex/cli"
         ));
         assert!(!is_allowed_external_url("https://example.com"));
-        assert!(!is_allowed_external_url(
-            "https://github.com/md2it/ai-limits"
-        ));
+        assert!(is_allowed_external_url("https://github.com/md2it/ai-limits"));
+        assert!(is_allowed_external_url("https://github.com/md2it/ai-limits/blob/main/LICENSE"));
     }
 
     #[test]

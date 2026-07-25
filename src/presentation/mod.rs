@@ -46,7 +46,7 @@ mod tests {
         StructuredSourceInfo {
             provider: "codex".to_string(),
             source: "codex_cli".to_string(),
-            source_link: "docs/get-info/providers/codex.md".to_string(),
+            source_link: "docs/runtime/limits/providers/codex.md".to_string(),
             status: SourceStatus {
                 data_available: true,
                 access_available: true,
@@ -89,7 +89,7 @@ mod tests {
         StructuredSourceInfo {
             provider: "codex".to_string(),
             source: "codex_local".to_string(),
-            source_link: "docs/get-info/providers/codex.md".to_string(),
+            source_link: "docs/runtime/limits/providers/codex.md".to_string(),
             status: SourceStatus {
                 data_available: true,
                 access_available: true,

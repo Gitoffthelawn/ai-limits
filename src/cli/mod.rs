@@ -16,7 +16,11 @@ use crate::presentation::{
 use crate::types::{Source, SourceReport};
 
 pub fn run() -> ExitCode {
-    match run_cli() {
+    run_with_args(std::env::args().skip(1))
+}
+
+pub fn run_with_args(args: impl Iterator<Item = String>) -> ExitCode {
+    match run_cli(args) {
         Ok(status) => match status {
             TerminalStatus::Done | TerminalStatus::Part => ExitCode::SUCCESS,
             TerminalStatus::Fail => ExitCode::FAILURE,
@@ -31,8 +35,8 @@ pub fn run() -> ExitCode {
     }
 }
 
-fn run_cli() -> io::Result<TerminalStatus> {
-    let args = parse_args(std::env::args().skip(1))?;
+fn run_cli(raw_args: impl Iterator<Item = String>) -> io::Result<TerminalStatus> {
+    let args = parse_args(raw_args)?;
 
     if args.help {
         let mut ui = TerminalUi::new();

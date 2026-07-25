@@ -36,7 +36,7 @@
 ./bin/ai-limits --help
 ```
 
-Подробнее о терминальном UI: [docs/terminal-ui.md](docs/terminal-ui.md).
+Подробнее о терминальном UI: [docs/terminal/interface.md](docs/terminal/interface.md).
 
 ## Что показывает
 
@@ -55,7 +55,7 @@
 
 ## Документация
 
-- [Terminal UI](docs/terminal-ui.md)
+- [Terminal UI](docs/terminal/interface.md)
 - [Developer documentation](docs/)
 
 ## Лицензия

@@ -11,7 +11,7 @@ use crate::types::{
 
 const PROVIDER: &str = "claude";
 const SOURCE: &str = "claude_cli";
-const SOURCE_LINK: &str = "https://github.com/md2it/ai-limits/blob/main/docs/setup/claude-cli.md";
+const SOURCE_LINK: &str = "https://code.claude.com/docs/en/setup";
 const SETUP_LINK: &str = SOURCE_LINK;
 
 pub fn get_usage() -> io::Result<SourceData> {
@@ -495,7 +495,7 @@ Usage: 0input,0output,0cacheread,0cachewrite
         assert!(!structured.status.data_available);
         assert_eq!(
             structured.status.message.as_deref(),
-            Some("Claude CLI is installed but not authorized; run `claude login` and try again. Setup: https://github.com/md2it/ai-limits/blob/main/docs/setup/claude-cli.md")
+            Some("Claude CLI is installed but not authorized; run `claude login` and try again. Setup: https://code.claude.com/docs/en/setup")
         );
         assert!(structured.limits.is_empty());
     }
@@ -504,7 +504,7 @@ Usage: 0input,0output,0cacheread,0cachewrite
     fn unavailable_source_data_marks_cli_not_installed() {
         let data = unavailable_source_data(
             None,
-            "Claude CLI is not installed or is not available in PATH; install `claude` and try again. Setup: https://github.com/md2it/ai-limits/blob/main/docs/setup/claude-cli.md",
+            "Claude CLI is not installed or is not available in PATH; install `claude` and try again. Setup: https://code.claude.com/docs/en/setup",
         );
 
         assert!(!data.structured.status.access_available);
@@ -512,7 +512,7 @@ Usage: 0input,0output,0cacheread,0cachewrite
         assert!(!data.structured.raw_data_available);
         assert_eq!(
             data.structured.status.message.as_deref(),
-            Some("Claude CLI is not installed or is not available in PATH; install `claude` and try again. Setup: https://github.com/md2it/ai-limits/blob/main/docs/setup/claude-cli.md")
+            Some("Claude CLI is not installed or is not available in PATH; install `claude` and try again. Setup: https://code.claude.com/docs/en/setup")
         );
     }
 

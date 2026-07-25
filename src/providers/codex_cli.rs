@@ -10,7 +10,7 @@ use crate::types::{
 
 const PROVIDER: &str = "codex";
 const SOURCE: &str = "codex_cli";
-const SOURCE_LINK: &str = "https://github.com/md2it/ai-limits/blob/main/docs/setup/codex-cli.md";
+const SOURCE_LINK: &str = "https://developers.openai.com/codex/cli";
 const SETUP_LINK: &str = SOURCE_LINK;
 
 pub fn collect_usage() -> io::Result<SourceData> {
@@ -408,7 +408,7 @@ Credits: 335 credits
         assert!(info.raw_data_available);
         assert_eq!(
             info.status.message.as_deref(),
-            Some("Codex CLI is installed but not authorized; run `codex login` and try again. Setup: https://github.com/md2it/ai-limits/blob/main/docs/setup/codex-cli.md")
+            Some("Codex CLI is installed but not authorized; run `codex login` and try again. Setup: https://developers.openai.com/codex/cli")
         );
     }
 
@@ -416,7 +416,7 @@ Credits: 335 credits
     fn unavailable_source_data_marks_cli_not_installed() {
         let data = unavailable_source_data(
             None,
-            "Codex CLI is not installed or is not available in PATH; install `codex` and try again. Setup: https://github.com/md2it/ai-limits/blob/main/docs/setup/codex-cli.md",
+            "Codex CLI is not installed or is not available in PATH; install `codex` and try again. Setup: https://developers.openai.com/codex/cli",
         );
 
         assert!(!data.structured.status.access_available);
@@ -424,7 +424,7 @@ Credits: 335 credits
         assert!(!data.structured.raw_data_available);
         assert_eq!(
             data.structured.status.message.as_deref(),
-            Some("Codex CLI is not installed or is not available in PATH; install `codex` and try again. Setup: https://github.com/md2it/ai-limits/blob/main/docs/setup/codex-cli.md")
+            Some("Codex CLI is not installed or is not available in PATH; install `codex` and try again. Setup: https://developers.openai.com/codex/cli")
         );
     }
 

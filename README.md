@@ -36,7 +36,7 @@ Show help:
 ./bin/ai-limits --help
 ```
 
-For terminal UI details, see [docs/terminal-ui.md](docs/terminal-ui.md).
+For terminal UI details, see [docs/terminal/interface.md](docs/terminal/interface.md).
 
 ## What It Shows
 
@@ -56,7 +56,7 @@ For terminal UI details, see [docs/terminal-ui.md](docs/terminal-ui.md).
 
 ## Documentation
 
-- [Terminal UI](docs/terminal-ui.md)
+- [Terminal UI](docs/terminal/interface.md)
 - [Developer documentation](docs/)
 
 ## License

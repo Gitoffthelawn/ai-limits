@@ -2,6 +2,7 @@ mod commands;
 mod notifications;
 
 use std::collections::HashSet;
+use std::process::ExitCode;
 use std::sync::{Arc, Mutex};
 
 /// Help sub-pages exposed in the macOS native Help menu. Kept in sync with the
@@ -21,6 +22,13 @@ const HELP_CHAPTERS: &[(&str, &str)] = &[
 ];
 
 fn main() {
+    if std::env::args().nth(1).as_deref() == Some("--cli") {
+        if ai_limits::cli::run_with_args(std::env::args().skip(2)) == ExitCode::FAILURE {
+            std::process::exit(1);
+        }
+        return;
+    }
+
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
         .manage(Arc::new(Mutex::new(HashSet::<String>::new())))
@@ -37,6 +45,8 @@ fn main() {
             commands::get_provider_limits,
             commands::get_single_provider_limits,
             commands::open_external_url,
+            commands::get_cli_command,
+            commands::run_cli_in_terminal,
         ])
         .run(tauri::generate_context!())
         .expect("failed to run Tauri application");

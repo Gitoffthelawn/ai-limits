@@ -187,8 +187,8 @@
       const THEME_STORAGE_KEY = "ai-limits-theme";
       const PROVIDER_IDS = ["codex", "claude", "cursor"];
       const EXTERNAL_LINKS = {
-        claude: "https://github.com/md2it/ai-limits/blob/main/docs/setup/claude-cli.md",
-        codex: "https://github.com/md2it/ai-limits/blob/main/docs/setup/codex-cli.md",
+        claude: "https://code.claude.com/docs/en/setup",
+        codex: "https://developers.openai.com/codex/cli",
         github: "https://github.com/md2it/ai-limits",
         license: "https://github.com/md2it/ai-limits/blob/main/LICENSE",
       };
@@ -291,12 +291,12 @@
                 CLI data is usually more accurate and current, but slower. Providers refresh
                 independently, so a slow one won't block the rest.
               </p>
-              <div class="info-links" aria-label="Setup guides">
+              <div class="info-links info-links--two-up" aria-label="Setup guides">
                 <button type="button" class="info-link info-link--external" data-open-external="claude">
-                  Claude&nbsp;guide&nbsp;on&nbsp;GitHub
+                  Claude&nbsp;Code&nbsp;setup
                 </button>
                 <button type="button" class="info-link info-link--external" data-open-external="codex">
-                  Codex&nbsp;guide&nbsp;on&nbsp;GitHub
+                  Codex&nbsp;CLI
                 </button>
               </div>
             `;
@@ -418,10 +418,10 @@
                   <dd>Ongoing monitoring; use the desktop app for that.</dd>
                 </div>
               </dl>
-              <div class="info-links">
-                <button type="button" class="info-link" data-copy-text="./bin/ai-limits">
-                  Copy&nbsp;command
-                </button>
+              <div class="cli-command-row" aria-label="Terminal command">
+                <code data-cli-command>Loading command…</code>
+                <button type="button" class="info-link cli-command-action" data-copy-cli-command disabled>Copy</button>
+                <button type="button" class="info-link cli-command-action" data-run-cli-command disabled>Run</button>
               </div>
             `;
           },
@@ -476,7 +476,7 @@
                   <dd>A stateless command-line interface for scripts and CI.</dd>
                 </div>
               </dl>
-              <div class="info-links">
+              <div class="info-links info-links--two-up">
                 <button type="button" class="info-link info-link--external" data-open-external="github">
                   Source&nbsp;on&nbsp;GitHub
                 </button>
@@ -823,6 +823,39 @@
             copyHelpText(button);
           });
         }
+        const cliCommand = helpContent.querySelector("[data-cli-command]");
+        if (cliCommand) {
+          loadCliCommand(cliCommand);
+        }
+        helpContent.querySelector("[data-copy-cli-command]")?.addEventListener("click", (event) => {
+          copyHelpText(event.currentTarget);
+        });
+        helpContent.querySelector("[data-run-cli-command]")?.addEventListener("click", (event) => {
+          runCliCommand(event.currentTarget);
+        });
+      }
+
+      async function loadCliCommand(commandElement) {
+        const commandRow = commandElement.closest(".cli-command-row");
+        const copyButton = commandRow.querySelector("[data-copy-cli-command]");
+        const runButton = commandRow.querySelector("[data-run-cli-command]");
+        const invoke = window.__TAURI__?.core?.invoke;
+        if (!invoke) {
+          commandElement.textContent = "Available in the desktop app";
+          return;
+        }
+        try {
+          const command = await invoke("get_cli_command");
+          if (!commandElement.isConnected) {
+            return;
+          }
+          commandElement.textContent = command;
+          copyButton.dataset.copyText = command;
+          copyButton.disabled = false;
+          runButton.disabled = false;
+        } catch {
+          commandElement.textContent = "Command unavailable";
+        }
       }
 
       async function copyHelpText(button) {
@@ -833,6 +866,19 @@
           button.textContent = "Copied";
         } catch {
           button.textContent = "Copy failed";
+        }
+        setTimeout(() => {
+          button.textContent = originalLabel;
+        }, 1500);
+      }
+
+      async function runCliCommand(button) {
+        const originalLabel = button.textContent;
+        try {
+          await window.__TAURI__.core.invoke("run_cli_in_terminal");
+          button.textContent = "Started";
+        } catch {
+          button.textContent = "Run failed";
         }
         setTimeout(() => {
           button.textContent = originalLabel;

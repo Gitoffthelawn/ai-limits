@@ -66,7 +66,7 @@ Module rules:
 - `get_limits.rs` does not format terminal output
 - `providers/` does not format terminal output
 - `providers/` returns normalized types from `types.rs`
-- `providers/` follows [get-info/providers/README.md](get-info/providers/README.md)
+- `providers/` follows [runtime/limits/providers/contract.md](runtime/limits/providers/contract.md)
 - `infra/` does not know the business meaning of usage/limits
 - `infra/` is responsible only for technical interaction with the outside world
 - `types.rs` must not depend on CLI, desktop, the file system, or external commands
@@ -99,49 +99,7 @@ If a single provider grows to many files, you can move to a nested structure by 
 
 ---
 
-## `get_limits` Scenario
-
-`get_limits.rs` follows the document [get-info/methods/README.md](get-info/methods/README.md).
-
-Purpose:
-
-- select enabled provider methods
-- call provider methods in the right order
-- apply provider fallback-chain logic for default and best-source runs
-- apply desktop source priority logic for Fast, Full, and Best modes
-- assemble a shared result for the desktop and CLI
-
-Boundaries:
-
-- does not contain terminal output
-- does not contain low-level process execution
-- does not contain low-level HTTP primitives
-- does not parse provider-specific output when that is a provider method's responsibility
-
----
-
-## Presentation
-
-`presentation/` is responsible for the default user-facing output model.
-
-It receives structured data from the shared core and prepares provider blocks for the CLI. The default terminal presentation is documented in [terminal-ui.md](terminal-ui.md).
-
-Responsibilities:
-
-- group source reports into provider blocks;
-- choose user-facing provider labels;
-- convert limits into fixed-width rows;
-- build 25-character remaining-limit bars;
-- choose `Source {source}` text from structured `source` and `data_as_of`;
-- prepare unavailable or no-data messages from structured status data.
-- render the selected source report; fallback order is decided before presentation.
-
-Boundaries:
-
-- does not call providers;
-- does not parse raw source data;
-- does not own raw or structured serialization;
-- does not draw terminal frames or loaders.
+The main runtime flow across `get_limits.rs` and `presentation/` is documented in [runtime.md](runtime.md).
 
 ---
 
@@ -150,7 +108,7 @@ Boundaries:
 Provider documentation is grouped by provider:
 
 ```text
-docs/get-info/providers/
+docs/runtime/limits/providers/
   codex.md
   claude.md
   cursor.md
@@ -217,7 +175,7 @@ Boundaries:
 - `src-tauri/` may provide desktop-specific notification transport when needed
 - `src-tauri/` may provide desktop-specific window, tray, menu, and permission integration
 
-Current desktop command and response contract is factual and documented in [tauri/commands.md](tauri/commands.md) and [tauri/provider-contract.md](tauri/provider-contract.md).
+Current desktop command and response contract is factual and documented in [desktop/commands.md](desktop/commands.md) and [desktop/provider-contract.md](desktop/provider-contract.md).
 
 Contract boundaries:
 

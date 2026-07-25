@@ -14,7 +14,7 @@ use crate::types::{
 
 const PROVIDER: &str = "claude";
 const SOURCE: &str = "claude_local";
-const SOURCE_LINK: &str = "docs/get-info";
+const SOURCE_LINK: &str = "docs/runtime/limits";
 const CLAUDE_LOCAL_MAX5_TOKEN_LIMIT: u64 = 88_000;
 const CLAUDE_LOCAL_SESSION_WINDOW_MINUTES: u64 = 5 * 60;
 
@@ -704,7 +704,7 @@ mod tests {
 
         assert_eq!(structured.provider, "claude");
         assert_eq!(structured.source, "claude_local");
-        assert_eq!(structured.source_link, "docs/get-info");
+        assert_eq!(structured.source_link, "docs/runtime/limits");
         assert!(structured.status.data_available);
         assert!(structured.status.access_available);
         assert!(structured.raw_data_available);
