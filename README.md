@@ -2,63 +2,62 @@
 
 English | [Русский](README.ru.md)
 
-Check AI subscription limits easily. Codex, Claude, Cursor.
+A local app for tracking AI subscription limits and usage across Codex, Claude, and Cursor.
 
-`ai-limits` is a desktop-first local tool for viewing available AI usage and limit data from supported providers. A stateless command-line interface is also available for automation and diagnostics.
+Benefits:
+- Works without an API subscription,
+- No sign-ins,
+- All providers in one place,
+- Completely free,
+- Private: no third-party services, proxies, or registrations,
+- Lightweight desktop app for macOS, Windows, and Linux,
+- Limit notifications,
+- Open source.
 
-## Interfaces
+## Download
 
-### Desktop App
+<p align="center">
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://img.shields.io/badge/macOS-v0.0.13-000000?logo=apple&amp;logoColor=white" alt="Download for macOS"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://img.shields.io/badge/Windows-v0.0.13-0078D4?logo=windows&amp;logoColor=white" alt="Download for Windows"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://img.shields.io/badge/Linux-v0.0.13-FCC624?logo=linux&amp;logoColor=black" alt="Download for Linux"></a>
+</p>
 
-The desktop app is the primary product interface for configuration, notifications, and interactive use.
+The buttons download the latest desktop build in one click.
 
-The desktop app is currently in beta.
+A CLI is also available for terminal users: `./bin/ai-limits`
 
-- macOS works as an app.
-- Windows and Linux builds exist and are being tested with real users.
-- The interface is functional, but still early.
+## Features
 
-Download: https://github.com/md2it/ai-limits/releases
+- Shows limits, reset date and time, available tokens, and available manual resets,
+- Works with Codex, Claude, and Cursor,
+- Retrieves data from local files, provider CLIs, and APIs,
+- Falls back to another source when one is unavailable,
+- Lightweight desktop app for macOS, Windows, and Linux,
+- CLI with several output formats,
+- Native system notifications when limits reach configured thresholds,
+- Manual and flexible automatic data refresh.
 
-### Terminal UI
+## Alternatives
 
-The terminal interface is a stateless headless interface for automation and diagnostics. It performs one query per invocation, uses built-in defaults unless source flags are provided, and does not maintain a separate configuration.
+| | **ai-limits** | [CodexBar](https://github.com/steipete/CodexBar) | [caut](https://github.com/Dicklesworthstone/coding_agent_usage_tracker) |
+| --- | :---: | :---: | :---: |
+| Desktop app and CLI | ✅ | ✅ | ❌ |
+| Codex, Claude, and Cursor | ✅ | ✅ | ✅ |
+| macOS, Windows, and Linux | ✅ | ❌ | ❌ |
+| No intermediary service | ✅ | ✅ | ✅ |
 
-Run from the repository:
+The full comparison covers 18 alternatives and 16 criteria: [alternatives catalog](docs/product/analogues.tsv).
 
-```sh
-./bin/ai-limits
-```
+## Platform support and limitations
 
-Show help:
+- macOS: the app is signed and notarized; notifications work,
+- Windows and Linux: builds are available; support evolves based on user feedback,
+- Desktop notifications are currently available only on macOS,
+- Some local Codex and Claude sources may not work on Windows and Linux yet; CLI sources work everywhere.
 
-```sh
-./bin/ai-limits --help
-```
+## License and collaboration
 
-For terminal UI details, see [docs/terminal/interface.md](docs/terminal/interface.md).
-
-## What It Shows
-
-- Current limits for Codex, Claude, and Cursor when available.
-- Usage information when a supported source can provide it.
-- Results from local files, provider CLIs, and other supported sources.
-- Default, structured, and raw output views in the terminal.
-
-## Current Limitations
-
-- No macOS DMG installer yet.
-- macOS releases are signed and notarized; Windows and Linux builds are unsigned.
-- Desktop notifications currently work on macOS only.
-- Windows and Linux desktop builds are still being tested.
-- Some local Codex and Claude data sources may not work on Windows and Linux yet.
-- CLI-backed data sources are expected to be the most portable option across platforms.
-
-## Documentation
-
-- [Terminal UI](docs/terminal/interface.md)
-- [Developer documentation](docs/)
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License"></a>
+  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/Contributions-welcome-blue.svg" alt="Contributions welcome"></a>
+</p>

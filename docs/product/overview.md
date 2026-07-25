@@ -32,7 +32,7 @@ The feature comparison is available in [`analogues.tsv`](analogues.tsv).
 
 The product ships as two interfaces sharing one core:
 
-- a desktop app (macOS available, Windows and Linux in beta)
+- a desktop app (macOS supported; Windows and Linux builds are being tested)
 - a terminal CLI
 
 ## User capabilities
@@ -53,11 +53,11 @@ From the user's point of view, the system provides five core capabilities:
 
 4. Configure defaults and repeat checks
 
-   The user can set default sources and a check interval. In the terminal this is done through a config file or a repeat flag; the desktop app exposes the same settings in a user-friendly form.
+   The user can select source priority, visible providers, notifications, and a refresh interval for each provider in the desktop app. The terminal uses built-in defaults and explicit command-line options for a single query.
 
 5. Receive notifications
 
-   The user receives native system notifications when remaining limits cross defined thresholds. Notifications are delivered through the desktop app; the terminal can request delivery from an installed, running desktop app.
+   The user receives native macOS system notifications for remaining-limit thresholds. Notifications are delivered through the desktop app.
 
 Hard usage blocking, stopping usage automatically when a limit is reached, is a planned capability and not yet implemented.
 
@@ -77,6 +77,6 @@ The product flow can be described as a business-readable process:
 
    The system exposes the normalized information to the user as clear answers about limits and usage, in the desktop app and in the terminal.
 
-4. Notify on threshold crossings
+4. Notify for remaining-limit thresholds
 
-   The system turns the normalized information into notification candidates when remaining limits cross defined thresholds, and the desktop app delivers them as native system notifications. Hard usage blocking will reuse the same normalized information once implemented.
+   The system turns the normalized information into notification candidates when remaining limits are within defined thresholds, and the macOS desktop app delivers them as native system notifications. Hard usage blocking will reuse the same normalized information once implemented.
