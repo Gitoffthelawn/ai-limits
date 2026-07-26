@@ -296,10 +296,12 @@ mod tests {
         info.limits[0].resets_at = Some("2:20am (Asia/Nicosia)".to_string());
 
         let block = limits_block(&info, &ColorConfig { enabled: false });
+        let time_context = TimeContext::from_structured(&info);
+        let expected_reset = format_user_timestamp("2:20am (Asia/Nicosia)", &time_context);
 
         assert!(!block.body.contains("2026-06-29T23:09:29Z"));
         assert!(block.body.contains("Source codex-cli:"));
-        assert!(block.body.contains(" | reset 02:20"));
+        assert!(block.body.contains(&format!(" | reset {expected_reset}")));
     }
 
     #[test]

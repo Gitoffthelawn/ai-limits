@@ -9,8 +9,11 @@ Usable limit data means:
 - `access_available = true`
 - `data_available = true`
 - at least one limit record is present
+- for local Codex and Claude snapshots, no reliably parsed automatic reset time is more than two minutes in the past
 
 Which interface mode uses which chain is documented in [source-chain-mapping.md](source-chain-mapping.md).
+
+If a local Codex or Claude snapshot contains an expired automatic reset time, the whole current-limit snapshot is rejected because all limit percentages were captured together. Historical usage remains source data, but the stale snapshot does not stop fallback. If no fallback succeeds, the source reports `Local provider data is outdated`.
 
 ## Chains
 

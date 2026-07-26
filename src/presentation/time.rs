@@ -332,6 +332,13 @@ mod tests {
         }
     }
 
+    fn expected_local_label(iso: &str, context: &TimeContext) -> String {
+        format_local_datetime(
+            parse_iso_or_unix(iso).expect("timestamp should parse"),
+            context.reference,
+        )
+    }
+
     #[test]
     fn parses_iso_utc_timestamp() {
         assert!(parse_iso_or_unix("2026-06-29T23:09:29Z").is_some());
@@ -342,7 +349,10 @@ mod tests {
         let context = fixed_context("2026-06-29T20:00:00Z");
         let formatted = format_user_timestamp("2026-06-29T20:09:29Z", &context);
 
-        assert_eq!(formatted, "23:09");
+        assert_eq!(
+            formatted,
+            expected_local_label("2026-06-29T20:09:29Z", &context)
+        );
         assert!(!formatted.contains("T20:"));
         assert!(!formatted.ends_with('Z'));
     }
@@ -352,8 +362,10 @@ mod tests {
         let context = fixed_context("2026-06-29T20:00:00Z");
         let formatted = format_user_timestamp("2:20am (Asia/Nicosia)", &context);
 
-        assert!(formatted.starts_with("Jun 30, "));
-        assert!(formatted.contains("02:20"));
+        assert_eq!(
+            formatted,
+            expected_local_label("2026-06-29T23:20:00Z", &context)
+        );
         assert!(!formatted.contains("UTC"));
     }
 
@@ -362,8 +374,10 @@ mod tests {
         let context = fixed_context("2026-06-29T20:00:00Z");
         let formatted = format_user_timestamp("Jun 30 at 1pm (Asia/Nicosia)", &context);
 
-        assert!(formatted.starts_with("Jun 30, "));
-        assert!(formatted.contains("13:00"));
+        assert_eq!(
+            formatted,
+            expected_local_label("2026-06-30T10:00:00Z", &context)
+        );
         assert!(!formatted.contains("UTC"));
     }
 
@@ -382,7 +396,10 @@ mod tests {
         let context = fixed_context("2026-06-30T20:00:00Z");
         let formatted = format_user_timestamp("2026-06-30T20:41:00Z", &context);
 
-        assert_eq!(formatted, "23:41");
+        assert_eq!(
+            formatted,
+            expected_local_label("2026-06-30T20:41:00Z", &context)
+        );
     }
 
     #[test]

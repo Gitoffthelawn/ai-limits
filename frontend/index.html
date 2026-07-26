@@ -314,6 +314,10 @@
               </p>
               <dl class="info-terms">
                 <div>
+                  <dt>Local data</dt>
+                  <dd>The saved provider snapshot is outdated when its expected reset time has already passed. Use Full or Best mode, or open the provider CLI to create a fresh local snapshot.</dd>
+                </div>
+                <div>
                   <dt>CLI</dt>
                   <dd>The provider CLI isn't installed, or isn't logged in.</dd>
                 </div>
@@ -1265,7 +1269,11 @@
             return buildNoFreshDataHtml();
           }
 
-          return `<p class="provider-message">${escapeHtml(provider.errorMessage || "No usable limit records from this source")}</p>`;
+          const message = escapeHtml(provider.errorMessage || "No usable limit records from this source");
+          const details = provider.errorMessage === "Local provider data is outdated"
+            ? `<button type="button" class="provider-link" data-open-data-errors>More details</button>`
+            : "";
+          return `<div><p class="provider-message">${message}</p>${details}</div>`;
         }
 
         return provider.limits
@@ -1451,6 +1459,13 @@
         if (detailsButton) {
           detailsButton.addEventListener("click", () => {
             openHelp("source-priority");
+          });
+        }
+
+        const dataErrorsButton = block.querySelector("[data-open-data-errors]");
+        if (dataErrorsButton) {
+          dataErrorsButton.addEventListener("click", () => {
+            openHelp("data-errors");
           });
         }
       }
