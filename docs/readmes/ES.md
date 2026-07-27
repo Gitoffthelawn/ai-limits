@@ -1,28 +1,18 @@
 # ai-limits
 
-| [DE](DE.md) | [EN](../../README.md) | ES | [FR](FR.md) | [PT](PT.md) | [RU](RU.md) | [中文](ZH.md) | [عربي](AR.md) |
-
----
-
-<p align="center">
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Descargar para macOS"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=windows" alt="Descargar para Windows"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="Descargar para Linux"></a>
-</p>
+<p align="center">| <a href="DE.md">DE</a> | <a href="../../README.md">EN</a> | ES | <a href="FR.md">FR</a> | <a href="PT.md">PT</a> | <a href="RU.md">RU</a> | <a href="ZH.md">中文</a> | <a href="AR.md">عربي</a> |</p>
 
 ---
 
 Aplicación local para controlar los límites y el uso de las suscripciones de IA en Codex, Claude y Cursor.
 
-Ventajas:
-- Funciona sin suscripción a la API,
-- Sin inicios de sesión,
-- Todos los proveedores en un solo lugar,
-- Completamente gratuita,
-- Privada. Sin servicios de terceros, proxies ni registros,
-- Aplicación de escritorio ligera para Mac, Windows y Linux,
-- Notificaciones de límites,
-- Código abierto.
+<p align="center">
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Descargar para macOS"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=ri:FaWindows" alt="Descargar para Windows"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="Descargar para Linux"></a>
+</p>
+
+---
 
 ![ai-limits macOS](screenshots/macos.png)
 
@@ -32,6 +22,17 @@ Ventajas:
   <img src="screenshots/macos-light-settings.png" alt="Ajustes de ai-limits" width="24%">
   <img src="screenshots/macos-help.png" alt="Ayuda de ai-limits" width="24%">
 </p>
+
+## Ventajas
+
+- Funciona sin suscripción a la API,
+- Sin inicios de sesión,
+- Todos los proveedores en un solo lugar,
+- Completamente gratuita,
+- Privada. Sin servicios de terceros, proxies ni registros,
+- Aplicación de escritorio ligera para Mac, Windows y Linux,
+- Notificaciones de límites,
+- Código abierto.
 
 ## Funciones
 

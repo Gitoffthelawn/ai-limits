@@ -1,28 +1,18 @@
 # ai-limits
 
-| [DE](DE.md) | [EN](../../README.md) | [ES](ES.md) | [FR](FR.md) | [PT](PT.md) | [RU](RU.md) | 中文 | [عربي](AR.md) |
-
----
-
-<p align="center">
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="下载 macOS 版本"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=windows" alt="下载 Windows 版本"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="下载 Linux 版本"></a>
-</p>
+<p align="center">| <a href="DE.md">DE</a> | <a href="../../README.md">EN</a> | <a href="ES.md">ES</a> | <a href="FR.md">FR</a> | <a href="PT.md">PT</a> | <a href="RU.md">RU</a> | 中文 | <a href="AR.md">عربي</a> |</p>
 
 ---
 
 本地应用，用于查看与管控 Codex、Claude 和 Cursor 中 AI 订阅的用量与限额。
 
-优势：
-- 无需 API 订阅即可使用，
-- 无需登录，
-- 所有服务商集中一处，
-- 完全免费，
-- 注重隐私：无第三方服务、代理或注册，
-- 轻量级桌面应用，支持 Mac、Windows、Linux，
-- 限额通知，
-- 开源。
+<p align="center">
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="下载 macOS 版本"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=ri:FaWindows" alt="下载 Windows 版本"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="下载 Linux 版本"></a>
+</p>
+
+---
 
 ![ai-limits macOS](screenshots/macos.png)
 
@@ -32,6 +22,17 @@
   <img src="screenshots/macos-light-settings.png" alt="ai-limits 设置" width="24%">
   <img src="screenshots/macos-help.png" alt="ai-limits 帮助" width="24%">
 </p>
+
+## 优势
+
+- 无需 API 订阅即可使用，
+- 无需登录，
+- 所有服务商集中一处，
+- 完全免费，
+- 保护隐私：无第三方服务、代理或注册，
+- 轻量级桌面应用，支持 Mac、Windows、Linux，
+- 限额通知，
+- 开源。
 
 ## 功能
 

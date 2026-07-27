@@ -1,22 +1,30 @@
 # ai-limits
 
-| [DE](docs/readmes/DE.md) | EN | [ES](docs/readmes/ES.md) | [FR](docs/readmes/FR.md) | [PT](docs/readmes/PT.md) | [RU](docs/readmes/RU.md) | [中文](docs/readmes/ZH.md) | [عربي](docs/readmes/AR.md) |
-
----
-
-<p align="center">
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Download for macOS"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=windows" alt="Download for Windows"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="Download for Linux"></a>
-</p>
+<p align="center">| <a href="docs/readmes/DE.md">DE</a> | EN | <a href="docs/readmes/ES.md">ES</a> | <a href="docs/readmes/FR.md">FR</a> | <a href="docs/readmes/PT.md">PT</a> | <a href="docs/readmes/RU.md">RU</a> | <a href="docs/readmes/ZH.md">中文</a> | <a href="docs/readmes/AR.md">عربي</a> |</p>
 
 ---
 
 A local app for tracking AI subscription limits and usage across Codex, Claude, and Cursor.
 
+<p align="center">
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Download for macOS"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=ri:FaWindows" alt="Download for Windows"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="Download for Linux"></a>
+</p>
+
+---
+
 ![ai-limits macOS](docs/readmes/screenshots/macos.png)
 
-Benefits:
+<p align="center">
+  <img src="docs/readmes/screenshots/windows.png" alt="ai-limits on Windows" width="24%">
+  <img src="docs/readmes/screenshots/linux.png" alt="ai-limits on Linux" width="24%">
+  <img src="docs/readmes/screenshots/macos-light-settings.png" alt="ai-limits settings" width="24%">
+  <img src="docs/readmes/screenshots/macos-help.png" alt="ai-limits help" width="24%">
+</p>
+
+## Benefits
+
 - Works without an API subscription,
 - No sign-ins,
 - All providers in one place,
@@ -25,13 +33,6 @@ Benefits:
 - Lightweight desktop app for macOS, Windows, and Linux,
 - Limit notifications,
 - Open source.
-
-<p align="center">
-  <img src="docs/readmes/screenshots/windows.png" alt="ai-limits on Windows" width="24%">
-  <img src="docs/readmes/screenshots/linux.png" alt="ai-limits on Linux" width="24%">
-  <img src="docs/readmes/screenshots/macos-light-settings.png" alt="ai-limits settings" width="24%">
-  <img src="docs/readmes/screenshots/macos-help.png" alt="ai-limits help" width="24%">
-</p>
 
 ## Features
 

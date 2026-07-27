@@ -1,28 +1,18 @@
 # ai-limits
 
-| DE | [EN](../../README.md) | [ES](ES.md) | [FR](FR.md) | [PT](PT.md) | [RU](RU.md) | [中文](ZH.md) | [عربي](AR.md) |
-
----
-
-<p align="center">
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Für macOS herunterladen"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=windows" alt="Für Windows herunterladen"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="Für Linux herunterladen"></a>
-</p>
+<p align="center">| DE | <a href="../../README.md">EN</a> | <a href="ES.md">ES</a> | <a href="FR.md">FR</a> | <a href="PT.md">PT</a> | <a href="RU.md">RU</a> | <a href="ZH.md">中文</a> | <a href="AR.md">عربي</a> |</p>
 
 ---
 
 Lokale App zur Kontrolle von Limits und Nutzung von KI-Abonnements in Codex, Claude und Cursor.
 
-Vorteile:
-- Funktioniert ohne API-Abonnement,
-- Keine Anmeldung,
-- Alle Anbieter an einem Ort,
-- Komplett kostenlos,
-- Privat. Keine Drittanbieterdienste, Proxys oder Registrierungen,
-- Leichtgewichtige Desktop-App für Mac, Windows und Linux,
-- Benachrichtigungen zu Limits,
-- Open Source.
+<p align="center">
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Für macOS herunterladen"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=ri:FaWindows" alt="Für Windows herunterladen"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="Für Linux herunterladen"></a>
+</p>
+
+---
 
 ![ai-limits macOS](screenshots/macos.png)
 
@@ -32,6 +22,17 @@ Vorteile:
   <img src="screenshots/macos-light-settings.png" alt="Einstellungen von ai-limits" width="24%">
   <img src="screenshots/macos-help.png" alt="Hilfe zu ai-limits" width="24%">
 </p>
+
+## Vorteile
+
+- Funktioniert ohne API-Abonnement,
+- Keine Anmeldung,
+- Alle Anbieter an einem Ort,
+- Komplett kostenlos,
+- Privat. Keine Drittanbieterdienste, Proxys oder Registrierungen,
+- Leichtgewichtige Desktop-App für Mac, Windows und Linux,
+- Benachrichtigungen zu Limits,
+- Open Source.
 
 ## Funktionen
 
