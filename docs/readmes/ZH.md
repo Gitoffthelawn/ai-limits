@@ -1,0 +1,67 @@
+# ai-limits
+
+<p align="center">| [DE](DE.md) | [EN](../../README.md) | [ES](ES.md) | [FR](FR.md) | [PT](PT.md) | [RU](RU.md) | 中文 | [عربي](AR.md) |</p>
+
+---
+
+<p align="center">
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="下载 macOS 版本"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=windows" alt="下载 Windows 版本"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="下载 Linux 版本"></a>
+</p>
+
+---
+
+本地应用，用于查看与管控 Codex、Claude 和 Cursor 中 AI 订阅的用量与限额。
+
+优势：
+- 无需 API 订阅即可使用，
+- 无需登录，
+- 所有服务商集中一处，
+- 完全免费，
+- 注重隐私：无第三方服务、代理或注册，
+- 轻量级桌面应用，支持 Mac、Windows、Linux，
+- 限额通知，
+- 开源。
+
+![ai-limits macOS](macos.png)
+
+<p align="center">
+  <img src="windows.png" alt="Windows 上的 ai-limits" width="24%">
+  <img src="linux.png" alt="Linux 上的 ai-limits" width="24%">
+  <img src="macos-light-settings.png" alt="ai-limits 设置" width="24%">
+  <img src="macos-help.png" alt="ai-limits 帮助" width="24%">
+</p>
+
+## 功能
+
+- 显示限额、重置日期与时间、可用 token，以及可用的手动重置次数，
+- 支持 Codex、Claude 和 Cursor，
+- 从本地文件、服务商 CLI 与 API 获取数据，
+- 回退逻辑：某一数据源不可用时，自动检查其他来源，
+- 轻量级桌面应用（macOS、Windows、Linux），
+- 提供多种输出格式的 CLI：`./bin/ai-limits`，
+- 达到限额阈值时发送系统通知，
+- 支持手动刷新，以及灵活的自动数据更新。
+
+## 同类产品
+
+| | **ai-limits** | [CodexBar](https://github.com/steipete/CodexBar) | [caut](https://github.com/Dicklesworthstone/coding_agent_usage_tracker) |
+| --- | :---: | :---: | :---: |
+| 桌面应用与 CLI | ✅ | ✅ | ❌ |
+| Codex、Claude 与 Cursor | ✅ | ✅ | ✅ |
+| macOS、Windows 与 Linux | ✅ | ❌ | ❌ |
+| 无中间服务 | ✅ | ✅ | ✅ |
+
+完整对比涵盖 18 款同类产品与 16 项标准，见[同类产品目录](../product/analogues.tsv)。
+
+## 平台支持与限制
+
+- macOS：应用已签名并完成公证；通知可用，
+- Windows 与 Linux：已提供构建版本；支持将根据用户反馈持续完善，
+- 桌面应用通知目前仅在 macOS 上可用，
+- 部分 Codex 与 Claude 的本地数据源在 Windows 与 Linux 上可能尚不可用（通过 CLI 的数据源在各平台均可使用）。
+
+## 许可证
+
+[MIT 许可证](../../LICENSE)

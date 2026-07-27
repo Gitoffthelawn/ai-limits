@@ -27,12 +27,12 @@ The filled segment color is calculated from remaining percentage:
 
 The bar must not use a left-to-right rainbow gradient inside the filled segment. For example, if `10%` remains, the filled 10% segment is a near-red color and the spent 90% segment stays light.
 
-## Credits Line
+## Available Credits Line
 
 When the provider has remaining credits, show one text line directly below the limit rows:
 
 ```text
-Credits: 344.2
+Available credits: 344.2
 ```
 
 The line is hidden when credits are unavailable.
@@ -41,13 +41,13 @@ The line is hidden when credits are unavailable.
 
 ## Manual Limit Resets
 
-When `availableLimitResets` is greater than zero, show an informational section after credits and before the source line:
+When `availableLimitResets` is greater than zero, show an informational line after credits and before the source line. It uses the same visual style as the available credits line:
 
 ```text
-Resets: 1
+Available resets: 1
 ```
 
-This section shows availability only; it must not contain a control that redeems a reset.
+This line shows availability only; it must not contain a control that redeems a reset.
 
 ---
 

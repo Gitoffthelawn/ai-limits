@@ -36,7 +36,7 @@ reset 20:48
 7d | 35.0% left
 ■■■■■■■■■□□□□□□□□□□□□□□□□
 reset Jul 10, 03:55
-Credits: 344.2
+Available credits: 344.2
 Local files, as of Jul 5, 19:28
 
      --------- CLAUDE --------

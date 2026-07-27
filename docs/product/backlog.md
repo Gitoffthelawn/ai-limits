@@ -6,7 +6,6 @@ This file is the current working backlog for the project.
 
 ## Planned
 
-- README.md
 - simplify the logo
 - macOS widgets
 - macOS menu bar
@@ -14,7 +13,7 @@ This file is the current working backlog for the project.
 
 ## Ideas
 
-- Mac widgets.
+- Multi-accounts
 - Desktop UI for analytics.
 - Hard stop on spending when limits are reached.
 - Multiple subscriptions for one provider.

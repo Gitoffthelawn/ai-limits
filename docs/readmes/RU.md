@@ -1,6 +1,16 @@
 # ai-limits
 
-[English](README.md) | Русский
+<p align="center">| [DE](DE.md) | [EN](../../README.md) | [ES](ES.md) | [FR](FR.md) | [PT](PT.md) | RU | [中文](ZH.md) | [عربي](AR.md) |</p>
+
+---
+
+<p align="center">
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Скачать для macOS"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=windows" alt="Скачать для Windows"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="Скачать для Linux"></a>
+</p>
+
+---
 
 Локальное приложение для контроля лимитов и использования AI-подписок в Codex, Claude и Cursor.
 
@@ -14,17 +24,14 @@
 - Уведомления о лимитах,
 - Open Source.
 
-## Скачать
+![ai-limits macOS](macos.png)
 
 <p align="center">
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Скачать для macOS"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=windows" alt="Скачать для Windows"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="Скачать для Linux"></a>
+  <img src="windows.png" alt="ai-limits на Windows" width="24%">
+  <img src="linux.png" alt="ai-limits на Linux" width="24%">
+  <img src="macos-light-settings.png" alt="Настройки ai-limits" width="24%">
+  <img src="macos-help.png" alt="Справка ai-limits" width="24%">
 </p>
-
-Кнопки загружают последнюю desktop-сборку в один клик.
-
-Также доступен CLI для любителей терминала: `./bin/ai-limits`
 
 ## Возможности
 
@@ -33,7 +40,7 @@
 - Получает данные из локальных файлов, CLI провайдеров и API,
 - Логика fallback: если один источник недоступен, проверяет другой,
 - Легковесное desktop-приложение (macOS, Windows, Linux)
-- CLI интерфейс с несколькими вариантами вывода,
+- CLI интерфейс с несколькими вариантами вывода `./bin/ai-limits`,
 - Системные уведомления при достижении порогов лимита,
 - Ручное и гибкое автоматическое обновление данных.
 
@@ -46,7 +53,7 @@
 | macOS, Windows и Linux | ✅ | ❌ | ❌ |
 | Без промежуточного сервиса | ✅ | ✅ | ✅ |
 
-Полное сравнение по 18 аналогам и 16 критериям — в [каталоге аналогов](docs/product/analogues.tsv).
+Полное сравнение по 18 аналогам и 16 критериям — в [каталоге аналогов](../product/analogues.tsv).
 
 ## Поддержка платформ и ограничения
 
@@ -57,4 +64,4 @@
 
 ## Лицензия
 
-[Лицензия MIT](LICENSE)
+[Лицензия MIT](../../LICENSE)

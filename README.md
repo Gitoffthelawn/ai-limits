@@ -1,8 +1,20 @@
 # ai-limits
 
-English | [Русский](README.ru.md)
+<p align="center">| [DE](docs/readmes/DE.md) | EN | [ES](docs/readmes/ES.md) | [FR](docs/readmes/FR.md) | [PT](docs/readmes/PT.md) | [RU](docs/readmes/RU.md) | [中文](docs/readmes/ZH.md) | [عربي](docs/readmes/AR.md) |</p>
+
+---
+
+<p align="center">
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Download for macOS"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=windows" alt="Download for Windows"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="Download for Linux"></a>
+</p>
+
+---
 
 A local app for tracking AI subscription limits and usage across Codex, Claude, and Cursor.
+
+![ai-limits macOS](docs/readmes/macos.png)
 
 Benefits:
 - Works without an API subscription,
@@ -14,17 +26,12 @@ Benefits:
 - Limit notifications,
 - Open source.
 
-## Download
-
 <p align="center">
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Download for macOS"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=windows" alt="Download for Windows"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="Download for Linux"></a>
+  <img src="docs/readmes/windows.png" alt="ai-limits on Windows" width="24%">
+  <img src="docs/readmes/linux.png" alt="ai-limits on Linux" width="24%">
+  <img src="docs/readmes/macos-light-settings.png" alt="ai-limits settings" width="24%">
+  <img src="docs/readmes/macos-help.png" alt="ai-limits help" width="24%">
 </p>
-
-The buttons download the latest desktop build in one click.
-
-A CLI is also available for terminal users: `./bin/ai-limits`
 
 ## Features
 
@@ -33,7 +40,7 @@ A CLI is also available for terminal users: `./bin/ai-limits`
 - Retrieves data from local files, provider CLIs, and APIs,
 - Falls back to another source when one is unavailable,
 - Lightweight desktop app for macOS, Windows, and Linux,
-- CLI with several output formats,
+- CLI with several output formats: `./bin/ai-limits`,
 - Native system notifications when limits reach configured thresholds,
 - Manual and flexible automatic data refresh.
 
