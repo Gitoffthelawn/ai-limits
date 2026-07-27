@@ -2,9 +2,9 @@
 
 <p align="center">| <a href="DE.md">DE</a> | <a href="../../README.md">EN</a> | <a href="ES.md">ES</a> | <a href="FR.md">FR</a> | <a href="PT.md">PT</a> | RU | <a href="ZH.md">中文</a> | <a href="AR.md">عربي</a> |</p>
 
----
-
-Локальное приложение для контроля лимитов и использования AI-подписок в Codex, Claude и Cursor.
+<p align="center">
+   Локальное приложение для контроля лимитов и использования AI-подписок в Codex, Claude и Cursor.
+</p>
 
 <p align="center">
   <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Скачать для macOS"></a>

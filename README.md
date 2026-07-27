@@ -2,9 +2,9 @@
 
 <p align="center">| <a href="docs/readmes/DE.md">DE</a> | EN | <a href="docs/readmes/ES.md">ES</a> | <a href="docs/readmes/FR.md">FR</a> | <a href="docs/readmes/PT.md">PT</a> | <a href="docs/readmes/RU.md">RU</a> | <a href="docs/readmes/ZH.md">中文</a> | <a href="docs/readmes/AR.md">عربي</a> |</p>
 
----
-
-A local app for tracking AI subscription limits and usage across Codex, Claude, and Cursor.
+<p align="center">
+   A local app for tracking AI subscription limits and usage across Codex, Claude, and Cursor.
+</p>
 
 <p align="center">
   <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Download for macOS"></a>

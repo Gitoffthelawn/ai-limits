@@ -2,13 +2,9 @@
 
 <p align="center">| <a href="DE.md">DE</a> | <a href="../../README.md">EN</a> | <a href="ES.md">ES</a> | <a href="FR.md">FR</a> | <a href="PT.md">PT</a> | <a href="RU.md">RU</a> | <a href="ZH.md">中文</a> | عربي |</p>
 
----
-
-<div dir="rtl">
-
-تطبيق محلي لمراقبة حدود واستهلاك اشتراكات الذكاء الاصطناعي في Codex وClaude وCursor.
-
-</div>
+<p align="center" dir="rtl">
+   تطبيق محلي لمراقبة حدود واستهلاك اشتراكات الذكاء الاصطناعي في Codex وClaude وCursor.
+</p>
 
 <p align="center">
   <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="تنزيل لنظام macOS"></a>

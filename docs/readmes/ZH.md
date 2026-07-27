@@ -2,9 +2,9 @@
 
 <p align="center">| <a href="DE.md">DE</a> | <a href="../../README.md">EN</a> | <a href="ES.md">ES</a> | <a href="FR.md">FR</a> | <a href="PT.md">PT</a> | <a href="RU.md">RU</a> | 中文 | <a href="AR.md">عربي</a> |</p>
 
----
-
-本地应用，用于查看与管控 Codex、Claude 和 Cursor 中 AI 订阅的用量与限额。
+<p align="center">
+   本地应用，用于查看与管控 Codex、Claude 和 Cursor 中 AI 订阅的用量与限额。
+</p>
 
 <p align="center">
   <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="下载 macOS 版本"></a>

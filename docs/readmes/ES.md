@@ -2,9 +2,9 @@
 
 <p align="center">| <a href="DE.md">DE</a> | <a href="../../README.md">EN</a> | ES | <a href="FR.md">FR</a> | <a href="PT.md">PT</a> | <a href="RU.md">RU</a> | <a href="ZH.md">中文</a> | <a href="AR.md">عربي</a> |</p>
 
----
-
-Aplicación local para controlar los límites y el uso de las suscripciones de IA en Codex, Claude y Cursor.
+<p align="center">
+   Aplicación local para controlar los límites y el uso de las suscripciones de IA en Codex, Claude y Cursor.
+</p>
 
 <p align="center">
   <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Descargar para macOS"></a>
