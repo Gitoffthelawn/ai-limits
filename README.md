@@ -1,6 +1,6 @@
 # ai-limits
 
-<p align="center">| [DE](docs/readmes/DE.md) | EN | [ES](docs/readmes/ES.md) | [FR](docs/readmes/FR.md) | [PT](docs/readmes/PT.md) | [RU](docs/readmes/RU.md) | [中文](docs/readmes/ZH.md) | [عربي](docs/readmes/AR.md) |</p>
+| [DE](docs/readmes/DE.md) | EN | [ES](docs/readmes/ES.md) | [FR](docs/readmes/FR.md) | [PT](docs/readmes/PT.md) | [RU](docs/readmes/RU.md) | [中文](docs/readmes/ZH.md) | [عربي](docs/readmes/AR.md) |
 
 ---
 
@@ -14,7 +14,7 @@
 
 A local app for tracking AI subscription limits and usage across Codex, Claude, and Cursor.
 
-![ai-limits macOS](docs/readmes/macos.png)
+![ai-limits macOS](docs/readmes/screenshots/macos.png)
 
 Benefits:
 - Works without an API subscription,
@@ -27,10 +27,10 @@ Benefits:
 - Open source.
 
 <p align="center">
-  <img src="docs/readmes/windows.png" alt="ai-limits on Windows" width="24%">
-  <img src="docs/readmes/linux.png" alt="ai-limits on Linux" width="24%">
-  <img src="docs/readmes/macos-light-settings.png" alt="ai-limits settings" width="24%">
-  <img src="docs/readmes/macos-help.png" alt="ai-limits help" width="24%">
+  <img src="docs/readmes/screenshots/windows.png" alt="ai-limits on Windows" width="24%">
+  <img src="docs/readmes/screenshots/linux.png" alt="ai-limits on Linux" width="24%">
+  <img src="docs/readmes/screenshots/macos-light-settings.png" alt="ai-limits settings" width="24%">
+  <img src="docs/readmes/screenshots/macos-help.png" alt="ai-limits help" width="24%">
 </p>
 
 ## Features

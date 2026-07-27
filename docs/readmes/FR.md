@@ -1,6 +1,6 @@
 # ai-limits
 
-<p align="center">| [DE](DE.md) | [EN](../../README.md) | [ES](ES.md) | FR | [PT](PT.md) | [RU](RU.md) | [中文](ZH.md) | [عربي](AR.md) |</p>
+| [DE](DE.md) | [EN](../../README.md) | [ES](ES.md) | FR | [PT](PT.md) | [RU](RU.md) | [中文](ZH.md) | [عربي](AR.md) |
 
 ---
 
@@ -24,13 +24,13 @@ Avantages :
 - Notifications de limites,
 - Open source.
 
-![ai-limits macOS](macos.png)
+![ai-limits macOS](screenshots/macos.png)
 
 <p align="center">
-  <img src="windows.png" alt="ai-limits sous Windows" width="24%">
-  <img src="linux.png" alt="ai-limits sous Linux" width="24%">
-  <img src="macos-light-settings.png" alt="Réglages d’ai-limits" width="24%">
-  <img src="macos-help.png" alt="Aide d’ai-limits" width="24%">
+  <img src="screenshots/windows.png" alt="ai-limits sous Windows" width="24%">
+  <img src="screenshots/linux.png" alt="ai-limits sous Linux" width="24%">
+  <img src="screenshots/macos-light-settings.png" alt="Réglages d’ai-limits" width="24%">
+  <img src="screenshots/macos-help.png" alt="Aide d’ai-limits" width="24%">
 </p>
 
 ## Fonctionnalités

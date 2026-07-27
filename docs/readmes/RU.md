@@ -1,6 +1,6 @@
 # ai-limits
 
-<p align="center">| [DE](DE.md) | [EN](../../README.md) | [ES](ES.md) | [FR](FR.md) | [PT](PT.md) | RU | [中文](ZH.md) | [عربي](AR.md) |</p>
+| [DE](DE.md) | [EN](../../README.md) | [ES](ES.md) | [FR](FR.md) | [PT](PT.md) | RU | [中文](ZH.md) | [عربي](AR.md) |
 
 ---
 
@@ -24,13 +24,13 @@
 - Уведомления о лимитах,
 - Open Source.
 
-![ai-limits macOS](macos.png)
+![ai-limits macOS](screenshots/macos.png)
 
 <p align="center">
-  <img src="windows.png" alt="ai-limits на Windows" width="24%">
-  <img src="linux.png" alt="ai-limits на Linux" width="24%">
-  <img src="macos-light-settings.png" alt="Настройки ai-limits" width="24%">
-  <img src="macos-help.png" alt="Справка ai-limits" width="24%">
+  <img src="screenshots/windows.png" alt="ai-limits на Windows" width="24%">
+  <img src="screenshots/linux.png" alt="ai-limits на Linux" width="24%">
+  <img src="screenshots/macos-light-settings.png" alt="Настройки ai-limits" width="24%">
+  <img src="screenshots/macos-help.png" alt="Справка ai-limits" width="24%">
 </p>
 
 ## Возможности

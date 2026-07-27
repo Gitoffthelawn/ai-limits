@@ -1,6 +1,6 @@
 # ai-limits
 
-<p align="center">| [DE](DE.md) | [EN](../../README.md) | [ES](ES.md) | [FR](FR.md) | [PT](PT.md) | [RU](RU.md) | 中文 | [عربي](AR.md) |</p>
+| [DE](DE.md) | [EN](../../README.md) | [ES](ES.md) | [FR](FR.md) | [PT](PT.md) | [RU](RU.md) | 中文 | [عربي](AR.md) |
 
 ---
 
@@ -24,13 +24,13 @@
 - 限额通知，
 - 开源。
 
-![ai-limits macOS](macos.png)
+![ai-limits macOS](screenshots/macos.png)
 
 <p align="center">
-  <img src="windows.png" alt="Windows 上的 ai-limits" width="24%">
-  <img src="linux.png" alt="Linux 上的 ai-limits" width="24%">
-  <img src="macos-light-settings.png" alt="ai-limits 设置" width="24%">
-  <img src="macos-help.png" alt="ai-limits 帮助" width="24%">
+  <img src="screenshots/windows.png" alt="Windows 上的 ai-limits" width="24%">
+  <img src="screenshots/linux.png" alt="Linux 上的 ai-limits" width="24%">
+  <img src="screenshots/macos-light-settings.png" alt="ai-limits 设置" width="24%">
+  <img src="screenshots/macos-help.png" alt="ai-limits 帮助" width="24%">
 </p>
 
 ## 功能

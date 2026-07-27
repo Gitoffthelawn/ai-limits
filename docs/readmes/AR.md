@@ -1,6 +1,6 @@
 # ai-limits
 
-<p align="center">| [DE](DE.md) | [EN](../../README.md) | [ES](ES.md) | [FR](FR.md) | [PT](PT.md) | [RU](RU.md) | [中文](ZH.md) | عربي |</p>
+| [DE](DE.md) | [EN](../../README.md) | [ES](ES.md) | [FR](FR.md) | [PT](PT.md) | [RU](RU.md) | [中文](ZH.md) | عربي |
 
 ---
 
@@ -28,13 +28,13 @@
 
 </div>
 
-![ai-limits macOS](macos.png)
+![ai-limits macOS](screenshots/macos.png)
 
 <p align="center">
-  <img src="windows.png" alt="ai-limits على Windows" width="24%">
-  <img src="linux.png" alt="ai-limits على Linux" width="24%">
-  <img src="macos-light-settings.png" alt="إعدادات ai-limits" width="24%">
-  <img src="macos-help.png" alt="مساعدة ai-limits" width="24%">
+  <img src="screenshots/windows.png" alt="ai-limits على Windows" width="24%">
+  <img src="screenshots/linux.png" alt="ai-limits على Linux" width="24%">
+  <img src="screenshots/macos-light-settings.png" alt="إعدادات ai-limits" width="24%">
+  <img src="screenshots/macos-help.png" alt="مساعدة ai-limits" width="24%">
 </p>
 
 <div dir="rtl">
