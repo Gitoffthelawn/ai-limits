@@ -4,6 +4,8 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+## [v0.0.14](https://github.com/md2it/ai-limits/releases/tag/v0.0.14) — 2026-07-30
+
 - Clarified desktop Help copy about privacy, source priority, and unavailable limit data.
 - When Codex CLI or Claude CLI is installed but not signed in, show a clear authorization message with the manual login command; the desktop app also offers an explicit Sign in action that starts login only after the user chooses it.
 - Renamed desktop credit and reset availability labels and gave both lines consistent styling.
