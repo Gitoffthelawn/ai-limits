@@ -6,8 +6,8 @@ use std::process::ExitCode;
 use std::sync::{Arc, Mutex};
 
 /// Help sub-pages exposed in the macOS native Help menu. Kept in sync with the
-/// `HELP_CHAPTERS` list in the frontend (frontend/index.html) so the native menu
-/// mirrors the in-app Help sidebar.
+/// `HELP_CHAPTERS` list in the frontend (frontend/modules/help-chapters.js) so
+/// the native menu mirrors the in-app Help sidebar.
 #[cfg(target_os = "macos")]
 const HELP_CHAPTERS: &[(&str, &str)] = &[
     ("about", "About"),

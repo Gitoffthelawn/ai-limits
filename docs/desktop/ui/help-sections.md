@@ -1,6 +1,6 @@
 # Tauri UI Help Sections
 
-Sections are defined once as `HELP_CHAPTERS` in `frontend/index.html`. Each entry provides an `id`, a menu `label`, and rendered content. Adding an entry adds it to the left menu and, on macOS, to the native Help menu.
+Sections are defined once as `HELP_CHAPTERS` in `frontend/modules/help-chapters.js`. Each entry provides an `id`, a menu `label`, and rendered content. Adding an entry adds it to the left menu and, on macOS, to the native Help menu.
 
 Current sections, in menu order:
 
@@ -16,4 +16,4 @@ Current sections, in menu order:
 
 Chapters may link to each other via a `data-open-help` button that switches the selected section without leaving the Help page.
 
-Keep this content in sync with the app: when a change affects what a section describes — a setting, a state, a permission, or a link — update the matching chapter in `frontend/index.html` as part of that same change, not as a follow-up.
+Keep this content in sync with the app: when a change affects what a section describes — a setting, a state, a permission, or a link — update the matching chapter in `frontend/modules/help-chapters.js` as part of that same change, not as a follow-up.

@@ -54,3 +54,24 @@ Boundaries:
 - `src-tauri/` may provide desktop-specific window, tray, menu, and permission integration
 
 IPC goals, constraints, and command rules are documented in [inter-process-communication.md](inter-process-communication.md).
+
+---
+
+## Frontend modules
+
+`frontend/index.html` holds markup only. Behaviour lives under `frontend/modules/`:
+
+| File | Responsibility |
+| --- | --- |
+| `main.js` | DOM wiring and app startup |
+| `constants.js` | shared ids, storage keys, accents |
+| `settings.js` | saved settings and settings UI |
+| `theme.js` | light/dark theme |
+| `help-chapters.js` | Help section copy |
+| `help.js` | Help view behaviour |
+| `providers.js` | provider cards, refresh, status |
+| `provider-formatters.js` | display formatting helpers |
+| `showcase.js` | browser screenshot showcase |
+| `links.js` | allowlisted external links |
+
+Styles stay in `frontend/styles.css`.

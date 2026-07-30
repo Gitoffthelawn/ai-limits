@@ -4,6 +4,6 @@ The browser showcase renders the production desktop frontend with fixed demonstr
 
 From the project root, run `python3 -m http.server 1420 --bind 127.0.0.1 --directory frontend`, then open `http://127.0.0.1:1420/?showcase=macos`. Replace `macos` with `windows` or `linux`, or use the platform controls beside the frame.
 
-The fixed data is defined with the frontend so its shape follows the rendered provider cards. Update it only when a new screenshot needs different content or the displayed data model changes.
+The fixed data is defined in `frontend/modules/showcase.js` so its shape follows the rendered provider cards. Update it only when a new screenshot needs different content or the displayed data model changes.
 
 The frame starts at a compact size and can be resized by dragging its invisible bottom-right corner. The three platform controls change only the decorative window chrome.
