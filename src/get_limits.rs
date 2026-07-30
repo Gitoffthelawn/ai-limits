@@ -161,6 +161,7 @@ pub fn get_source_plan_limits(plan: SourcePlan) -> io::Result<SourceReport> {
 }
 
 fn get_fallback_chain_limits(sources: &[Source]) -> io::Result<SourceReport> {
+    let mut cli_authorization_report = None;
     let mut last_report = None;
     let mut stale_local_report = None;
     let mut last_error = None;
@@ -169,7 +170,9 @@ fn get_fallback_chain_limits(sources: &[Source]) -> io::Result<SourceReport> {
         match get_source_limits(*source) {
             Ok(report) if has_usable_limit_data(&report) => return Ok(report),
             Ok(report) => {
-                if is_stale_local_report(&report) {
+                if requires_cli_authorization(&report) {
+                    cli_authorization_report = Some(report);
+                } else if is_stale_local_report(&report) {
                     stale_local_report = Some(report);
                 } else {
                     last_report = Some(report);
@@ -181,11 +184,9 @@ fn get_fallback_chain_limits(sources: &[Source]) -> io::Result<SourceReport> {
         }
     }
 
-    if let Some(report) = stale_local_report {
-        return Ok(report);
-    }
-
-    if let Some(report) = last_report {
+    if let Some(report) =
+        preferred_unusable_report(cli_authorization_report, stale_local_report, last_report)
+    {
         return Ok(report);
     }
 
@@ -195,6 +196,20 @@ fn get_fallback_chain_limits(sources: &[Source]) -> io::Result<SourceReport> {
             "source fallback chain cannot be empty",
         )
     }))
+}
+
+fn preferred_unusable_report(
+    cli_authorization_report: Option<SourceReport>,
+    stale_local_report: Option<SourceReport>,
+    last_report: Option<SourceReport>,
+) -> Option<SourceReport> {
+    cli_authorization_report
+        .or(stale_local_report)
+        .or(last_report)
+}
+
+fn requires_cli_authorization(report: &SourceReport) -> bool {
+    report.data.structured.status.cli_authorization.is_some()
 }
 
 fn is_stale_local_report(report: &SourceReport) -> bool {
@@ -283,6 +298,7 @@ mod tests {
                         access_available,
                         data_available,
                         message: None,
+                        cli_authorization: None,
                     },
                     raw_data_available: false,
                     collected_at: None,
@@ -431,6 +447,24 @@ mod tests {
 
         assert!(is_stale_local_report(&stale));
         assert!(!is_stale_local_report(&unavailable_cli));
+    }
+
+    #[test]
+    fn cli_authorization_is_preferred_over_generic_fallback_failure() {
+        let mut authorization_required = report_for(Source::ClaudeCli, false, false, Vec::new());
+        authorization_required
+            .data
+            .structured
+            .status
+            .cli_authorization = Some(crate::types::CliAuthorization::Claude);
+        let generic_no_data = report_for(Source::ClaudeLocal, true, false, Vec::new());
+
+        let selected =
+            preferred_unusable_report(Some(authorization_required), None, Some(generic_no_data))
+                .expect("an unavailable report is selected");
+
+        assert_eq!(selected.source, Source::ClaudeCli);
+        assert!(requires_cli_authorization(&selected));
     }
 
     #[test]

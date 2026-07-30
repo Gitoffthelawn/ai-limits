@@ -5,6 +5,7 @@ This file records user-visible changes. Its version sections are used automatica
 ## Unreleased
 
 - Clarified desktop Help copy about privacy, source priority, and unavailable limit data.
+- When Codex CLI or Claude CLI is installed but not signed in, show a clear authorization message with the manual login command; the desktop app also offers an explicit Sign in action that starts login only after the user chooses it.
 - Renamed desktop credit and reset availability labels and gave both lines consistent styling.
 - Added a browser-only screenshot showcase with macOS, Windows, and Linux window frames.
 - Rejects outdated local Codex and Claude limit snapshots after their expected reset time and uses the configured fallback source when available.

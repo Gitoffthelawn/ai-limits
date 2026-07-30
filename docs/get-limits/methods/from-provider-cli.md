@@ -40,3 +40,5 @@ sequenceDiagram
 - if the CLI returned no response, the application shows an appropriate error
 - if the response format could not be parsed, the application shows an appropriate error
 - if a provider method requires a sensitive token, cookie, or additional login, the application must not perform the action without explicit user consent
+
+When a provider CLI is installed but is not authorized, the application must explain that authorization is required and offer the provider's login command as the next step. The desktop application may offer an explicit sign-in action; the terminal interface must print the manual command only. Neither interface may start authorization or open a browser until the user explicitly chooses the desktop sign-in action.

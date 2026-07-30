@@ -5,8 +5,8 @@ use chrono::Utc;
 use crate::infra::os_access::{allowed_cli_command_is_available, CLAUDE_CLI_COMMAND};
 use crate::infra::process::run_provider;
 use crate::types::{
-    LimitInfo, MoneyUsage, ProviderRun, SourceData, SourceStatus, StructuredSourceInfo, TokenUsage,
-    UsageInfo,
+    CliAuthorization, LimitInfo, MoneyUsage, ProviderRun, SourceData, SourceStatus,
+    StructuredSourceInfo, TokenUsage, UsageInfo,
 };
 
 const PROVIDER: &str = "claude";
@@ -61,11 +61,10 @@ pub fn structured_from_output(stdout: &str) -> StructuredSourceInfo {
             SourceStatus {
                 data_available: false,
                 access_available: false,
-                message: Some(
-                    format!(
-                        "Claude CLI is installed but not authorized; run `claude login` and try again. Setup: {SETUP_LINK}"
-                    )
-                ),
+                message: Some(format!(
+                    "Claude CLI is installed but not authorized; run `claude login` and try again. Setup: {SETUP_LINK}"
+                )),
+                cli_authorization: Some(CliAuthorization::Claude),
             },
             Vec::new(),
             UsageInfo::default(),
@@ -77,6 +76,7 @@ pub fn structured_from_output(stdout: &str) -> StructuredSourceInfo {
                 data_available: true,
                 access_available: true,
                 message: None,
+                cli_authorization: None,
             },
             parsed.limits,
             parsed.usage,
@@ -88,6 +88,7 @@ pub fn structured_from_output(stdout: &str) -> StructuredSourceInfo {
                 data_available: false,
                 access_available: true,
                 message: Some("usage data not found in CLI output".to_string()),
+                cli_authorization: None,
             },
             Vec::new(),
             UsageInfo::default(),
@@ -125,6 +126,7 @@ fn unavailable_source_data(raw: Option<String>, message: &str) -> SourceData {
                 data_available: false,
                 access_available: false,
                 message: Some(message.to_string()),
+                cli_authorization: None,
             },
             raw_data_available,
             collected_at: Some(utc_now()),
@@ -494,10 +496,23 @@ Usage: 0input,0output,0cacheread,0cachewrite
         assert!(!structured.status.access_available);
         assert!(!structured.status.data_available);
         assert_eq!(
+            structured.status.cli_authorization,
+            Some(CliAuthorization::Claude)
+        );
+        assert_eq!(
             structured.status.message.as_deref(),
             Some("Claude CLI is installed but not authorized; run `claude login` and try again. Setup: https://code.claude.com/docs/en/setup")
         );
         assert!(structured.limits.is_empty());
+    }
+
+    #[test]
+    fn usage_script_does_not_start_login() {
+        let script = expect_script();
+
+        assert!(script.contains("--no-chrome"));
+        assert!(!script.contains("claude login"));
+        assert!(!script.contains("send -- \"1\""));
     }
 
     #[test]

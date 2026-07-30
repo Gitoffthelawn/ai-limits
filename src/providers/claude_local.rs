@@ -426,6 +426,7 @@ fn structured_no_roots() -> StructuredSourceInfo {
             data_available: false,
             access_available: true,
             message: Some("local transcript roots were not found".to_string()),
+            cli_authorization: None,
         },
         true,
         None,
@@ -440,6 +441,7 @@ fn structured_no_usage(root_count: usize) -> StructuredSourceInfo {
             message: Some(format!(
                 "no token usage found in {root_count} local transcript root(s)"
             )),
+            cli_authorization: None,
         },
         true,
         None,
@@ -487,6 +489,7 @@ fn structured_from_usage(usage: &ClaudeLocalUsage) -> StructuredSourceInfo {
             data_available: true,
             access_available: true,
             message: None,
+            cli_authorization: None,
         },
         raw_data_available: true,
         collected_at: Some(Utc::now().format("%Y-%m-%dT%H:%M:%SZ").to_string()),

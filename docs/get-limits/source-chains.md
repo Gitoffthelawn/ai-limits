@@ -15,6 +15,8 @@ Which interface mode uses which chain is documented in [source-chain-mapping.md]
 
 If a local Codex or Claude snapshot contains an expired automatic reset time, the whole current-limit snapshot is rejected because all limit percentages were captured together. Historical usage remains source data, but the stale snapshot does not stop fallback. If no fallback succeeds, the source reports `Local provider data is outdated`.
 
+If no source in a chain returns usable limit data and an installed provider CLI requires authorization, report the authorization state instead of a generic no-data result. A usable result from any source still takes priority over authorization.
+
 ## Chains
 
 ### `fast_free`

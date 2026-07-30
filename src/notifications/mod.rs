@@ -258,6 +258,7 @@ mod tests {
                 data_available: true,
                 access_available: true,
                 message: None,
+                cli_authorization: None,
             },
             raw_data_available: false,
             collected_at: None,

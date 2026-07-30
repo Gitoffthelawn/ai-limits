@@ -4,8 +4,11 @@ The current frontend calls:
 
 - `get_single_provider_limits` for provider refreshes.
 - `open_external_url` for allowlisted setup guide links.
+- `start_provider_cli_login` only when the user selects the provider Sign in action.
 
 The current frontend does not call `get_provider_limits` in normal refresh behavior.
+
+User-facing problem and recovery rules are documented in [problems.md](problems.md).
 
 ## Provider Fields Used
 
@@ -20,8 +23,9 @@ The current frontend does not call `get_provider_limits` in normal refresh behav
 | `sourceId` | origin label in `{label},`; possible values: `Local files`, `CLI`, `API2`, `Unknown` |
 | `dataTimestamp` | `as of {timestamp}`; missing value displays `unknown` |
 | `selectedUpdateFrequency` | fallback default for provider interval if no local value exists |
-| `errorMessage` | marks refresh as failed and supplies fallback message outside no-fresh-data state |
+| `errorMessage` | marks refresh as failed and supplies fallback message outside no-fresh-data and CLI authorization states |
 | `noFreshData` | renders no-fresh-data empty state with source priority controls |
+| `authorizationRequired` | when `codex` or `claude`, renders the CLI authorization problem with Sign in and the manual login command |
 
 ## Frontend-Only Fields And State
 

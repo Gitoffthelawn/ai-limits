@@ -45,6 +45,7 @@ fn main() {
             commands::get_provider_limits,
             commands::get_single_provider_limits,
             commands::open_external_url,
+            commands::start_provider_cli_login,
             commands::get_cli_command,
             commands::run_cli_in_terminal,
         ])

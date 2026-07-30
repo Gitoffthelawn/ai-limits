@@ -8,12 +8,15 @@ use ai_limits::get_limits::{
     get_source_plan_limits, ui_source_plan, SourcePlan, SourcePriority, UiSourcePlanOptions,
 };
 use ai_limits::infra::os_access;
+use ai_limits::infra::os_access::{
+    allowed_cli_command_is_available, CLAUDE_CLI_COMMAND, CODEX_CLI_COMMAND,
+};
 use ai_limits::notifications as core_notifications;
 use ai_limits::presentation::{
     format_user_timestamp, normalize_percent, remaining_percent_for_display,
     source_label_for_display, window_label_for_display, TimeContext,
 };
-use ai_limits::types::{SourceReport, StructuredSourceInfo};
+use ai_limits::types::{CliAuthorization, SourceReport, StructuredSourceInfo};
 
 #[derive(Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -51,6 +54,7 @@ pub struct ProviderLimits {
     available_limit_resets: Option<u64>,
     error_message: Option<String>,
     no_fresh_data: bool,
+    authorization_required: Option<String>,
 }
 
 #[derive(serde::Serialize)]
@@ -99,6 +103,23 @@ pub async fn open_external_url(url: String) -> Result<(), String> {
     }
 
     os_access::open_external_url_with_system(&url).map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+pub async fn start_provider_cli_login(provider: String) -> Result<(), String> {
+    let auth = CliAuthorization::parse(&provider)?;
+    let cli_command = match auth {
+        CliAuthorization::Codex => CODEX_CLI_COMMAND,
+        CliAuthorization::Claude => CLAUDE_CLI_COMMAND,
+    };
+
+    if !allowed_cli_command_is_available(cli_command) {
+        return Err(format!(
+            "{cli_command} is not installed or is not available in PATH"
+        ));
+    }
+
+    open_terminal_with_command(auth.login_command()).map_err(|error| error.to_string())
 }
 
 #[tauri::command]
@@ -258,7 +279,14 @@ fn provider_limits_from_structured(id: &str, info: &StructuredSourceInfo) -> Pro
     let no_fresh_data =
         info.status.access_available && limits.is_empty() && info.available_limit_resets.is_none();
 
-    let error_message = if info.status.access_available && info.status.data_available {
+    let authorization_required = info
+        .status
+        .cli_authorization
+        .map(|auth| auth.provider_id().to_string());
+
+    let error_message = if authorization_required.is_some() {
+        None
+    } else if info.status.access_available && info.status.data_available {
         None
     } else {
         info.status
@@ -283,6 +311,7 @@ fn provider_limits_from_structured(id: &str, info: &StructuredSourceInfo) -> Pro
         available_limit_resets: info.available_limit_resets,
         error_message,
         no_fresh_data,
+        authorization_required,
     }
 }
 
@@ -298,6 +327,7 @@ fn provider_error(id: &str, message: String) -> ProviderLimits {
         available_limit_resets: None,
         error_message: Some(message),
         no_fresh_data: false,
+        authorization_required: None,
     }
 }
 
@@ -315,6 +345,7 @@ mod tests {
                 data_available: true,
                 access_available: true,
                 message: None,
+                cli_authorization: None,
             },
             raw_data_available: true,
             collected_at: Some("2026-07-01T12:00:00Z".to_string()),
@@ -327,12 +358,35 @@ mod tests {
         }
     }
 
+    fn structured_cli_authorization(auth: CliAuthorization) -> StructuredSourceInfo {
+        StructuredSourceInfo {
+            provider: auth.provider_id().to_string(),
+            source: format!("{}_cli", auth.provider_id()),
+            source_link: String::new(),
+            status: SourceStatus {
+                data_available: false,
+                access_available: false,
+                message: Some("technical auth message".to_string()),
+                cli_authorization: Some(auth),
+            },
+            raw_data_available: true,
+            collected_at: Some("2026-07-01T12:00:00Z".to_string()),
+            data_as_of: None,
+            account: AccountInfo::default(),
+            limits: Vec::new(),
+            available_limit_resets: None,
+            usage: UsageInfo::default(),
+            diagnostics: Vec::new(),
+        }
+    }
+
     #[test]
     fn projects_null_available_limit_resets_and_marks_no_fresh_data() {
         let response = provider_limits_from_structured("codex", &structured_with_resets(None));
 
         assert!(response.available_limit_resets.is_none());
         assert!(response.no_fresh_data);
+        assert!(response.authorization_required.is_none());
     }
 
     #[test]
@@ -349,6 +403,45 @@ mod tests {
 
         assert_eq!(response.available_limit_resets, Some(1));
         assert!(!response.no_fresh_data);
+    }
+
+    #[test]
+    fn projects_codex_cli_authorization_without_error_message() {
+        let response = provider_limits_from_structured(
+            "codex",
+            &structured_cli_authorization(CliAuthorization::Codex),
+        );
+
+        assert_eq!(response.authorization_required.as_deref(), Some("codex"));
+        assert!(response.error_message.is_none());
+        assert!(!response.no_fresh_data);
+        assert!(response.limits.is_empty());
+    }
+
+    #[test]
+    fn projects_claude_cli_authorization_without_error_message() {
+        let response = provider_limits_from_structured(
+            "claude",
+            &structured_cli_authorization(CliAuthorization::Claude),
+        );
+
+        assert_eq!(response.authorization_required.as_deref(), Some("claude"));
+        assert!(response.error_message.is_none());
+        assert!(!response.no_fresh_data);
+    }
+
+    #[test]
+    fn cli_authorization_parse_accepts_only_codex_and_claude() {
+        assert_eq!(
+            CliAuthorization::parse("codex").unwrap().login_command(),
+            "codex login"
+        );
+        assert_eq!(
+            CliAuthorization::parse("claude").unwrap().login_command(),
+            "claude login"
+        );
+        assert!(CliAuthorization::parse("cursor").is_err());
+        assert!(CliAuthorization::parse("").is_err());
     }
 
     #[test]

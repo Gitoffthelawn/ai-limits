@@ -1,4 +1,4 @@
-use crate::types::{LimitInfo, StructuredSourceInfo};
+use crate::types::{CliAuthorization, LimitInfo, StructuredSourceInfo};
 
 use super::time::{format_user_timestamp, TimeContext};
 
@@ -39,8 +39,25 @@ pub fn format_data_as_of(info: &StructuredSourceInfo) -> String {
 }
 
 pub fn format_unavailable_block(info: &StructuredSourceInfo) -> String {
+    if let Some(auth) = info.status.cli_authorization {
+        return format_cli_authorization_block(auth, info);
+    }
+
     let message = info.status.message.as_deref().unwrap_or("unavailable");
     format!("Unavailable: {message}\n{}", format_data_as_of(info))
+}
+
+fn format_cli_authorization_block(auth: CliAuthorization, info: &StructuredSourceInfo) -> String {
+    let headline = match auth {
+        CliAuthorization::Codex => "You\u{2019}re not signed in to Codex CLI.",
+        CliAuthorization::Claude => "You\u{2019}re not signed in to Claude CLI.",
+    };
+
+    format!(
+        "{headline}\nRun it: `{}`\n{}",
+        auth.login_command(),
+        format_data_as_of(info)
+    )
 }
 
 pub fn source_label_for_display(source: &str) -> String {

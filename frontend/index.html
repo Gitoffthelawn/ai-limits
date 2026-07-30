@@ -436,7 +436,7 @@
               <div class="cli-command-row" aria-label="Terminal command">
                 <code data-cli-command>Loading command…</code>
                 <button type="button" class="info-link cli-command-action" data-copy-cli-command disabled>Copy</button>
-                <button type="button" class="info-link cli-command-action" data-run-cli-command disabled>Run</button>
+                <button type="button" class="info-link info-link--external cli-command-action" data-run-cli-command disabled>Run</button>
               </div>
             `;
           },
@@ -564,6 +564,7 @@
           availableLimitResets: 1,
           errorMessage: null,
           noFreshData: false,
+          authorizationRequired: null,
         },
         claude: {
           id: "claude",
@@ -579,6 +580,7 @@
           availableLimitResets: null,
           errorMessage: null,
           noFreshData: false,
+          authorizationRequired: null,
         },
         cursor: {
           id: "cursor",
@@ -595,6 +597,7 @@
           availableLimitResets: null,
           errorMessage: null,
           noFreshData: false,
+          authorizationRequired: null,
         },
       };
 
@@ -1141,6 +1144,7 @@
           selectedUpdateFrequency: getProviderInterval(providerId),
           errorMessage: null,
           noFreshData: false,
+          authorizationRequired: null,
           pending: true,
         };
       }
@@ -1414,6 +1418,10 @@
             return "";
           }
 
+          if (provider.authorizationRequired) {
+            return buildCliAuthorizationHtml(provider.authorizationRequired);
+          }
+
           if (provider.noFreshData) {
             return buildNoFreshDataHtml();
           }
@@ -1445,6 +1453,35 @@
             `;
           })
           .join("");
+      }
+
+      function cliAuthorizationCopy(providerKey) {
+        if (providerKey === "claude") {
+          return {
+            message: "You\u2019re not signed in to Claude CLI.",
+            signInLabel: "Sign in to Claude",
+            loginCommand: "claude login",
+          };
+        }
+
+        return {
+          message: "You\u2019re not signed in to Codex CLI.",
+          signInLabel: "Sign in to Codex",
+          loginCommand: "codex login",
+        };
+      }
+
+      function buildCliAuthorizationHtml(providerKey) {
+        const copy = cliAuthorizationCopy(providerKey);
+        return `
+          <div class="cli-authorization">
+            <p class="provider-message">${escapeHtml(copy.message)}</p>
+            <button type="button" class="provider-link provider-link--external" data-provider-cli-login="${escapeHtml(providerKey)}">
+              ${escapeHtml(copy.signInLabel)}
+            </button>
+            <p class="cli-authorization-manual">Or run manually: <code>${escapeHtml(copy.loginCommand)}</code></p>
+          </div>
+        `;
       }
 
       function buildNoFreshDataHtml() {
@@ -1579,10 +1616,11 @@
         block.querySelector(".source-id").textContent = formatSourceIdLine(provider);
         block.querySelector(".source-timestamp").textContent = formatSourceTimestampLine(provider);
         attachSourcePriorityBlockHandlers(block);
+        attachCliAuthorizationHandlers(block);
       }
 
       function isProviderRefreshSuccess(provider) {
-        return !provider.errorMessage;
+        return !provider.errorMessage && !provider.authorizationRequired;
       }
 
       function attachProviderBlockHandlers(block, providerId) {
@@ -1595,6 +1633,7 @@
           refreshSingleProvider(providerId);
         });
         attachSourcePriorityBlockHandlers(block);
+        attachCliAuthorizationHandlers(block);
       }
 
       function attachSourcePriorityBlockHandlers(block) {
@@ -1616,6 +1655,34 @@
           dataErrorsButton.addEventListener("click", () => {
             openHelp("data-errors");
           });
+        }
+      }
+
+      function attachCliAuthorizationHandlers(block) {
+        const loginButton = block.querySelector("[data-provider-cli-login]");
+        if (!loginButton) {
+          return;
+        }
+
+        loginButton.addEventListener("click", () => {
+          startProviderCliLogin(loginButton.dataset.providerCliLogin);
+        });
+      }
+
+      async function startProviderCliLogin(provider) {
+        if (provider !== "codex" && provider !== "claude") {
+          return;
+        }
+
+        const invoke = window.__TAURI__?.core?.invoke;
+        if (!invoke) {
+          return;
+        }
+
+        try {
+          await invoke("start_provider_cli_login", { provider });
+        } catch (error) {
+          setErrorState(error?.message || String(error) || "Could not start provider sign-in.");
         }
       }
 

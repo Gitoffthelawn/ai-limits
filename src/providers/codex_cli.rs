@@ -1,11 +1,13 @@
 use std::io;
+use std::process::{Command, Stdio};
 
 use chrono::Utc;
 
 use crate::infra::os_access::{allowed_cli_command_is_available, CODEX_CLI_COMMAND};
-use crate::infra::process::run_provider;
+use crate::infra::process::{cli_process_path, run_provider};
 use crate::types::{
-    AccountInfo, LimitInfo, SourceData, SourceStatus, StructuredSourceInfo, UsageInfo,
+    AccountInfo, CliAuthorization, LimitInfo, SourceData, SourceStatus, StructuredSourceInfo,
+    UsageInfo,
 };
 
 const PROVIDER: &str = "codex";
@@ -20,7 +22,20 @@ pub fn collect_usage() -> io::Result<SourceData> {
             &format!(
                 "Codex CLI is not installed or is not available in PATH; install `codex` and try again. Setup: {SETUP_LINK}"
             ),
+            None,
         ));
+    }
+
+    match codex_login_status() {
+        Ok(true) => {}
+        Ok(false) => return Ok(authorization_required_source_data()),
+        Err(error) => {
+            return Ok(unavailable_source_data(
+                None,
+                &format!("Could not check Codex CLI sign-in status: {error}"),
+                None,
+            ));
+        }
     }
 
     let run = run_provider(&expect_script())?;
@@ -38,6 +53,21 @@ pub fn collect_usage() -> io::Result<SourceData> {
         structured,
         stderr: run.stderr,
     })
+}
+
+fn codex_login_status() -> io::Result<bool> {
+    let output = Command::new(CODEX_CLI_COMMAND)
+        .args(["login", "status"])
+        .env("PATH", cli_process_path())
+        .stdin(Stdio::null())
+        .output()?;
+    Ok(output.status.success() && login_status_confirms_authorization(&output.stdout))
+}
+
+fn login_status_confirms_authorization(stdout: &[u8]) -> bool {
+    String::from_utf8_lossy(stdout)
+        .to_ascii_lowercase()
+        .contains("logged in using")
 }
 
 pub fn build_structured(raw: &str) -> StructuredSourceInfo {
@@ -79,29 +109,30 @@ pub fn build_structured(raw: &str) -> StructuredSourceInfo {
     }
 
     let auth_required = output_requires_authorization(raw);
-    let (access_available, data_available, message) = if found_data {
-        (true, true, None)
+    let (access_available, data_available, message, cli_authorization) = if found_data {
+        (true, true, None, None)
     } else if auth_required {
         (
             false,
             false,
-            Some(
-                format!(
-                    "Codex CLI is installed but not authorized; run `codex login` and try again. Setup: {SETUP_LINK}"
-                ),
-            ),
+            Some(format!(
+                "Codex CLI is installed but not authorized; run `codex login` and try again. Setup: {SETUP_LINK}"
+            )),
+            Some(CliAuthorization::Codex),
         )
     } else if raw.trim().is_empty() {
         (
             true,
             false,
             Some("Codex CLI returned empty output".to_string()),
+            None,
         )
     } else {
         (
             true,
             false,
             Some("supported limit lines not found in Codex CLI output".to_string()),
+            None,
         )
     };
     let collected_at = Some(Utc::now().format("%Y-%m-%dT%H:%M:%SZ").to_string());
@@ -115,6 +146,7 @@ pub fn build_structured(raw: &str) -> StructuredSourceInfo {
             data_available,
             access_available,
             message,
+            cli_authorization,
         },
         raw_data_available: !raw.trim().is_empty(),
         collected_at,
@@ -127,7 +159,21 @@ pub fn build_structured(raw: &str) -> StructuredSourceInfo {
     }
 }
 
-fn unavailable_source_data(raw: Option<String>, message: &str) -> SourceData {
+fn authorization_required_source_data() -> SourceData {
+    unavailable_source_data(
+        None,
+        &format!(
+            "Codex CLI is installed but not authorized; run `codex login` and try again. Setup: {SETUP_LINK}"
+        ),
+        Some(CliAuthorization::Codex),
+    )
+}
+
+fn unavailable_source_data(
+    raw: Option<String>,
+    message: &str,
+    cli_authorization: Option<CliAuthorization>,
+) -> SourceData {
     let raw_data_available = raw.as_ref().is_some_and(|value| !value.trim().is_empty());
 
     SourceData {
@@ -140,6 +186,7 @@ fn unavailable_source_data(raw: Option<String>, message: &str) -> SourceData {
                 data_available: false,
                 access_available: false,
                 message: Some(message.to_string()),
+                cli_authorization,
             },
             raw_data_available,
             collected_at: Some(Utc::now().format("%Y-%m-%dT%H:%M:%SZ").to_string()),
@@ -406,6 +453,7 @@ Credits: 335 credits
         assert!(!info.status.access_available);
         assert!(!info.status.data_available);
         assert!(info.raw_data_available);
+        assert_eq!(info.status.cli_authorization, Some(CliAuthorization::Codex));
         assert_eq!(
             info.status.message.as_deref(),
             Some("Codex CLI is installed but not authorized; run `codex login` and try again. Setup: https://developers.openai.com/codex/cli")
@@ -413,10 +461,45 @@ Credits: 335 credits
     }
 
     #[test]
+    fn login_status_requires_the_documented_authenticated_output() {
+        assert!(login_status_confirms_authorization(
+            b"Logged in using ChatGPT\n"
+        ));
+        assert!(login_status_confirms_authorization(
+            b"Logged in using an API key\n"
+        ));
+        assert!(!login_status_confirms_authorization(b"Not logged in\n"));
+        assert!(!login_status_confirms_authorization(
+            b"Unexpected status output\n"
+        ));
+    }
+
+    #[test]
+    fn authorization_required_source_data_does_not_launch_the_interactive_cli() {
+        let data = authorization_required_source_data();
+
+        assert_eq!(
+            data.structured.status.cli_authorization,
+            Some(CliAuthorization::Codex)
+        );
+        assert!(!data.structured.status.access_available);
+        assert!(!data.structured.status.data_available);
+    }
+
+    #[test]
+    fn usage_script_does_not_start_login() {
+        let script = expect_script();
+
+        assert!(!script.contains("codex login"));
+        assert!(!script.contains("send \"1\""));
+    }
+
+    #[test]
     fn unavailable_source_data_marks_cli_not_installed() {
         let data = unavailable_source_data(
             None,
             "Codex CLI is not installed or is not available in PATH; install `codex` and try again. Setup: https://developers.openai.com/codex/cli",
+            None,
         );
 
         assert!(!data.structured.status.access_available);

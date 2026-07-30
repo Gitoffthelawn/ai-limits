@@ -40,22 +40,4 @@ The bottom-frame status and process exit code are part of the stable headless co
 
 ---
 
-### CLI Errors
-
-CLI errors are printed inside the common frame.
-
-Format:
-
-```text
-
-=-=-=-=-=-=-= AI LIMITS =-=-=-=-=-=-=
-
-ai-limits: unknown argument `--bad`
-
-=-=-= FAIL 2026-07-02 15:04:05 =-=-=
-
-```
-
----
-
-Provider block and usage block formats are documented in [provider-block-format.md](provider-block-format.md) and [usage-block-format.md](usage-block-format.md).
+Provider block and usage block formats are documented in [provider-block-format.md](provider-block-format.md) and [usage-block-format.md](usage-block-format.md). User-facing error and recovery output is documented in [problems.md](problems.md).

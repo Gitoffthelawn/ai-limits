@@ -55,7 +55,7 @@ If `data_as_of` is unavailable, print:
 Source codex-cli: unknown
 ```
 
-The shared [limit data-state semantics](../presentation/data-states.md) distinguish unavailable and no-fresh-data results. If the source is unavailable, print the provider block with the status message:
+The shared [limit data-state semantics](../presentation/data-states.md) distinguish unavailable and no-fresh-data results. User-facing problem and recovery rules are documented in [problems.md](problems.md). If the source is unavailable, print the provider block with the status message:
 
 ```text
      --------- CLAUDE --------

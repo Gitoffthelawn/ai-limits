@@ -51,6 +51,7 @@ mod tests {
                 data_available: true,
                 access_available: true,
                 message: None,
+                cli_authorization: None,
             },
             raw_data_available: true,
             collected_at: Some("2026-06-30T21:41:00Z".to_string()),
@@ -94,6 +95,7 @@ mod tests {
                 data_available: true,
                 access_available: true,
                 message: None,
+                cli_authorization: None,
             },
             raw_data_available: true,
             collected_at: Some("2026-06-30T21:41:00Z".to_string()),
@@ -205,6 +207,7 @@ mod tests {
                 data_available: false,
                 access_available: false,
                 message: Some("not logged in".to_string()),
+                cli_authorization: None,
             },
             data_as_of: None,
             ..sample_limits_info()
@@ -213,6 +216,57 @@ mod tests {
 
         assert!(block.body.contains("Unavailable: not logged in"));
         assert!(block.body.contains("Source codex-cli: unknown"));
+    }
+
+    #[test]
+    fn limits_block_renders_codex_cli_authorization() {
+        use crate::types::CliAuthorization;
+
+        let info = StructuredSourceInfo {
+            status: SourceStatus {
+                data_available: false,
+                access_available: false,
+                message: Some("technical".to_string()),
+                cli_authorization: Some(CliAuthorization::Codex),
+            },
+            data_as_of: None,
+            ..sample_limits_info()
+        };
+        let block = limits_block(&info, &ColorConfig { enabled: false });
+
+        assert!(block
+            .body
+            .contains("You\u{2019}re not signed in to Codex CLI."));
+        assert!(block.body.contains("Run it: `codex login`"));
+        assert!(!block.body.contains("Unavailable:"));
+        assert!(!block.body.contains("Sign in"));
+        assert!(block.body.contains("Source codex-cli: unknown"));
+    }
+
+    #[test]
+    fn limits_block_renders_claude_cli_authorization() {
+        use crate::types::CliAuthorization;
+
+        let info = StructuredSourceInfo {
+            provider: "claude".to_string(),
+            source: "claude_cli".to_string(),
+            status: SourceStatus {
+                data_available: false,
+                access_available: false,
+                message: Some("technical".to_string()),
+                cli_authorization: Some(CliAuthorization::Claude),
+            },
+            data_as_of: None,
+            ..sample_limits_info()
+        };
+        let block = limits_block(&info, &ColorConfig { enabled: false });
+
+        assert!(block
+            .body
+            .contains("You\u{2019}re not signed in to Claude CLI."));
+        assert!(block.body.contains("Run it: `claude login`"));
+        assert!(!block.body.contains("Unavailable:"));
+        assert!(!block.body.contains("Sign in"));
     }
 
     #[test]

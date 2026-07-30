@@ -85,11 +85,45 @@ pub struct StructuredSourceInfo {
     pub diagnostics: Vec<String>,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CliAuthorization {
+    Codex,
+    Claude,
+}
+
+impl CliAuthorization {
+    pub fn provider_id(self) -> &'static str {
+        match self {
+            Self::Codex => "codex",
+            Self::Claude => "claude",
+        }
+    }
+
+    pub fn login_command(self) -> &'static str {
+        match self {
+            Self::Codex => "codex login",
+            Self::Claude => "claude login",
+        }
+    }
+
+    pub fn parse(provider: &str) -> Result<Self, String> {
+        match provider {
+            "codex" => Ok(Self::Codex),
+            "claude" => Ok(Self::Claude),
+            _ => Err(format!(
+                "unsupported provider `{provider}` for CLI login; expected codex or claude"
+            )),
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, serde::Serialize)]
 pub struct SourceStatus {
     pub data_available: bool,
     pub access_available: bool,
     pub message: Option<String>,
+    pub cli_authorization: Option<CliAuthorization>,
 }
 
 #[derive(Clone, Debug, PartialEq, Default, serde::Serialize)]
@@ -173,6 +207,7 @@ mod tests {
                 data_available: true,
                 access_available: true,
                 message: None,
+                cli_authorization: None,
             },
             raw_data_available: true,
             collected_at: None,

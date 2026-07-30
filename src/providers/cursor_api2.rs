@@ -132,6 +132,7 @@ pub fn build_source_data(response: &str) -> SourceData {
                         "Cursor api2 usage unavailable: response format is not recognized"
                             .to_string(),
                     ),
+                    cli_authorization: None,
                 },
                 raw_data_available: true,
                 collected_at: Some(collected_at),
@@ -211,6 +212,7 @@ pub fn build_source_data(response: &str) -> SourceData {
                 data_available: true,
                 access_available: true,
                 message: parsed.display_message.clone(),
+                cli_authorization: None,
             },
             raw_data_available: true,
             collected_at: Some(collected_at.clone()),
@@ -300,6 +302,7 @@ fn access_denied(message: String, raw: Option<String>) -> SourceData {
                 data_available: false,
                 access_available: false,
                 message: Some(message),
+                cli_authorization: None,
             },
             raw_data_available: raw.is_some(),
             collected_at: Some(utc_now()),

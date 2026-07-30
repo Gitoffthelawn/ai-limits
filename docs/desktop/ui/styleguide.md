@@ -12,3 +12,7 @@ Interactive controls that act (buttons, links) carry an accent color that signal
 
 - Variables are defined in [../../../frontend/styles.css](../../../frontend/styles.css).
 - Hover and active states are tinted from these variables (see the settings and help icon buttons for the yellow/neutral pattern).
+
+## Other
+
+- All external links should be marked by external-link icon

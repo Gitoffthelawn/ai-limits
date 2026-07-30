@@ -4,7 +4,7 @@ This document describes the stateless terminal interface of `ai-limits`.
 
 The desktop application is the primary product interface. The terminal interface is a stable headless contract for automation, diagnostics, and source inspection. Each invocation performs one query and exits.
 
-Output formatting is documented in [output-format.md](output-format.md), the loader in [loader.md](loader.md), and the concurrency/module architecture in [architecture.md](architecture.md).
+Output formatting is documented in [output-format.md](output-format.md), user-facing problem output in [problems.md](problems.md), the loader in [loader.md](loader.md), and the concurrency/module architecture in [architecture.md](architecture.md).
 
 ---
 

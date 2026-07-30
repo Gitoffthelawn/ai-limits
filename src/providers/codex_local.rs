@@ -172,6 +172,7 @@ fn build_structured(
             data_available,
             access_available,
             message,
+            cli_authorization: None,
         },
         raw_data_available: true,
         collected_at,

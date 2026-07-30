@@ -6,12 +6,14 @@ Minimum commands:
 
 - verify CLI availability: `command -v codex`
 - verify CLI version: `codex --version`
+- check authorization without starting the interactive CLI: `codex login status`
 - official website: https://openai.com/codex
 - CLI documentation: https://developers.openai.com/codex/cli
 
 Verified PoC details:
 
 - launches the standard `codex` command without a custom path to the CLI
+- checks `codex login status` before launching the interactive CLI; when not authorized, returns the authorization problem state without opening a browser
 - Codex CLI refuses to launch the interactive TUI if `stdin`/`stderr` are not TTYs
 - for PoC, the system `expect` command is used as a minimal PTY adapter
 - runtime sets `TERM=xterm-256color`, `COLUMNS=120`, `LINES=40` and runs `stty cols 120 rows 40`
