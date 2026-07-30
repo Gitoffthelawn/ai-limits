@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "icons:generate": "sh scripts/generate-desktop-icons.sh",
     "tauri": "sh scripts/tauri-clean-dev-assets.sh && tauri dev --no-watch",
     "tauri:dev": "sh scripts/tauri-clean-dev-assets.sh && tauri dev --no-watch",
     "tauri:build": "tauri build"

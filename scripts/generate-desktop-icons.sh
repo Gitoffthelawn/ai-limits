@@ -27,7 +27,7 @@ fi
 
 {
   printf '%s\n' '<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="AI Limits desktop icon source">'
-  printf '%s\n' '  <rect width="24" height="24" fill="#000000"/>'
+  printf '%s\n' '  <rect width="24" height="24" fill="#111214"/>'
   printf '%s\n' '  <g transform="translate(2.4 2.4) scale(0.8)">'
   sed '1d;$d' "$master_icon" | sed '/^[[:space:]]*$/d; s/[[:space:]]*$//' | sed 's/^/    /'
   printf '%s\n' '  </g>'
