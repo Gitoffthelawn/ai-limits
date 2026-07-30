@@ -4,6 +4,7 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+- Clarified desktop Help copy about privacy, source priority, and unavailable limit data.
 - Renamed desktop credit and reset availability labels and gave both lines consistent styling.
 - Added a browser-only screenshot showcase with macOS, Windows, and Linux window frames.
 - Rejects outdated local Codex and Claude limit snapshots after their expected reset time and uses the configured fallback source when available.

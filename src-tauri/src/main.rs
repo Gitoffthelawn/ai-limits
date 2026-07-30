@@ -13,7 +13,7 @@ const HELP_CHAPTERS: &[(&str, &str)] = &[
     ("about", "About"),
     ("providers", "Providers"),
     ("source-priority", "Source priority"),
-    ("data-errors", "Data errors"),
+    ("data-errors", "Data availability"),
     ("notifications", "Notifications"),
     ("permissions", "Permissions"),
     ("cli-mode", "CLI mode"),

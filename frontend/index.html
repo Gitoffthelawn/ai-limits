@@ -228,7 +228,11 @@
               <dl class="info-terms">
                 <div>
                   <dt>Free</dt>
-                  <dd>Open source, no sign-up, and no service in between.</dd>
+                  <dd>Open source.</dd>
+                </div>
+                <div>
+                  <dt>Private</dt>
+                  <dd>No AI-Limits sign-up or service between you and your providers.</dd>
                 </div>
                 <div>
                   <dt>Cross-platform</dt>
@@ -311,33 +315,33 @@
         },
         {
           id: "data-errors",
-          label: "Data errors",
-          title: "Data errors",
+          label: "Data availability",
+          title: "When data is unavailable",
           render() {
             return `
               <p>
-                A provider block shows "no fresh data" when its source didn't return a
-                usable result in time.
+                AI-Limits can show limits only when a provider has current data available.
+                If it cannot, the provider block explains what to do next.
               </p>
               <dl class="info-terms">
                 <div>
+                  <dt>No fresh limits' data</dt>
+                  <dd>The selected source has no current limit data. Choose Full or Best to also check the provider CLI.</dd>
+                </div>
+                <div>
+                  <dt>CLI access</dt>
+                  <dd>Full and Best can use Codex CLI or Claude CLI. Install the CLI and sign in when the app asks.</dd>
+                </div>
+                <div>
                   <dt>Local data</dt>
-                  <dd>The saved provider snapshot is outdated when its expected reset time has already passed. Use Full or Best mode, or open the provider CLI to create a fresh local snapshot.</dd>
-                </div>
-                <div>
-                  <dt>CLI</dt>
-                  <dd>The provider CLI isn't installed, or isn't logged in.</dd>
-                </div>
-                <div>
-                  <dt>Network</dt>
-                  <dd>The request failed or timed out.</dd>
+                  <dd>Fast uses data already available on your computer. It may be missing or out of date.</dd>
                 </div>
                 <div>
                   <dt>Cursor</dt>
-                  <dd>The Keychain access token is missing or has expired.</dd>
+                  <dd>Cursor needs a valid local access token. Sign in to Cursor again if its token is missing or rejected.</dd>
                 </div>
               </dl>
-              <p class="info-note">Try a manual refresh first; most errors are transient.</p>
+              <p class="info-note">Try a manual refresh after fixing access or changing the source mode.</p>
               <div class="info-links">
                 <button type="button" class="info-link info-link--internal" data-open-help="source-priority">
                   Source&nbsp;priority
