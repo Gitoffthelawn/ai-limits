@@ -34,12 +34,12 @@ When a source finishes, its loader is cleared and the result is printed as soon 
 Layout:
 
 ```text
-src/cli/mod.rs
-  - parses arguments
-  - starts provider worker threads
-  - receives events via channel
-  - passes state to terminal renderer
-  - formats and prints provider blocks from structured source reports
+src/cli/
+  mod.rs     — thin public facade (`run` / `run_with_args`) and top-level CLI flow
+  args.rs    — argument parsing (`CliArgs`, `OutputMode`, `parse_args`) and source-plan resolution from flags
+  run.rs     — parallel source orchestration: worker threads, channel event loop, loader state
+  render.rs  — projection of source reports and failure blocks into terminal provider blocks
+  help.rs    — help text content
 
 src/infra/loader.rs
   - selects unicode/ascii spinner
@@ -57,3 +57,5 @@ src/providers/*
   - returns raw and structured data
   - does not render terminal UI
 ```
+
+`cli/` keeps fallback/chain selection in `get_limits`; the package only chooses a plan from flags and runs it.
