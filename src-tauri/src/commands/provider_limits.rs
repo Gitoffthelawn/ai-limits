@@ -1,20 +1,9 @@
-use std::collections::HashSet;
-use std::sync::{Arc, Mutex};
-
-use crate::platform::terminal;
-use ai_limits::get_limits::{
-    get_source_plan_limits, ui_source_plan, SourcePlan, SourcePriority, UiSourcePlanOptions,
-};
-use ai_limits::infra::os_access;
-use ai_limits::infra::os_access::{
-    allowed_cli_command_is_available, CLAUDE_CLI_COMMAND, CODEX_CLI_COMMAND,
-};
-use ai_limits::notifications as core_notifications;
+use ai_limits::get_limits::{SourcePriority, UiSourcePlanOptions};
 use ai_limits::presentation::{
     format_user_timestamp, normalize_percent, remaining_percent_for_display,
     source_label_for_display, window_label_for_display, TimeContext,
 };
-use ai_limits::types::{CliAuthorization, SourceReport, StructuredSourceInfo};
+use ai_limits::types::StructuredSourceInfo;
 
 #[derive(Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -63,118 +52,10 @@ pub struct ProviderLimitRow {
     reset_time: Option<String>,
 }
 
-#[tauri::command]
-pub async fn get_single_provider_limits(
-    provider_id: String,
-    query: ProviderLimitsQuery,
-    app: tauri::AppHandle,
-    sent_notifications: tauri::State<'_, Arc<Mutex<HashSet<String>>>>,
-) -> Result<ProviderLimits, String> {
-    let sent_notifications = Arc::clone(sent_notifications.inner());
-
-    tauri::async_runtime::spawn_blocking(move || {
-        collect_single_provider_limits(&provider_id, &query, app, sent_notifications)
-    })
-    .await
-    .map_err(|error| error.to_string())?
-}
-
-#[tauri::command]
-pub async fn open_external_url(url: String) -> Result<(), String> {
-    if !is_allowed_external_url(&url) {
-        return Err("External URL is not allowed".to_string());
-    }
-
-    os_access::open_external_url_with_system(&url).map_err(|error| error.to_string())
-}
-
-#[tauri::command]
-pub async fn start_provider_cli_login(provider: String) -> Result<(), String> {
-    let auth = CliAuthorization::parse(&provider)?;
-    let cli_command = match auth {
-        CliAuthorization::Codex => CODEX_CLI_COMMAND,
-        CliAuthorization::Claude => CLAUDE_CLI_COMMAND,
-    };
-
-    if !allowed_cli_command_is_available(cli_command) {
-        return Err(format!(
-            "{cli_command} is not installed or is not available in PATH"
-        ));
-    }
-
-    terminal::open_with_command(auth.login_command()).map_err(|error| error.to_string())
-}
-
-#[tauri::command]
-pub fn get_cli_command() -> Result<String, String> {
-    terminal::cli_command_for_current_executable()
-}
-
-#[tauri::command]
-pub fn run_cli_in_terminal() -> Result<(), String> {
-    terminal::run_current_cli_in_terminal()
-}
-
-fn collect_single_provider_limits(
-    provider_id: &str,
-    query: &ProviderLimitsQuery,
-    app: tauri::AppHandle,
-    sent_notifications: Arc<Mutex<HashSet<String>>>,
-) -> Result<ProviderLimits, String> {
-    let source_plan = ui_source_plan(source_plan_options(query))
-        .into_iter()
-        .find(|plan| plan.label() == provider_id)
-        .ok_or_else(|| format!("Provider '{provider_id}' is disabled or unknown"))?;
-
-    Ok(collect_provider_limits_for_plan(
-        source_plan,
-        query,
-        app,
-        sent_notifications,
-    ))
-}
-
-fn collect_provider_limits_for_plan(
-    source_plan: SourcePlan,
-    query: &ProviderLimitsQuery,
-    app: tauri::AppHandle,
-    sent_notifications: Arc<Mutex<HashSet<String>>>,
+pub(super) fn provider_limits_from_structured(
+    id: &str,
+    info: &StructuredSourceInfo,
 ) -> ProviderLimits {
-    let id = source_plan.label().to_string();
-    match get_source_plan_limits(source_plan) {
-        Ok(report) => {
-            if query.notifications_enabled {
-                notify_for_report(&report, app, &sent_notifications);
-            }
-            provider_limits_from_structured(&id, &report.data.structured)
-        }
-        Err(error) => provider_error(&id, error.to_string()),
-    }
-}
-
-fn source_plan_options(query: &ProviderLimitsQuery) -> UiSourcePlanOptions {
-    UiSourcePlanOptions {
-        enabled_codex: query.enabled_codex,
-        enabled_claude: query.enabled_claude,
-        enabled_cursor: query.enabled_cursor,
-        source_priority: query.source_priority,
-    }
-}
-
-fn notify_for_report(
-    report: &SourceReport,
-    app: tauri::AppHandle,
-    sent_notifications: &Arc<Mutex<HashSet<String>>>,
-) {
-    let Ok(mut sent) = sent_notifications.lock() else {
-        return;
-    };
-
-    let delivery = crate::notifications::TauriNotificationDelivery::new(app);
-    core_notifications::send_for_report_with_delivery(report, &mut sent, &delivery);
-}
-
-fn provider_limits_from_structured(id: &str, info: &StructuredSourceInfo) -> ProviderLimits {
     let time_context = TimeContext::from_structured(info);
     let limits: Vec<ProviderLimitRow> = info
         .limits
@@ -231,7 +112,7 @@ fn provider_limits_from_structured(id: &str, info: &StructuredSourceInfo) -> Pro
     }
 }
 
-fn provider_error(id: &str, message: String) -> ProviderLimits {
+pub(super) fn provider_error(id: &str, message: String) -> ProviderLimits {
     ProviderLimits {
         id: id.to_string(),
         label: provider_label(id),
@@ -255,14 +136,10 @@ fn provider_label(id: &str) -> String {
     }
 }
 
-fn is_allowed_external_url(url: &str) -> bool {
-    os_access::is_allowed_external_url(url)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ai_limits::types::{AccountInfo, SourceStatus, UsageInfo};
+    use ai_limits::types::{AccountInfo, CliAuthorization, SourceStatus, UsageInfo};
 
     fn structured_with_resets(available_limit_resets: Option<u64>) -> StructuredSourceInfo {
         StructuredSourceInfo {
@@ -356,19 +233,5 @@ mod tests {
         assert_eq!(response.authorization_required.as_deref(), Some("claude"));
         assert!(response.error_message.is_none());
         assert!(!response.no_fresh_data);
-    }
-
-    #[test]
-    fn cli_authorization_parse_accepts_only_codex_and_claude() {
-        assert_eq!(
-            CliAuthorization::parse("codex").unwrap().login_command(),
-            "codex login"
-        );
-        assert_eq!(
-            CliAuthorization::parse("claude").unwrap().login_command(),
-            "claude login"
-        );
-        assert!(CliAuthorization::parse("cursor").is_err());
-        assert!(CliAuthorization::parse("").is_err());
     }
 }

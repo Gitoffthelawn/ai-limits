@@ -35,15 +35,25 @@ Structure:
 src-tauri/
   src/
     main.rs
-    commands.rs
+    commands/
+      mod.rs
+      collect.rs
+      provider_limits.rs
     notifications.rs
+    platform.rs
+    platform/
+      terminal.rs
 ```
 
 Purpose:
 
 - `main.rs` — Tauri application bootstrap, window setup, plugins, and command registration
-- `commands.rs` — desktop commands exposed to the frontend and delegated to the shared core
+- `commands/` — desktop IPC facade and desktop-only orchestration/projection onto the shared core
+  - `mod.rs` — thin `#[tauri::command]` wrappers exposed to the frontend
+  - `collect.rs` — provider-limits collection orchestration and notification trigger
+  - `provider_limits.rs` — camelCase DTO/projection for the frontend provider-limits contract
 - `notifications.rs` — desktop notification bridge that delivers core notifications through Tauri
+- `platform/` — desktop OS adapters (for example terminal launch helpers)
 
 Boundaries:
 
