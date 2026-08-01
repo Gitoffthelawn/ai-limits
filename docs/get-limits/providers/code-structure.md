@@ -35,6 +35,7 @@ providers/
     mod.rs
     fetch.rs
     parse.rs
+    helpers.rs
     project.rs
 ```
 
@@ -82,6 +83,7 @@ Rules:
 - `mod.rs` — thin public facade (`collect_usage`) and re-export of `build_source_data`
 - `fetch.rs` — Keychain token and HTTP request via `infra/os_access`
 - `parse.rs` — scrape helpers and internal `CursorApiFields` model
+- `helpers.rs` — private date, amount, and billing helpers for projection
 - `project.rs` — projection into `SourceData` (limits, billing, money) and package tests
 
 ## Documentation
