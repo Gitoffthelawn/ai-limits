@@ -2,6 +2,8 @@
 
 ## Provider Method: `codex_local_usage`
 
+Code: `src/providers/codex_local/` (`mod` facade, `raw`, `scan`, `parse`, `project`).
+
 Minimal source:
 
 - root: `${CODEX_HOME:-~/.codex}`
