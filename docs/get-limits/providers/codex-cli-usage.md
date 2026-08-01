@@ -2,6 +2,13 @@
 
 ## Provider Method: `codex_cli_usage`
 
+Code layout (`src/providers/codex_cli/`):
+
+- `mod.rs` — orchestration facade (`collect_usage`)
+- `process.rs` — PTY expect script and `codex login status` checks
+- `parse.rs` — TUI line normalization and limit/credits/reset parsing
+- `project.rs` — `StructuredSourceInfo` / unavailable and authorization DTOs
+
 Minimum commands:
 
 - verify CLI availability: `command -v codex`

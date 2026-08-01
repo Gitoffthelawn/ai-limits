@@ -1,74 +1,19 @@
-use std::io;
-use std::process::{Command, Stdio};
-
 use chrono::Utc;
 
-use crate::infra::os_access::{allowed_cli_command_is_available, CODEX_CLI_COMMAND};
-use crate::infra::process::{cli_process_path, run_provider};
 use crate::types::{
     AccountInfo, CliAuthorization, LimitInfo, SourceData, SourceStatus, StructuredSourceInfo,
     UsageInfo,
 };
 
+use super::parse::{
+    normalize_line, output_requires_authorization, parse_available_reset_count, parse_credits_line,
+    parse_limit_line,
+};
+
 const PROVIDER: &str = "codex";
 const SOURCE: &str = "codex_cli";
 const SOURCE_LINK: &str = "https://developers.openai.com/codex/cli";
-const SETUP_LINK: &str = SOURCE_LINK;
-
-pub fn collect_usage() -> io::Result<SourceData> {
-    if !allowed_cli_command_is_available(CODEX_CLI_COMMAND) {
-        return Ok(unavailable_source_data(
-            None,
-            &format!(
-                "Codex CLI is not installed or is not available in PATH; install `codex` and try again. Setup: {SETUP_LINK}"
-            ),
-            None,
-        ));
-    }
-
-    match codex_login_status() {
-        Ok(true) => {}
-        Ok(false) => return Ok(authorization_required_source_data()),
-        Err(error) => {
-            return Ok(unavailable_source_data(
-                None,
-                &format!("Could not check Codex CLI sign-in status: {error}"),
-                None,
-            ));
-        }
-    }
-
-    let run = run_provider(&expect_script())?;
-    let raw = run.compacted_stdout;
-    let mut structured = build_structured(&raw);
-
-    if !run.stderr.trim().is_empty() {
-        structured
-            .diagnostics
-            .push(format!("stderr: {}", run.stderr.trim()));
-    }
-
-    Ok(SourceData {
-        raw: Some(raw),
-        structured,
-        stderr: run.stderr,
-    })
-}
-
-fn codex_login_status() -> io::Result<bool> {
-    let output = Command::new(CODEX_CLI_COMMAND)
-        .args(["login", "status"])
-        .env("PATH", cli_process_path())
-        .stdin(Stdio::null())
-        .output()?;
-    Ok(output.status.success() && login_status_confirms_authorization(&output.stdout))
-}
-
-fn login_status_confirms_authorization(stdout: &[u8]) -> bool {
-    String::from_utf8_lossy(stdout)
-        .to_ascii_lowercase()
-        .contains("logged in using")
-}
+pub(super) const SETUP_LINK: &str = SOURCE_LINK;
 
 pub fn build_structured(raw: &str) -> StructuredSourceInfo {
     let mut limits = Vec::new();
@@ -159,7 +104,7 @@ pub fn build_structured(raw: &str) -> StructuredSourceInfo {
     }
 }
 
-fn authorization_required_source_data() -> SourceData {
+pub(super) fn authorization_required_source_data() -> SourceData {
     unavailable_source_data(
         None,
         &format!(
@@ -169,7 +114,7 @@ fn authorization_required_source_data() -> SourceData {
     )
 }
 
-fn unavailable_source_data(
+pub(super) fn unavailable_source_data(
     raw: Option<String>,
     message: &str,
     cli_authorization: Option<CliAuthorization>,
@@ -201,83 +146,6 @@ fn unavailable_source_data(
     }
 }
 
-fn output_requires_authorization(raw: &str) -> bool {
-    let compact = raw
-        .chars()
-        .filter(|character| character.is_ascii_alphanumeric())
-        .collect::<String>()
-        .to_ascii_lowercase();
-
-    compact.contains("signin")
-        || compact.contains("login")
-        || compact.contains("notauthenticated")
-        || compact.contains("authenticationrequired")
-        || compact.contains("authorizationrequired")
-}
-
-fn normalize_line(raw_line: &str) -> String {
-    let line = raw_line
-        .trim()
-        .trim_matches(|character| character == '\u{2502}')
-        .trim();
-    strip_progress_bar(line)
-}
-
-fn parse_limit_line(
-    name: &str,
-    window_label: &str,
-    window_minutes: u64,
-    line: &str,
-) -> Option<LimitInfo> {
-    let remaining_percent = parse_remaining_percent(line)?;
-    let used_percent = Some(100.0 - remaining_percent);
-
-    Some(LimitInfo {
-        name: name.to_string(),
-        window_label: Some(window_label.to_string()),
-        window_minutes: Some(window_minutes),
-        resets_at: parse_resets_at(line),
-        used_percent,
-        remaining_percent: Some(remaining_percent),
-        used_amount: None,
-        remaining_amount: None,
-        total_amount: None,
-        amount_unit: None,
-    })
-}
-
-fn parse_remaining_percent(line: &str) -> Option<f64> {
-    let marker = "% left";
-    let percent_end = line.find(marker)?;
-    let before_marker = line[..percent_end].trim();
-    let value = before_marker.rsplit(' ').next()?;
-    value.parse().ok()
-}
-
-fn parse_resets_at(line: &str) -> Option<String> {
-    let marker = "(resets ";
-    let start = line.find(marker)? + marker.len();
-    let rest = &line[start..];
-    let end = rest.find(')')?;
-    Some(rest[..end].trim().to_string())
-}
-
-fn parse_credits_line(line: &str) -> Option<f64> {
-    let after_prefix = line.strip_prefix("Credits:")?.trim();
-    after_prefix.split_whitespace().next()?.parse().ok()
-}
-
-fn parse_available_reset_count(line: &str) -> Option<u64> {
-    let normalized = line.to_ascii_lowercase();
-    if !normalized.contains("usage limit reset") || !normalized.contains("available") {
-        return None;
-    }
-
-    normalized
-        .split_whitespace()
-        .find_map(|word| word.parse::<u64>().ok())
-}
-
 fn upsert_limit(limits: &mut Vec<LimitInfo>, limit: LimitInfo) {
     if let Some(index) = limits
         .iter()
@@ -289,65 +157,6 @@ fn upsert_limit(limits: &mut Vec<LimitInfo>, limit: LimitInfo) {
     }
 }
 
-fn strip_progress_bar(line: &str) -> String {
-    let Some(bracket_start) = line.find('[') else {
-        return line.to_string();
-    };
-    let Some(bracket_end) = line[bracket_start..].find(']') else {
-        return line.to_string();
-    };
-
-    let prefix = line[..bracket_start].trim_end();
-    let rest = line[bracket_start + bracket_end + 1..].trim_start();
-
-    if rest.is_empty() {
-        prefix.to_string()
-    } else {
-        format!("{prefix} {rest}")
-    }
-}
-
-fn expect_script() -> String {
-    format!(
-        r#"set timeout 20
-log_user 1
-spawn env TERM=xterm-256color COLUMNS=120 LINES=40 sh -c {{stty cols 120 rows 40; exec {CODEX_CLI_COMMAND} --no-alt-screen}}
-expect {{
-    -re {{OpenAI Codex}} {{}}
-    timeout {{}}
-}}
-after 2000
-send "\033\[200~/status\033\[201~\r"
-expect {{
-    -re {{Credits:}} {{set have_usage 1}}
-    -re {{refresh requested|5h limit:|Weekly limit:}} {{set have_usage 0}}
-    timeout {{set have_usage 0}}
-}}
-if {{$have_usage == 0}} {{
-    after 3000
-    send "\033\[200~/status\033\[201~\r"
-    expect {{
-        -re {{Credits:}} {{}}
-        timeout {{}}
-    }}
-}}
-after 1000
-set timeout 3
-send "\033\[200~/usage\033\[201~\r"
-expect {{
-    -re {{usage limit reset}} {{}}
-    timeout {{}}
-}}
-after 1000
-send "\003"
-expect {{
-    eof {{}}
-    timeout {{exit 0}}
-}}
-"#
-    )
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -357,32 +166,6 @@ mod tests {
 Weekly limit: [█████████████████░░░] 84% left (resets 02:59 on 6 Jul)
 Credits: 335 credits
 ";
-
-    #[test]
-    fn strips_progress_bar_from_limit_lines() {
-        assert_eq!(
-            strip_progress_bar("5h limit: [░░░░░░░░░░░░░░░░░░░░] 0% left (resets 07:59)"),
-            "5h limit: 0% left (resets 07:59)"
-        );
-        assert_eq!(
-            strip_progress_bar(
-                "Weekly limit: [█████████████████░░░] 84% left (resets 02:59 on 6 Jul)"
-            ),
-            "Weekly limit: 84% left (resets 02:59 on 6 Jul)"
-        );
-    }
-
-    #[test]
-    fn leaves_lines_without_progress_bar_unchanged() {
-        assert_eq!(
-            strip_progress_bar("5h limit: 0% left (resets 07:59)"),
-            "5h limit: 0% left (resets 07:59)"
-        );
-        assert_eq!(
-            strip_progress_bar("Credits: 335 credits"),
-            "Credits: 335 credits"
-        );
-    }
 
     #[test]
     fn build_structured_parses_representative_cli_output() {
@@ -461,20 +244,6 @@ Credits: 335 credits
     }
 
     #[test]
-    fn login_status_requires_the_documented_authenticated_output() {
-        assert!(login_status_confirms_authorization(
-            b"Logged in using ChatGPT\n"
-        ));
-        assert!(login_status_confirms_authorization(
-            b"Logged in using an API key\n"
-        ));
-        assert!(!login_status_confirms_authorization(b"Not logged in\n"));
-        assert!(!login_status_confirms_authorization(
-            b"Unexpected status output\n"
-        ));
-    }
-
-    #[test]
     fn authorization_required_source_data_does_not_launch_the_interactive_cli() {
         let data = authorization_required_source_data();
 
@@ -484,14 +253,6 @@ Credits: 335 credits
         );
         assert!(!data.structured.status.access_available);
         assert!(!data.structured.status.data_available);
-    }
-
-    #[test]
-    fn usage_script_does_not_start_login() {
-        let script = expect_script();
-
-        assert!(!script.contains("codex login"));
-        assert!(!script.contains("send \"1\""));
     }
 
     #[test]
@@ -574,14 +335,5 @@ Credits: 301 credits
         let info = build_structured("You have several usage limit resets available\n");
 
         assert_eq!(info.available_limit_resets, None);
-    }
-
-    #[test]
-    fn usage_script_never_sends_redemption_input() {
-        let script = expect_script();
-
-        assert!(script.contains("/usage"));
-        assert!(!script.contains("redeem"));
-        assert!(!script.contains("confirm"));
     }
 }
