@@ -47,7 +47,7 @@ src/infra/loader.rs
   - clears loader lines
   - prints frames and headers
 
-src/get_limits.rs
+src/get_limits/
   - calls provider methods
   - selects fallback chains for default and best-source runs
   - returns normalized SourceReport
