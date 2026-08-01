@@ -1,125 +1,17 @@
 use std::collections::HashSet;
 use std::io;
 
-use serde::{Deserialize, Serialize};
+use crate::presentation::TimeContext;
+use crate::types::{SourceReport, StructuredSourceInfo};
 
-use crate::presentation::{format_user_timestamp, TimeContext};
-use crate::types::{LimitInfo, SourceReport, StructuredSourceInfo};
-
+mod content;
+mod kinds;
 mod tauri_bridge;
 
+pub use content::Notification;
+pub use kinds::{LimitNotificationKind, NotificationColor};
+
 pub const TAURI_NOTIFICATION_BRIDGE_ADDR: &str = tauri_bridge::NOTIFICATION_BRIDGE_ADDR;
-
-#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-pub enum NotificationColor {
-    Green,
-    Yellow,
-    Orange,
-    Red,
-}
-
-#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-pub enum LimitNotificationKind {
-    Remaining75,
-    Remaining50,
-    Remaining25,
-    Remaining10,
-}
-
-impl LimitNotificationKind {
-    pub const ALL: [Self; 4] = [
-        Self::Remaining75,
-        Self::Remaining50,
-        Self::Remaining25,
-        Self::Remaining10,
-    ];
-
-    pub fn parse(value: &str) -> Result<Self, String> {
-        match value {
-            "75" => Ok(Self::Remaining75),
-            "50" => Ok(Self::Remaining50),
-            "25" => Ok(Self::Remaining25),
-            "10" => Ok(Self::Remaining10),
-            _ => Err("expected one of: 75, 50, 25, 10".to_string()),
-        }
-    }
-
-    pub fn remaining_percent(self) -> u8 {
-        match self {
-            Self::Remaining75 => 75,
-            Self::Remaining50 => 50,
-            Self::Remaining25 => 25,
-            Self::Remaining10 => 10,
-        }
-    }
-
-    pub fn color(self) -> NotificationColor {
-        match self {
-            Self::Remaining75 => NotificationColor::Green,
-            Self::Remaining50 => NotificationColor::Yellow,
-            Self::Remaining25 => NotificationColor::Orange,
-            Self::Remaining10 => NotificationColor::Red,
-        }
-    }
-
-    pub fn emoji(self) -> &'static str {
-        match self {
-            Self::Remaining75 => "🟢",
-            Self::Remaining50 => "🟡",
-            Self::Remaining25 => "🟠",
-            Self::Remaining10 => "🔴",
-        }
-    }
-}
-
-#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-pub struct Notification {
-    pub dedupe_key: String,
-    pub title: String,
-    pub subtitle: String,
-    pub message: String,
-    pub color: NotificationColor,
-}
-
-impl Notification {
-    pub fn limit(
-        provider: &str,
-        source: &str,
-        limit_name: &str,
-        kind: LimitNotificationKind,
-        remaining_percent: f64,
-        resets_at: Option<&str>,
-        time_context: &TimeContext,
-    ) -> Self {
-        let provider = provider_label(provider);
-        let type_label = limit_type_label(limit_name);
-        let remaining_percent = display_percent(remaining_percent);
-        Self {
-            dedupe_key: format!(
-                "{}|{}|{}|{}",
-                provider,
-                source,
-                type_label,
-                kind.remaining_percent()
-            ),
-            title: format!("{} AI Limits", kind.emoji()),
-            subtitle: format!("{provider} {type_label} - {remaining_percent}% left"),
-            message: format!("reset {}", reset_label(resets_at, time_context)),
-            color: kind.color(),
-        }
-    }
-
-    pub fn test(kind: LimitNotificationKind) -> Self {
-        let remaining_percent = kind.remaining_percent();
-        Self {
-            dedupe_key: format!("test|{remaining_percent}"),
-            title: format!("{} AI Limits", kind.emoji()),
-            subtitle: format!("AI Limits test - {remaining_percent}% left"),
-            message: "reset unknown".to_string(),
-            color: kind.color(),
-        }
-    }
-}
 
 pub fn notify(notification: &Notification) -> io::Result<()> {
     tauri_bridge::TauriNotificationBridge.deliver(notification)
@@ -163,8 +55,8 @@ pub fn notifications_for_structured(info: &StructuredSourceInfo) -> Vec<Notifica
     info.limits
         .iter()
         .filter_map(|limit| {
-            let remaining = remaining_percent(limit)?;
-            let kind = matching_kind(remaining)?;
+            let remaining = kinds::remaining_percent(limit)?;
+            let kind = kinds::matching_kind(remaining)?;
             Some(Notification::limit(
                 &info.provider,
                 &info.source,
@@ -178,75 +70,10 @@ pub fn notifications_for_structured(info: &StructuredSourceInfo) -> Vec<Notifica
         .collect()
 }
 
-fn matching_kind(remaining_percent: f64) -> Option<LimitNotificationKind> {
-    let remaining = remaining_percent.clamp(0.0, 100.0);
-
-    if remaining <= 10.0 {
-        Some(LimitNotificationKind::Remaining10)
-    } else if remaining <= 25.0 {
-        Some(LimitNotificationKind::Remaining25)
-    } else if remaining <= 50.0 {
-        Some(LimitNotificationKind::Remaining50)
-    } else if remaining <= 75.0 {
-        Some(LimitNotificationKind::Remaining75)
-    } else {
-        None
-    }
-}
-
-fn remaining_percent(limit: &LimitInfo) -> Option<f64> {
-    limit
-        .remaining_percent
-        .or_else(|| limit.used_percent.map(|used| 100.0 - used))
-        .map(|remaining| remaining.clamp(0.0, 100.0))
-}
-
-fn provider_label(provider: &str) -> String {
-    match provider.trim().to_ascii_lowercase().as_str() {
-        "codex" => "Codex".to_string(),
-        "claude" => "Claude".to_string(),
-        "cursor" => "Cursor".to_string(),
-        "" => "AI Limits".to_string(),
-        _ => title_case(provider),
-    }
-}
-
-fn limit_type_label(limit_name: &str) -> String {
-    match limit_name.trim().to_ascii_lowercase().as_str() {
-        "5h" | "five_hour" | "five hour" | "session" | "primary" => "5h".to_string(),
-        "weekly" | "week" | "7d" | "seven_day" | "seven day" | "secondary" => "weekly".to_string(),
-        "auto" => "auto".to_string(),
-        "plan" | "total" => "plan".to_string(),
-        "api" | "api_models" | "api models" => "api".to_string(),
-        "" => "limit".to_string(),
-        value => value.replace('_', " "),
-    }
-}
-
-fn title_case(value: &str) -> String {
-    let mut chars = value.chars();
-    let Some(first) = chars.next() else {
-        return String::new();
-    };
-
-    first.to_uppercase().collect::<String>() + chars.as_str()
-}
-
-fn display_percent(remaining_percent: f64) -> u8 {
-    remaining_percent.clamp(0.0, 100.0).round() as u8
-}
-
-fn reset_label(value: Option<&str>, time_context: &TimeContext) -> String {
-    value
-        .map(|value| format_user_timestamp(value, time_context))
-        .filter(|value| !value.trim().is_empty())
-        .unwrap_or_else(|| "unknown".to_string())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::{AccountInfo, Source, SourceData, SourceStatus, UsageInfo};
+    use crate::types::{AccountInfo, LimitInfo, Source, SourceData, SourceStatus, UsageInfo};
     use std::cell::Cell;
 
     fn structured_with_limit(remaining_percent: Option<f64>) -> StructuredSourceInfo {

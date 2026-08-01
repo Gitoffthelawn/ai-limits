@@ -16,6 +16,13 @@ Notifications are a shared product capability. They are used by the desktop inte
 
 ## Architecture
 
+Code layout (`src/notifications/`):
+
+- `mod.rs` — public facade, delivery trait, candidate orchestration (`send_for_report*`, `notifications_for_*`), and package tests
+- `kinds.rs` — threshold kinds, colors, and remaining-percent matching
+- `content.rs` — notification DTO and title/subtitle/body/label projection
+- `tauri_bridge.rs` — TCP bridge adapter that requests delivery from the desktop app
+
 The application uses one common notification domain model.
 
 Provider and limit logic produce notification candidates from structured source data. The notification rules stay in the shared Rust core and must not be duplicated in the Tauri frontend.

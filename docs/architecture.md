@@ -27,6 +27,10 @@ src/
   cli/
   infra/
   notifications/
+    mod.rs
+    kinds.rs
+    content.rs
+    tauri_bridge.rs
   providers/
   get_limits.rs
   lib.rs
@@ -37,7 +41,7 @@ Purpose:
 
 - `cli/` — terminal interface, arguments, retrieval scenario flags, output, exit codes
 - `infra/` — technical primitives for processes, HTTP, and timeouts
-- `notifications/` — shared notification service with platform adapters
+- `notifications/` — shared notification service with platform adapters; package layout is documented in [notifications/overview.md](notifications/overview.md)
 - `providers/` — ways to fetch usage/limits from providers
 - `get_limits.rs` — limits-fetching scenario and provider method integration
 - `lib.rs` — shared core available to different interfaces
