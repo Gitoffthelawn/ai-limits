@@ -1,118 +1,14 @@
-use std::io::{self, Write};
-use std::process::Stdio;
-
 use chrono::Utc;
 
-use crate::infra::os_access::{cursor_usage_request_command, read_cursor_access_token};
 use crate::types::{
     LimitInfo, MoneyUsage, SourceData, SourceStatus, StructuredSourceInfo, UsageInfo,
 };
 
+use super::parse::parse_cursor_api_fields;
+
 const PROVIDER: &str = "cursor";
 const SOURCE: &str = "cursor_api2";
 const SOURCE_LINK: &str = "docs/get-limits/providers/cursor.md";
-
-pub fn collect_usage() -> io::Result<SourceData> {
-    let token_output = read_cursor_access_token();
-
-    let token_output = match token_output {
-        Ok(output) => output,
-        Err(error) => {
-            return Ok(access_denied(
-                format!(
-                    "Cursor api2 usage unavailable: cannot read macOS Keychain token ({error})"
-                ),
-                None,
-            ));
-        }
-    };
-
-    if !token_output.status.success() {
-        return Ok(access_denied(
-            "Cursor api2 usage unavailable: token not found; run `cursor agent login`".to_string(),
-            None,
-        ));
-    }
-
-    let token = String::from_utf8_lossy(&token_output.stdout)
-        .trim()
-        .to_string();
-    if token.is_empty() {
-        return Ok(access_denied(
-            "Cursor api2 usage unavailable: empty token; run `cursor agent login`".to_string(),
-            None,
-        ));
-    }
-
-    let curl = cursor_usage_request_command()
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn();
-
-    let mut curl = match curl {
-        Ok(child) => child,
-        Err(error) => {
-            drop(token);
-            return Ok(access_denied(
-                format!("Cursor api2 usage unavailable: cannot run curl ({error})"),
-                None,
-            ));
-        }
-    };
-
-    if let Some(mut stdin) = curl.stdin.take() {
-        stdin.write_all(
-            format!(
-                "header = \"Authorization: Bearer {token}\"\nheader = \"Content-Type: application/json\"\nheader = \"Connect-Protocol-Version: 1\"\n"
-            )
-            .as_bytes(),
-        )?;
-    }
-
-    drop(token);
-
-    let usage_output = match curl.wait_with_output() {
-        Ok(output) => output,
-        Err(error) => {
-            return Ok(access_denied(
-                format!("Cursor api2 usage unavailable: cannot read curl output ({error})"),
-                None,
-            ));
-        }
-    };
-
-    let response = String::from_utf8_lossy(&usage_output.stdout).to_string();
-
-    if !usage_output.status.success() {
-        return Ok(access_denied(
-            format!(
-                "Cursor api2 usage unavailable: request failed with status {}",
-                usage_output.status
-            ),
-            Some(response),
-        ));
-    }
-
-    if response.trim().is_empty() {
-        return Ok(access_denied(
-            "Cursor api2 usage unavailable: empty response".to_string(),
-            Some(response),
-        ));
-    }
-
-    if response.contains("\"code\":\"unauthenticated\"")
-        || response.contains("\"error\":\"unauthorized\"")
-        || response.contains("Unauthorized")
-    {
-        return Ok(access_denied(
-            "Cursor api2 usage unavailable: token rejected; run `cursor agent login`".to_string(),
-            Some(response),
-        ));
-    }
-
-    Ok(build_source_data(&response))
-}
 
 pub fn build_source_data(response: &str) -> SourceData {
     let collected_at = utc_now();
@@ -235,63 +131,7 @@ pub fn build_source_data(response: &str) -> SourceData {
     }
 }
 
-#[derive(Clone, Debug, Default, PartialEq)]
-struct CursorApiFields {
-    remaining: Option<f64>,
-    limit: Option<f64>,
-    total_percent_used: Option<f64>,
-    auto_percent_used: Option<f64>,
-    api_percent_used: Option<f64>,
-    billing_cycle_start: Option<i64>,
-    billing_cycle_end: Option<i64>,
-    display_message: Option<String>,
-}
-
-impl CursorApiFields {
-    fn is_empty(&self) -> bool {
-        self.remaining.is_none()
-            && self.limit.is_none()
-            && self.total_percent_used.is_none()
-            && self.auto_percent_used.is_none()
-            && self.api_percent_used.is_none()
-            && self.billing_cycle_start.is_none()
-            && self.billing_cycle_end.is_none()
-    }
-}
-
-fn parse_cursor_api_fields(response: &str) -> CursorApiFields {
-    let remaining = json_number_after_key(response, "remaining");
-    let limit = json_number_after_key(response, "limit");
-    let total_percent_used = json_number_after_key(response, "totalPercentUsed");
-    let auto_percent_used = json_number_after_key(response, "autoPercentUsed");
-    let api_percent_used = json_number_after_key(response, "apiPercentUsed");
-    let billing_cycle_start = json_string_after_key(response, "billingCycleStart")
-        .and_then(|value| value.parse::<i64>().ok())
-        .or_else(|| json_number_after_key(response, "billingCycleStart").map(|value| value as i64));
-    let billing_cycle_end = json_string_after_key(response, "billingCycleEnd")
-        .and_then(|value| value.parse::<i64>().ok())
-        .or_else(|| json_number_after_key(response, "billingCycleEnd").map(|value| value as i64));
-    let display_message = json_string_after_key(response, "displayMessage");
-
-    let fields = CursorApiFields {
-        remaining,
-        limit,
-        total_percent_used,
-        auto_percent_used,
-        api_percent_used,
-        billing_cycle_start,
-        billing_cycle_end,
-        display_message,
-    };
-
-    if fields.is_empty() {
-        CursorApiFields::default()
-    } else {
-        fields
-    }
-}
-
-fn access_denied(message: String, raw: Option<String>) -> SourceData {
+pub(super) fn access_denied(message: String, raw: Option<String>) -> SourceData {
     SourceData {
         raw: raw.clone(),
         structured: StructuredSourceInfo {
@@ -380,88 +220,6 @@ fn format_unix_ms_timestamp(value: i64) -> String {
     civil_date_from_days(days)
         .map(|(year, month, day)| format!("{year:04}-{month:02}-{day:02}T00:00:00Z"))
         .unwrap_or_else(|| value.to_string())
-}
-
-fn json_number_after_key(input: &str, key: &str) -> Option<f64> {
-    let mut rest = input;
-    let needle = format!("\"{key}\"");
-
-    loop {
-        let key_index = rest.find(&needle)?;
-        let after_key = &rest[key_index + needle.len()..];
-        let colon_index = after_key.find(':')?;
-        let after_colon = after_key[colon_index + 1..].trim_start();
-        let number_len = after_colon
-            .chars()
-            .take_while(|character| {
-                character.is_ascii_digit()
-                    || *character == '-'
-                    || *character == '+'
-                    || *character == '.'
-                    || *character == 'e'
-                    || *character == 'E'
-            })
-            .map(char::len_utf8)
-            .sum::<usize>();
-
-        if number_len > 0 {
-            return after_colon[..number_len].parse::<f64>().ok();
-        }
-
-        rest = &after_colon[after_colon.chars().next()?.len_utf8()..];
-    }
-}
-
-fn json_string_after_key(input: &str, key: &str) -> Option<String> {
-    let mut rest = input;
-    let needle = format!("\"{key}\"");
-
-    loop {
-        let key_index = rest.find(&needle)?;
-        let after_key = &rest[key_index + needle.len()..];
-        let colon_index = after_key.find(':')?;
-        let after_colon = after_key[colon_index + 1..].trim_start();
-        if let Some(value) = parse_json_string(after_colon) {
-            return Some(value);
-        }
-
-        rest = &after_colon[after_colon.chars().next()?.len_utf8()..];
-    }
-}
-
-fn parse_json_string(input: &str) -> Option<String> {
-    let mut chars = input.chars();
-    if chars.next()? != '"' {
-        return None;
-    }
-
-    let mut value = String::new();
-    let mut escaped = false;
-    for character in chars {
-        if escaped {
-            value.push(match character {
-                '"' => '"',
-                '\\' => '\\',
-                '/' => '/',
-                'b' => '\u{0008}',
-                'f' => '\u{000c}',
-                'n' => '\n',
-                'r' => '\r',
-                't' => '\t',
-                other => other,
-            });
-            escaped = false;
-            continue;
-        }
-
-        match character {
-            '\\' => escaped = true,
-            '"' => return Some(value),
-            other => value.push(other),
-        }
-    }
-
-    None
 }
 
 fn format_unix_ms_date(value: i64) -> String {
