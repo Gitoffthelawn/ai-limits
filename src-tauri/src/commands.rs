@@ -1,9 +1,7 @@
 use std::collections::HashSet;
-use std::path::Path;
-#[cfg(target_os = "macos")]
-use std::process::Command;
 use std::sync::{Arc, Mutex};
 
+use crate::platform::terminal;
 use ai_limits::get_limits::{
     get_source_plan_limits, ui_source_plan, SourcePlan, SourcePriority, UiSourcePlanOptions,
 };
@@ -104,66 +102,17 @@ pub async fn start_provider_cli_login(provider: String) -> Result<(), String> {
         ));
     }
 
-    open_terminal_with_command(auth.login_command()).map_err(|error| error.to_string())
+    terminal::open_with_command(auth.login_command()).map_err(|error| error.to_string())
 }
 
 #[tauri::command]
 pub fn get_cli_command() -> Result<String, String> {
-    #[cfg(not(target_os = "macos"))]
-    return Err("CLI command display is currently supported on macOS only".to_string());
-
-    #[cfg(target_os = "macos")]
-    cli_command_for_executable(&std::env::current_exe().map_err(|error| error.to_string())?)
+    terminal::cli_command_for_current_executable()
 }
 
 #[tauri::command]
 pub fn run_cli_in_terminal() -> Result<(), String> {
-    let command = get_cli_command()?;
-    open_terminal_with_command(&command).map_err(|error| error.to_string())
-}
-
-fn cli_command_for_executable(executable: &Path) -> Result<String, String> {
-    let executable = executable
-        .to_str()
-        .ok_or_else(|| "The app path is not valid UTF-8".to_string())?;
-    Ok(format!("{} --cli", shell_quote(executable)))
-}
-
-fn shell_quote(value: &str) -> String {
-    format!("'{}'", value.replace('\'', "'\"'\"'"))
-}
-
-#[cfg(target_os = "macos")]
-fn open_terminal_with_command(command: &str) -> std::io::Result<()> {
-    let script = format!(
-        "tell application \"Terminal\" to do script {}",
-        apple_script_string(command)
-    );
-    Command::new("osascript")
-        .args(["-e", &script])
-        .spawn()?
-        .wait()?;
-    Ok(())
-}
-
-#[cfg(not(target_os = "macos"))]
-fn open_terminal_with_command(_command: &str) -> std::io::Result<()> {
-    Err(std::io::Error::new(
-        std::io::ErrorKind::Unsupported,
-        "Opening a terminal is currently supported on macOS only",
-    ))
-}
-
-#[cfg(target_os = "macos")]
-fn apple_script_string(value: &str) -> String {
-    format!(
-        "\"{}\"",
-        value
-            .replace('\\', "\\\\")
-            .replace('\"', "\\\"")
-            .replace('\n', "\\n")
-            .replace('\r', "\\r")
-    )
+    terminal::run_current_cli_in_terminal()
 }
 
 fn collect_single_provider_limits(
@@ -421,25 +370,5 @@ mod tests {
         );
         assert!(CliAuthorization::parse("cursor").is_err());
         assert!(CliAuthorization::parse("").is_err());
-    }
-
-    #[test]
-    fn cli_command_quotes_the_running_executable_path() {
-        let command = cli_command_for_executable(Path::new(
-            "/Applications/AI Limits.app/Contents/MacOS/ai-limits-desktop",
-        ));
-
-        assert_eq!(
-            command,
-            Ok("'/Applications/AI Limits.app/Contents/MacOS/ai-limits-desktop' --cli".to_string())
-        );
-    }
-
-    #[test]
-    fn shell_quote_preserves_apostrophes_in_paths() {
-        assert_eq!(
-            shell_quote("/Applications/Pat's AI Limits.app"),
-            "'/Applications/Pat'\"'\"'s AI Limits.app'"
-        );
     }
 }

@@ -1,5 +1,6 @@
 mod commands;
 mod notifications;
+mod platform;
 
 use std::collections::HashSet;
 use std::process::ExitCode;
