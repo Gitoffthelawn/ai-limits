@@ -82,8 +82,8 @@ jobs:
               raise SystemExit("The '## Unreleased' section in CHANGELOG.md is empty.")
           PY
 
-  rust-format:
-    name: Check Rust formatting
+  quality:
+    name: Quality gate
     runs-on: ubuntu-latest
     needs: validate-release-version
 
@@ -94,15 +94,15 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: rustfmt
+          components: clippy,rustfmt
 
-      - name: Check Rust formatting
-        run: cargo fmt --all -- --check
+      - name: Run quality gate
+        run: npm run quality
 
   build-macos:
     name: Build macOS signed app
     runs-on: macos-latest
-    needs: rust-format
+    needs: quality
     env:
       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
       APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
@@ -215,7 +215,7 @@ jobs:
   build-windows:
     name: Build Windows unsigned bundles
     runs-on: windows-latest
-    needs: rust-format
+    needs: quality
 
     steps:
       - name: Checkout
@@ -249,7 +249,7 @@ jobs:
   build-linux:
     name: Build Linux unsigned bundles
     runs-on: ubuntu-latest
-    needs: rust-format
+    needs: quality
 
     steps:
       - name: Checkout

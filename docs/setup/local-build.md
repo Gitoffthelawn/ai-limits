@@ -5,7 +5,7 @@
 Command:
 
 ```text
-npm exec tauri -- build --debug --bundles app
+npm run tauri:build:debug
 ```
 
 Purpose:

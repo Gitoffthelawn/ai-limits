@@ -1,9 +1,11 @@
 {
   "scripts": {
     "icons:generate": "sh scripts/generate-desktop-icons.sh",
-    "tauri": "sh scripts/tauri-clean-dev-assets.sh && tauri dev --no-watch",
-    "tauri:dev": "sh scripts/tauri-clean-dev-assets.sh && tauri dev --no-watch",
-    "tauri:build": "tauri build"
+    "quality": "sh scripts/quality.sh",
+    "tauri": "npm run tauri:dev",
+    "tauri:dev": "npm run quality && sh scripts/tauri-clean-dev-assets.sh && tauri dev --no-watch",
+    "tauri:build": "npm run quality && tauri build",
+    "tauri:build:debug": "npm run quality && tauri build --debug --bundles app"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.11.4"
