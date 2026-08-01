@@ -1,0 +1,165 @@
+import { THEME_ACCENTS, updateFrequencyOptions } from "./constants.js";
+import { colorForRemaining, escapeHtml, formatDecimal, formatSourceIdLine, formatSourceTimestampLine, formatTimestampForDisplay } from "./provider-formatters.js";
+import { buildSourcePriorityControlHtml } from "./settings.js";
+
+function providerLabel(providerId) {
+  return providerId.charAt(0).toUpperCase() + providerId.slice(1);
+}
+
+export function createEmptyProvider(providerId, selectedUpdateFrequency) {
+  return {
+    id: providerId,
+    label: providerLabel(providerId),
+    limits: [],
+    availableLimitResets: null,
+    sourceId: null,
+    dataTimestamp: null,
+    selectedUpdateFrequency,
+    errorMessage: null,
+    noFreshData: false,
+    authorizationRequired: null,
+    pending: true,
+  };
+}
+
+function formatCreditsLine(provider) {
+  if (provider.creditsRemaining == null) {
+    return "";
+  }
+
+  return `Available credits: ${formatDecimal(provider.creditsRemaining)}`;
+}
+
+function buildLimitResetsHtml(provider) {
+  if (Number(provider.availableLimitResets) <= 0) {
+    return "";
+  }
+
+  return `
+    <p class="credits-info">Available resets: ${escapeHtml(provider.availableLimitResets)}</p>
+  `;
+}
+
+function cliAuthorizationCopy(providerKey) {
+  if (providerKey === "claude") {
+    return { message: "You\u2019re not signed in to Claude CLI.", signInLabel: "Sign in to Claude", loginCommand: "claude login" };
+  }
+
+  return { message: "You\u2019re not signed in to Codex CLI.", signInLabel: "Sign in to Codex", loginCommand: "codex login" };
+}
+
+function buildCliAuthorizationHtml(providerKey) {
+  const copy = cliAuthorizationCopy(providerKey);
+  return `
+    <div class="cli-authorization">
+      <p class="provider-message">${escapeHtml(copy.message)}</p>
+      <button type="button" class="provider-link provider-link--external" data-provider-cli-login="${escapeHtml(providerKey)}">
+        ${escapeHtml(copy.signInLabel)}
+      </button>
+      <p class="cli-authorization-manual">Or run manually: <code>${escapeHtml(copy.loginCommand)}</code></p>
+    </div>
+  `;
+}
+
+function buildNoFreshDataHtml() {
+  return `
+    <div class="no-fresh-data">
+      <p>No fresh limits' data. Try another source mode:</p>
+      <div class="segmented-control" data-source-priority-control role="group" aria-label="Source priority">
+        ${buildSourcePriorityControlHtml()}
+      </div>
+      <button type="button" class="provider-link" data-open-source-priority>
+        More details
+      </button>
+    </div>
+  `;
+}
+
+function buildLimitRowsHtml(provider) {
+  if (!provider.limits.length) {
+    if (provider.pending || provider.availableLimitResets != null) {
+      return "";
+    }
+
+    if (provider.authorizationRequired) {
+      return buildCliAuthorizationHtml(provider.authorizationRequired);
+    }
+
+    if (provider.noFreshData) {
+      return buildNoFreshDataHtml();
+    }
+
+    const message = escapeHtml(provider.errorMessage || "No usable limit records from this source");
+    const details = provider.errorMessage === "Local provider data is outdated" ? `<button type="button" class="provider-link" data-open-data-errors>More details</button>` : "";
+    return `<div><p class="provider-message">${message}</p>${details}</div>`;
+  }
+
+  return provider.limits.map((limit) => {
+    const remaining = Number(limit.remainingPercentage) || 0;
+    const percent = remaining.toFixed(1);
+    const width = Math.max(0, Math.min(100, remaining));
+    const fillColor = colorForRemaining(remaining, THEME_ACCENTS);
+    const formattedResetTime = formatTimestampForDisplay(limit.resetTime);
+    const resetText = formattedResetTime ? `reset ${escapeHtml(formattedResetTime)}` : "";
+
+    return `
+      <div class="limit-row">
+        <div class="limit-top">${escapeHtml(limit.label)} | ${percent}% left</div>
+        <div class="meter" aria-label="${escapeHtml(provider.label)} ${escapeHtml(limit.label)} ${percent}% left">
+          <span style="width: ${width}%; background: ${fillColor}"></span>
+        </div>
+        ${resetText ? `<div class="limit-reset">${resetText}</div>` : ""}
+      </div>
+    `;
+  }).join("");
+}
+
+export function renderProvider(provider, selectedUpdateFrequency) {
+  const block = document.createElement("article");
+  block.className = "provider-block";
+  block.dataset.providerId = provider.id;
+  const frequencyOptions = updateFrequencyOptions.map((option) => `<option ${option === selectedUpdateFrequency ? "selected" : ""}>${option}</option>`).join("");
+
+  block.innerHTML = `
+    <div class="provider-status" hidden aria-live="polite">
+      <span class="provider-status-indicator" aria-hidden="true"></span>
+      <span class="provider-status-text"></span>
+    </div>
+    <div class="provider-content">
+      <div class="provider-header">
+        <h2>${escapeHtml(provider.label)}</h2>
+      </div>
+      <div class="limits">${buildLimitRowsHtml(provider)}</div>
+      <p class="credits-info" ${provider.creditsRemaining == null ? "hidden" : ""}>
+        ${escapeHtml(formatCreditsLine(provider))}
+      </p>
+      <div class="limit-resets-slot">${buildLimitResetsHtml(provider)}</div>
+      <p class="source-info">
+        <span class="source-id">${escapeHtml(formatSourceIdLine(provider))}</span>
+        <span class="source-timestamp">${escapeHtml(formatSourceTimestampLine(provider))}</span>
+      </p>
+    </div>
+    <div class="provider-actions">
+      <label class="frequency-row">
+        <span>Upd&nbsp;every</span>
+        <select aria-label="${escapeHtml(provider.label)} update interval">${frequencyOptions}</select>
+      </label>
+      <button type="button" class="provider-manual-refresh" data-manual-refresh>
+        UPDATE NOW
+      </button>
+    </div>
+  `;
+
+  return block;
+}
+
+export function updateProviderBlockData(block, provider) {
+  block.querySelector(".limits").innerHTML = buildLimitRowsHtml(provider);
+  const creditsInfo = block.querySelector(".credits-info");
+  const creditsLine = formatCreditsLine(provider);
+  creditsInfo.hidden = !creditsLine;
+  creditsInfo.textContent = creditsLine;
+  block.querySelector(".limit-resets-slot").innerHTML = buildLimitResetsHtml(provider);
+  block.querySelector(".source-id").textContent = formatSourceIdLine(provider);
+  block.querySelector(".source-timestamp").textContent = formatSourceTimestampLine(provider);
+}

@@ -7,9 +7,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="下载 macOS 版本"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=ri:FaWindows" alt="下载 Windows 版本"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="下载 Linux 版本"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.14/AI-Limits-v0.0.14-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.14-grey.svg?logo=apple" alt="下载 macOS 版本"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.14/AI-Limits-v0.0.14-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.14-blue.svg?logo=ri:FaWindows" alt="下载 Windows 版本"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.14/AI-Limits-v0.0.14-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.14-yellow.svg?logo=linux" alt="下载 Linux 版本"></a>
 </p>
 
 ---
@@ -26,7 +26,7 @@
 ## 优势
 
 - 无需 API 订阅即可使用，
-- 无需登录，
+- 无需单独注册 AI Limits 帐户：使用现有服务商授权，
 - 所有服务商集中一处，
 - 完全免费，
 - 保护隐私：无第三方服务、代理或注册，
@@ -58,10 +58,11 @@
 
 ## 平台支持与限制
 
-- macOS：应用已签名并完成公证；通知可用，
-- Windows 与 Linux：已提供构建版本；支持将根据用户反馈持续完善，
+- macOS：受支持的正式版本；应用已签名、完成公证并附加票据；通知可用，
+- Windows 与 Linux：提供未签名的预发布构建版本；支持将根据用户反馈持续完善，
 - 桌面应用通知目前仅在 macOS 上可用，
-- 部分 Codex 与 Claude 的本地数据源在 Windows 与 Linux 上可能尚不可用（通过 CLI 的数据源在各平台均可使用）。
+- 部分 Codex 与 Claude 的本地数据源在 Windows 与 Linux 上可能尚不可用（通过 CLI 的数据源在各平台均可使用），
+- Codex 和 Claude 的 CLI 数据源需要相应服务商授权；Cursor 需要已授权 Cursor Agent 提供的有效令牌。
 
 ## 许可证
 

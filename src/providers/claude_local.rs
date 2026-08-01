@@ -640,8 +640,10 @@ mod tests {
     use super::*;
 
     fn sample_usage() -> ClaudeLocalUsage {
-        let mut usage = ClaudeLocalUsage::default();
-        usage.files = 2;
+        let mut usage = ClaudeLocalUsage {
+            files: 2,
+            ..ClaudeLocalUsage::default()
+        };
         usage.sessions.extend(["s1".to_string(), "s2".to_string()]);
         usage.turns = 5;
         usage.input_tokens = 100;
@@ -765,11 +767,13 @@ mod tests {
 
     #[test]
     fn server_reset_anchor_overrides_transcript_estimated_window() {
-        let mut usage = ClaudeLocalUsage::default();
-        usage.latest_server_reset_anchor = Some(ServerResetAnchor {
-            resets_at: parse_timestamp("2026-06-28T15:00:00Z").expect("parse anchor"),
-            source_path: "/payload/rate_limits/five_hour/resets_at".to_string(),
-        });
+        let mut usage = ClaudeLocalUsage {
+            latest_server_reset_anchor: Some(ServerResetAnchor {
+                resets_at: parse_timestamp("2026-06-28T15:00:00Z").expect("parse anchor"),
+                source_path: "/payload/rate_limits/five_hour/resets_at".to_string(),
+            }),
+            ..ClaudeLocalUsage::default()
+        };
         usage.turns_by_time.push(TurnUsage {
             session_id: "old".to_string(),
             timestamp: Some("2026-06-28T09:59:59Z".to_string()),

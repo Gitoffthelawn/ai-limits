@@ -42,7 +42,6 @@ fn main() {
             handle_menu_event(app, event.id().as_ref());
         })
         .invoke_handler(tauri::generate_handler![
-            commands::get_provider_limits,
             commands::get_single_provider_limits,
             commands::open_external_url,
             commands::start_provider_cli_login,

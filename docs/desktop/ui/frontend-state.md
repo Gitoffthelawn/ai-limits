@@ -6,7 +6,7 @@ The current frontend calls:
 - `open_external_url` for allowlisted setup guide links.
 - `start_provider_cli_login` only when the user selects the provider Sign in action.
 
-The current frontend does not call `get_provider_limits` in normal refresh behavior.
+Each provider is requested independently; there is no aggregate limits-fetch command in the desktop IPC contract.
 
 User-facing problem and recovery rules are documented in [problems.md](problems.md).
 

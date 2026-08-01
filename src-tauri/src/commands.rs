@@ -66,21 +66,6 @@ pub struct ProviderLimitRow {
 }
 
 #[tauri::command]
-pub async fn get_provider_limits(
-    query: ProviderLimitsQuery,
-    app: tauri::AppHandle,
-    sent_notifications: tauri::State<'_, Arc<Mutex<HashSet<String>>>>,
-) -> Result<Vec<ProviderLimits>, String> {
-    let sent_notifications = Arc::clone(sent_notifications.inner());
-
-    tauri::async_runtime::spawn_blocking(move || {
-        collect_provider_limits(&query, app, sent_notifications)
-    })
-    .await
-    .map_err(|error| error.to_string())
-}
-
-#[tauri::command]
 pub async fn get_single_provider_limits(
     provider_id: String,
     query: ProviderLimitsQuery,
@@ -181,24 +166,6 @@ fn apple_script_string(value: &str) -> String {
     )
 }
 
-fn collect_provider_limits(
-    query: &ProviderLimitsQuery,
-    app: tauri::AppHandle,
-    sent_notifications: Arc<Mutex<HashSet<String>>>,
-) -> Vec<ProviderLimits> {
-    ui_source_plan(source_plan_options(query))
-        .into_iter()
-        .map(|source_plan| {
-            collect_provider_limits_for_plan(
-                source_plan,
-                query,
-                app.clone(),
-                Arc::clone(&sent_notifications),
-            )
-        })
-        .collect()
-}
-
 fn collect_single_provider_limits(
     provider_id: &str,
     query: &ProviderLimitsQuery,
@@ -284,9 +251,9 @@ fn provider_limits_from_structured(id: &str, info: &StructuredSourceInfo) -> Pro
         .cli_authorization
         .map(|auth| auth.provider_id().to_string());
 
-    let error_message = if authorization_required.is_some() {
-        None
-    } else if info.status.access_available && info.status.data_available {
+    let error_message = if authorization_required.is_some()
+        || (info.status.access_available && info.status.data_available)
+    {
         None
     } else {
         info.status
@@ -329,6 +296,18 @@ fn provider_error(id: &str, message: String) -> ProviderLimits {
         no_fresh_data: false,
         authorization_required: None,
     }
+}
+
+fn provider_label(id: &str) -> String {
+    let mut characters = id.chars();
+    match characters.next() {
+        Some(first) => first.to_uppercase().chain(characters).collect(),
+        None => id.to_string(),
+    }
+}
+
+fn is_allowed_external_url(url: &str) -> bool {
+    os_access::is_allowed_external_url(url)
 }
 
 #[cfg(test)]
@@ -463,16 +442,4 @@ mod tests {
             "'/Applications/Pat'\"'\"'s AI Limits.app'"
         );
     }
-}
-
-fn provider_label(id: &str) -> String {
-    let mut characters = id.chars();
-    match characters.next() {
-        Some(first) => first.to_uppercase().chain(characters).collect(),
-        None => id.to_string(),
-    }
-}
-
-fn is_allowed_external_url(url: &str) -> bool {
-    os_access::is_allowed_external_url(url)
 }

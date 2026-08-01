@@ -69,7 +69,9 @@ IPC goals, constraints, and command rules are documented in [inter-process-commu
 | `theme.js` | light/dark theme |
 | `help-chapters.js` | Help section copy |
 | `help.js` | Help view behaviour |
-| `providers.js` | provider cards, refresh, status |
+| `providers.js` | provider refresh orchestration and status |
+| `provider-rendering.js` | provider card markup and data projection into the DOM |
+| `provider-refresh-intervals.js` | persisted update intervals and refresh timers |
 | `provider-formatters.js` | display formatting helpers |
 | `showcase.js` | browser screenshot showcase |
 | `links.js` | allowlisted external links |

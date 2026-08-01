@@ -206,7 +206,7 @@ fn provider_label(provider: &str) -> String {
         "codex" => "Codex".to_string(),
         "claude" => "Claude".to_string(),
         "cursor" => "Cursor".to_string(),
-        value if value.is_empty() => "AI Limits".to_string(),
+        "" => "AI Limits".to_string(),
         _ => title_case(provider),
     }
 }
@@ -218,7 +218,7 @@ fn limit_type_label(limit_name: &str) -> String {
         "auto" => "auto".to_string(),
         "plan" | "total" => "plan".to_string(),
         "api" | "api_models" | "api models" => "api".to_string(),
-        value if value.is_empty() => "limit".to_string(),
+        "" => "limit".to_string(),
         value => value.replace('_', " "),
     }
 }

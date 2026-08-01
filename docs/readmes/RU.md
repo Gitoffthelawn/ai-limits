@@ -7,9 +7,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Скачать для macOS"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=ri:FaWindows" alt="Скачать для Windows"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="Скачать для Linux"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.14/AI-Limits-v0.0.14-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.14-grey.svg?logo=apple" alt="Скачать для macOS"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.14/AI-Limits-v0.0.14-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.14-blue.svg?logo=ri:FaWindows" alt="Скачать для Windows"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.14/AI-Limits-v0.0.14-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.14-yellow.svg?logo=linux" alt="Скачать для Linux"></a>
 </p>
 
 ---
@@ -26,7 +26,7 @@
 ## Преимущества
 
 - Работает без подписки на API,
-- Никаких логинов,
+- Без отдельной регистрации в AI Limits: используются существующие авторизации провайдеров,
 - Все провайдеры в одном месте,
 - Полностью бесплатно,
 - Приватно. Никаких сторонних сервисов, прокси, регистраций,
@@ -58,10 +58,11 @@
 
 ## Поддержка платформ и ограничения
 
-- macOS: приложение подписано и нотарифицировано; уведомления работают,
-- Windows и Linux: сборки доступны; поддержка развивается на основе обратной связи пользователей,
+- macOS: поддерживаемый релиз; приложение подписано, нотарифицировано и имеет stapling; уведомления работают,
+- Windows и Linux: доступны неподписанные pre-release сборки; поддержка развивается на основе обратной связи пользователей,
 - Уведомления desktop-приложения пока доступны только на macOS,
-- Некоторые локальные источники Codex и Claude пока могут не работать в Windows и Linux (источники через CLI работают везде).
+- Некоторые локальные источники Codex и Claude пока могут не работать в Windows и Linux (источники через CLI работают везде),
+- Для источников Codex и Claude через CLI требуется авторизация у соответствующего провайдера; для Cursor нужен действующий токен авторизованного Cursor Agent.
 
 ## Лицензия
 

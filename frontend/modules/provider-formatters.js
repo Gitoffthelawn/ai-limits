@@ -10,7 +10,7 @@ const SOURCE_DISPLAY_LABELS = {
   "cursor-api2": "API2",
 };
 
-export function stripTimezoneSuffix(value) {
+function stripTimezoneSuffix(value) {
   return String(value)
     .replace(/\s*\([^()]*\)\s*$/, "")
     .replace(/\s*UTC[+-]\d{1,2}(:\d{2})?\s*$/i, "")

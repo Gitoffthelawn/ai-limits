@@ -343,7 +343,6 @@ fn normalize_terminal_line(raw_line: &str) -> String {
     raw_line
         .trim()
         .trim_matches(|character| character == '\u{2502}')
-        .trim()
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ")

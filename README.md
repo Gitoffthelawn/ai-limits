@@ -7,9 +7,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="Download for macOS"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=ri:FaWindows" alt="Download for Windows"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="Download for Linux"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.14/AI-Limits-v0.0.14-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.14-grey.svg?logo=apple" alt="Download for macOS"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.14/AI-Limits-v0.0.14-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.14-blue.svg?logo=ri:FaWindows" alt="Download for Windows"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.14/AI-Limits-v0.0.14-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.14-yellow.svg?logo=linux" alt="Download for Linux"></a>
 </p>
 
 ---
@@ -26,7 +26,7 @@
 ## Benefits
 
 - Works without an API subscription,
-- No sign-ins,
+- No separate AI Limits account: use your existing provider authorization,
 - All providers in one place,
 - Completely free,
 - Private: no third-party services, proxies, or registrations,
@@ -58,10 +58,11 @@ The full comparison covers 18 alternatives and 16 criteria: [alternatives catalo
 
 ## Platform support and limitations
 
-- macOS: the app is signed and notarized; notifications work,
-- Windows and Linux: builds are available; support evolves based on user feedback,
+- macOS: supported release; the app is signed, notarized, and stapled; notifications work,
+- Windows and Linux: unsigned pre-release builds are available; support evolves based on user feedback,
 - Desktop notifications are currently available only on macOS,
 - Some local Codex and Claude sources may not work on Windows and Linux yet; CLI sources work everywhere.
+- Codex and Claude CLI sources require authorization with the respective provider; Cursor requires a valid token from an authorized Cursor Agent.
 
 ## License
 

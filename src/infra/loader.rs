@@ -39,6 +39,12 @@ pub struct TerminalUi {
     static_loaders_rendered: bool,
 }
 
+impl Default for TerminalUi {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TerminalUi {
     pub fn new() -> Self {
         let interactive = io::stdout().is_terminal();
@@ -194,7 +200,7 @@ fn format_provider_heading(heading: &str) -> String {
     let dash_count = PROVIDER_HEADING_WIDTH
         .saturating_sub(heading.len())
         .saturating_sub(2);
-    let left_dashes = (dash_count + 1) / 2;
+    let left_dashes = dash_count.div_ceil(2);
     let right_dashes = dash_count / 2;
 
     format!(

@@ -17,10 +17,6 @@ export function initSettings(inputs, { onChanged } = {}) {
   appSettings = loadAppSettings();
 }
 
-export function getAppSettings() {
-  return appSettings;
-}
-
 function normalizeSourcePriority(value) {
   return SOURCE_PRIORITY_OPTIONS.includes(value) ? value : DEFAULT_APP_SETTINGS.sourcePriority;
 }

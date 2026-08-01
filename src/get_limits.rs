@@ -1,7 +1,7 @@
 use std::io;
 
 use crate::providers::{claude_cli, claude_local, codex_cli, codex_local, cursor_api2};
-use crate::types::{Source, SourceData, SourceReport};
+use crate::types::{Source, SourceReport};
 use chrono::{DateTime, Duration, Utc};
 
 const LOCAL_RESET_EXPIRY_GRACE_MINUTES: i64 = 2;
@@ -146,13 +146,6 @@ pub fn source_list_plan(sources: Vec<Source>) -> Vec<SourcePlan> {
     sources.into_iter().map(SourcePlan::Single).collect()
 }
 
-pub fn get_limits(sources: &[Source]) -> io::Result<Vec<SourceReport>> {
-    sources
-        .iter()
-        .map(|source| get_source_limits(*source))
-        .collect()
-}
-
 pub fn get_source_plan_limits(plan: SourcePlan) -> io::Result<SourceReport> {
     match plan {
         SourcePlan::Single(source) => get_source_limits(source),
@@ -236,10 +229,6 @@ pub fn get_source_limits(source: Source) -> io::Result<SourceReport> {
         SourceReport { source, data },
         Utc::now(),
     ))
-}
-
-pub fn get_source_data(source: Source) -> io::Result<SourceData> {
-    get_source_limits(source).map(|report| report.data)
 }
 
 fn mark_expired_local_limit_data(mut report: SourceReport, now: DateTime<Utc>) -> SourceReport {

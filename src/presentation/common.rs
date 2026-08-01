@@ -204,7 +204,7 @@ fn strip_ansi(text: &str) -> String {
 
     while let Some(character) = chars.next() {
         if character == '\x1b' {
-            while let Some(next) = chars.next() {
+            for next in chars.by_ref() {
                 if next == 'm' {
                     break;
                 }

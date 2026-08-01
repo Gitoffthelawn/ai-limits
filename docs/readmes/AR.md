@@ -7,9 +7,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.13-grey.svg?logo=apple" alt="تنزيل لنظام macOS"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.13-blue.svg?logo=ri:FaWindows" alt="تنزيل لنظام Windows"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.13/AI-Limits-v0.0.13-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.13-yellow.svg?logo=linux" alt="تنزيل لنظام Linux"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.14/AI-Limits-v0.0.14-macos-app.zip"><img src="https://shieldcn.dev/badge/macOS-v0.0.14-grey.svg?logo=apple" alt="تنزيل لنظام macOS"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.14/AI-Limits-v0.0.14-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.0.14-blue.svg?logo=ri:FaWindows" alt="تنزيل لنظام Windows"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.0.14/AI-Limits-v0.0.14-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.0.14-yellow.svg?logo=linux" alt="تنزيل لنظام Linux"></a>
 </p>
 
 ---
@@ -28,7 +28,7 @@
 ## المزايا
 
 - يعمل دون اشتراك في واجهة برمجة التطبيقات (API)،
-- بلا تسجيل دخول،
+- لا يحتاج إلى حساب AI Limits منفصل: يستخدم تفويض المزوّد الحالي،
 - جميع المزوّدين في مكان واحد،
 - مجاني بالكامل،
 - يحافظ على الخصوصية. بلا خدمات طرف ثالث أو وكلاء أو تسجيلات،
@@ -60,10 +60,11 @@
 
 ## دعم المنصات والقيود
 
-- macOS: التطبيق موقّع ومُوثَّق؛ والإشعارات تعمل،
-- Windows وLinux: الإصدارات متاحة؛ ويتطوّر الدعم استناداً إلى ملاحظات المستخدمين،
+- macOS: إصدار مدعوم؛ التطبيق موقّع ومُوثَّق ومرفق بتذكرة؛ والإشعارات تعمل،
+- Windows وLinux: تتوفر إصدارات ما قبل النشر غير الموقّعة؛ ويتطوّر الدعم استناداً إلى ملاحظات المستخدمين،
 - إشعارات تطبيق سطح المكتب متاحة حالياً على macOS فقط،
-- قد لا تعمل بعض المصادر المحلية لـ Codex وClaude على Windows وLinux بعد (المصادر عبر واجهة سطر الأوامر تعمل في كل مكان).
+- قد لا تعمل بعض المصادر المحلية لـ Codex وClaude على Windows وLinux بعد (المصادر عبر واجهة سطر الأوامر تعمل في كل مكان)،
+- تتطلب مصادر CLI لـ Codex وClaude تفويض المزوّد المعني؛ ويتطلب Cursor رمزاً صالحاً من Cursor Agent مفوَّض.
 
 ## الترخيص
 
