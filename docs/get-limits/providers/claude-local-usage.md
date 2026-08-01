@@ -2,6 +2,14 @@
 
 ## Provider Method: `claude_local_usage`
 
+Code layout (`src/providers/claude_local/`):
+
+- `mod.rs` — thin `collect()` orchestration
+- `io.rs` — transcript root discovery and recursive JSONL scan
+- `parse.rs` — assistant turn usage and server reset anchors from JSON records
+- `model.rs` — accumulated usage and 5-hour session-limit math
+- `project.rs` — raw JSON payload and structured `SourceData` projection
+
 Minimal sources:
 
 - `~/.config/claude/projects`

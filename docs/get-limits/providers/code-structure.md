@@ -10,7 +10,12 @@ Example:
 providers/
   mod.rs
   claude_cli.rs
-  claude_local.rs
+  claude_local/
+    mod.rs
+    io.rs
+    parse.rs
+    model.rs
+    project.rs
   codex_cli.rs
   codex_local/
     mod.rs
@@ -20,6 +25,14 @@ providers/
     project.rs
   cursor_api2.rs
 ```
+
+`claude_local/` layout:
+
+- `mod.rs` — thin `collect()` orchestration
+- `io.rs` — transcript root discovery and recursive JSONL scan
+- `parse.rs` — turn usage and server reset anchors from JSON
+- `model.rs` — usage accumulation and 5h session-limit math
+- `project.rs` — raw JSON and structured `SourceData` projection
 
 `codex_local/` layout:
 
