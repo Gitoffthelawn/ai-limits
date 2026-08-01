@@ -1,5 +1,20 @@
 # User-Facing Time Display
 
+## Code
+
+Shared timestamp parsing and local display live in `src/presentation/time/`:
+
+```text
+presentation/time/
+  mod.rs     — thin facade (`TimeContext`, `format_user_timestamp`) and package tests
+  parse.rs   — ISO/unix and source-specific parsing, timezone suffix split, roll policies with assemblers
+  format.rs  — local display labels and unparsed-value timezone-suffix stripping
+```
+
+The package root keeps the public facade; `parse` and `format` stay private to the package. Display rules stay here, not in providers.
+
+## Rules
+
 All user-facing times are displayed in the local time zone of the user's device.
 
 The application must convert timestamps from the core data into device-local time before rendering them.
