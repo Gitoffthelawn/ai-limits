@@ -19,3 +19,10 @@ Verified PoC details:
 - user-facing output shows the matched lines `Current session`, `Current week`, `Total cost`, and token usage
 - structured limits map `Current session` to a 5-hour window (`window_minutes = 300`) and `Current week` to a 7-day window (`window_minutes = 10080`)
 - the parser accounts for some lines arriving via bare carriage return, so cleaned/compacted output is split on `\n` and `\r`
+
+Code layout under `src/providers/claude_cli/`:
+
+- `mod.rs` — public facade (`get_usage` / `collect_usage`) and source identity constants
+- `capture.rs` — expect script and process capture (`run_provider`)
+- `parse.rs` — TUI line normalization (including CR/LF) and parsing into an internal model
+- `project.rs` — projection to `SourceData` / `StructuredSourceInfo`
