@@ -41,7 +41,7 @@
 - Bezieht Daten aus lokalen Dateien, Anbieter-CLIs und APIs,
 - Fallback-Logik: ist eine Quelle nicht verfügbar, wird eine andere geprüft,
 - Leichtgewichtige Desktop-App (macOS, Windows, Linux),
-- CLI-Schnittstelle mit mehreren Ausgabeformaten: `./bin/ai-limits`,
+- CLI-Schnittstelle mit mehreren Ausgabeformaten,
 - Systembenachrichtigungen beim Erreichen von Limit-Schwellenwerten,
 - Manuelle und flexible automatische Datenaktualisierung.
 

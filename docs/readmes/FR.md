@@ -41,7 +41,7 @@
 - Récupère les données depuis des fichiers locaux, les CLI des fournisseurs et les API,
 - Logique de bascule : si une source est indisponible, une autre est vérifiée,
 - Application de bureau légère (macOS, Windows, Linux),
-- Interface CLI avec plusieurs formats de sortie : `./bin/ai-limits`,
+- Interface CLI avec plusieurs formats de sortie,
 - Notifications système lorsque les seuils de limite sont atteints,
 - Actualisation des données manuelle et automatique flexible.
 

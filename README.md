@@ -41,7 +41,7 @@
 - Retrieves data from local files, provider CLIs, and APIs,
 - Falls back to another source when one is unavailable,
 - Lightweight desktop app for macOS, Windows, and Linux,
-- CLI with several output formats: `./bin/ai-limits`,
+- CLI with several output formats,
 - Native system notifications when limits reach configured thresholds,
 - Manual and flexible automatic data refresh.
 

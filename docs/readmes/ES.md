@@ -41,7 +41,7 @@
 - Obtiene los datos de archivos locales, CLI de los proveedores y APIs,
 - Lógica de respaldo: si una fuente no está disponible, comprueba otra,
 - Aplicación de escritorio ligera (macOS, Windows, Linux),
-- Interfaz CLI con varios formatos de salida: `./bin/ai-limits`,
+- Interfaz CLI con varios formatos de salida,
 - Notificaciones del sistema al alcanzar umbrales de límite,
 - Actualización de datos manual y automática flexible.
 

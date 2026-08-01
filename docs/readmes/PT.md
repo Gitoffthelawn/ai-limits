@@ -41,7 +41,7 @@
 - Obtém dados a partir de ficheiros locais, CLIs dos fornecedores e APIs,
 - Lógica de fallback: se uma fonte estiver indisponível, verifica outra,
 - Aplicação de ambiente de trabalho leve (macOS, Windows, Linux),
-- Interface CLI com vários formatos de saída: `./bin/ai-limits`,
+- Interface CLI com vários formatos de saída,
 - Notificações do sistema ao atingir limiares de limite,
 - Atualização de dados manual e automática flexível.
 
