@@ -22,9 +22,9 @@ The method:
 
 Code lives in `src/providers/cursor_api2/`:
 
-- `mod.rs` — thin facade that orchestrates collect
+- `mod.rs` — thin public facade (`collect_usage`) and re-export of `build_source_data`
 - `fetch.rs` — Keychain token and HTTP request via `infra/os_access`
 - `parse.rs` — scrape helpers and the internal `CursorApiFields` model
-- `project.rs` — projection into `SourceData` (limits, billing, money)
+- `project.rs` — projection into `SourceData` (limits, billing, money) and package tests
 
 Other known retrieval options are documented in [cursor-options.md](cursor-options.md).

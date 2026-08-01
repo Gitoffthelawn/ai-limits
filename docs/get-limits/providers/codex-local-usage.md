@@ -2,7 +2,13 @@
 
 ## Provider Method: `codex_local_usage`
 
-Code: `src/providers/codex_local/` (`mod` facade, `raw`, `scan`, `parse`, `project`).
+Code layout (`src/providers/codex_local/`):
+
+- `mod.rs` — public facade (`get_usage` / `collect`) and package tests
+- `raw.rs` — raw DTO and internal accumulation model
+- `scan.rs` — Codex home resolution and JSONL directory/file scan
+- `parse.rs` — token-event / rate-limit / credits parsing
+- `project.rs` — structured projection and raw encode/decode
 
 Minimal source:
 

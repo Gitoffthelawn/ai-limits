@@ -23,6 +23,6 @@ Verified PoC details:
 Code layout under `src/providers/claude_cli/`:
 
 - `mod.rs` — public facade (`get_usage` / `collect_usage`) and source identity constants
-- `capture.rs` — expect script and process capture (`run_provider`)
+- `capture.rs` — expect script and process capture (`capture_provider_run`)
 - `parse.rs` — TUI line normalization (including CR/LF) and parsing into an internal model
 - `project.rs` — projection to `SourceData` / `StructuredSourceInfo`

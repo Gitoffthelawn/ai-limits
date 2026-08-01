@@ -2,9 +2,9 @@
 
 ## Code
 
-Provider methods start as one file each. When a method grows, nest it as a package with a thin facade and private internals split by responsibility (I/O, parsing, projection).
+Current provider methods are nested packages under `providers/`. A new method may start as one file and nest later when a single file becomes hard to reason about. Nested packages keep a thin public facade in `mod.rs` and private internals split by responsibility (I/O, parsing, projection).
 
-Example:
+Current layout:
 
 ```text
 providers/
@@ -50,7 +50,7 @@ Rules:
 `claude_cli/` layout:
 
 - `mod.rs` — public facade (`get_usage` / `collect_usage`) and source identity constants
-- `capture.rs` — expect script and process capture (`run_provider`)
+- `capture.rs` — expect script and process capture (`capture_provider_run`)
 - `parse.rs` — TUI line normalization (including CR/LF) and parsing into an internal model
 - `project.rs` — projection to `SourceData` / `StructuredSourceInfo`
 
@@ -84,23 +84,28 @@ Rules:
 - `parse.rs` — scrape helpers and internal `CursorApiFields` model
 - `project.rs` — projection into `SourceData` (limits, billing, money) and package tests
 
-If a single provider grows to many files, you can move to a nested structure by provider. The nested package keeps a thin public facade in `mod.rs`; internal modules stay private to that provider.
-
 ## Documentation
 
-Provider documentation is grouped by provider:
+Provider documentation is grouped by provider; large providers split method details into separate files:
 
 ```text
 docs/get-limits/providers/
-  codex.md
+  code-structure.md
+  contract.md
   claude.md
+  claude-cli-usage.md
+  claude-local-usage.md
+  codex.md
+  codex-cli-usage.md
+  codex-local-usage.md
   cursor.md
+  cursor-options.md
 ```
 
 Rules:
 
-- one spec file describes one provider
+- one top-level spec file describes one provider
 - a spec file may describe multiple provider methods
-- provider method sections are named like future code files without `.rs`
-- code may be more detailed than the documentation and split provider methods into separate files
+- provider method docs name the method like the source id (for example `claude_cli_usage`)
+- code may be more detailed than the documentation and split a method into private modules
 - if a spec file becomes too large, it can be split by provider method

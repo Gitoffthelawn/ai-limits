@@ -4,10 +4,10 @@
 
 Code layout (`src/providers/codex_cli/`):
 
-- `mod.rs` — orchestration facade (`collect_usage`)
+- `mod.rs` — thin public facade (`collect_usage`) and re-export of `build_structured`
 - `process.rs` — PTY expect script and `codex login status` checks
 - `parse.rs` — TUI line normalization and limit/credits/reset parsing
-- `project.rs` — `StructuredSourceInfo` / unavailable and authorization DTOs
+- `project.rs` — projection into `StructuredSourceInfo` / unavailable and authorization DTOs
 
 Minimum commands:
 
