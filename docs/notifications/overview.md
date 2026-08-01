@@ -18,11 +18,10 @@ Notifications are a shared product capability. They are used by the desktop inte
 
 Code layout (`src/notifications/`):
 
-- `mod.rs` — public facade, delivery trait, and candidate orchestration (`send_for_report*`, `notifications_for_*`)
+- `mod.rs` — public facade, delivery trait, candidate orchestration (`send_for_report*`, `notifications_for_*`), and package tests
 - `kinds.rs` — threshold kinds, colors, and remaining-percent matching
 - `content.rs` — notification DTO and title/subtitle/body/label projection
 - `tauri_bridge.rs` — TCP bridge adapter that requests delivery from the desktop app
-- `tests.rs` — package tests for candidate orchestration and delivery dedupe
 
 The application uses one common notification domain model.
 
