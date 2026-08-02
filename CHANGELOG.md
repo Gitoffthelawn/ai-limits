@@ -4,6 +4,7 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+- Fixed Codex CLI authorization detection when the CLI writes its signed-in status to diagnostic output.
 - Enabled a restrictive Content Security Policy for the desktop app.
 
 ## [v0.0.14](https://github.com/md2it/ai-limits/releases/tag/v0.0.14) — 2026-07-30

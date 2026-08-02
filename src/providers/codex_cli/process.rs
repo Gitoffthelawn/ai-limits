@@ -10,13 +10,16 @@ pub(super) fn codex_login_status() -> io::Result<bool> {
         .env("PATH", cli_process_path())
         .stdin(Stdio::null())
         .output()?;
-    Ok(output.status.success() && login_status_confirms_authorization(&output.stdout))
+    Ok(output.status.success()
+        && login_status_confirms_authorization(&output.stdout, &output.stderr))
 }
 
-pub(super) fn login_status_confirms_authorization(stdout: &[u8]) -> bool {
-    String::from_utf8_lossy(stdout)
-        .to_ascii_lowercase()
-        .contains("logged in using")
+pub(super) fn login_status_confirms_authorization(stdout: &[u8], stderr: &[u8]) -> bool {
+    [stdout, stderr].into_iter().any(|stream| {
+        String::from_utf8_lossy(stream)
+            .to_ascii_lowercase()
+            .contains("logged in using")
+    })
 }
 
 pub(super) fn expect_script() -> String {
@@ -67,13 +70,19 @@ mod tests {
     #[test]
     fn login_status_requires_the_documented_authenticated_output() {
         assert!(login_status_confirms_authorization(
-            b"Logged in using ChatGPT\n"
+            b"Logged in using ChatGPT\n",
+            b""
         ));
         assert!(login_status_confirms_authorization(
+            b"",
             b"Logged in using an API key\n"
         ));
-        assert!(!login_status_confirms_authorization(b"Not logged in\n"));
         assert!(!login_status_confirms_authorization(
+            b"Not logged in\n",
+            b""
+        ));
+        assert!(!login_status_confirms_authorization(
+            b"",
             b"Unexpected status output\n"
         ));
     }
