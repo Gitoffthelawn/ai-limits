@@ -4,6 +4,8 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+- Gave the macOS application icon the rounded shape the platform expects, leaving the Windows and Linux icons edge to edge.
+
 ## [v0.1.0](https://github.com/md2it/ai-limits/releases/tag/v0.1.0) — 2026-08-02
 
 - macOS is now installed from a signed and notarized disk image; the application bundle archive is no longer published as a separate download.
