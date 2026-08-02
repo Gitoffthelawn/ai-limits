@@ -168,12 +168,12 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
-      - name: Build macOS app
+      - name: Build macOS app and disk image
         run: |
           set -euo pipefail
           unset APPLE_SIGNING_IDENTITY
 
-          BUILD_ARGS=(--bundles app --target universal-apple-darwin)
+          BUILD_ARGS=(--bundles app,dmg --target universal-apple-darwin)
           if [[ "${{ inputs.macos_notarization }}" == "submit-only" ]]; then
             BUILD_ARGS+=(--skip-stapling)
           fi
@@ -186,6 +186,51 @@ jobs:
           scripts/verify-macos-app.sh \
             --notarization "${{ inputs.macos_notarization }}" \
             "target/universal-apple-darwin/release/bundle/macos/AI Limits.app"
+
+      - name: Locate macOS disk image
+        run: |
+          set -euo pipefail
+
+          dmg_path="$(find target/universal-apple-darwin/release/bundle/dmg -maxdepth 1 -name '*.dmg' -print -quit)"
+          if [[ -z "$dmg_path" ]]; then
+            echo "No .dmg produced by the bundler." >&2
+            exit 1
+          fi
+
+          echo "DMG_PATH=$dmg_path" >> "$GITHUB_ENV"
+
+      - name: Notarize and staple macOS disk image
+        if: inputs.macos_notarization != 'sign-only'
+        run: |
+          set -euo pipefail
+
+          # The bundler signs the disk image but notarizes only the app inside it.
+          # A downloaded disk image is assessed by Gatekeeper on its own, so it
+          # needs its own notarization ticket.
+          xcrun notarytool submit "$DMG_PATH" \
+            --key "$APPLE_API_KEY_PATH" \
+            --key-id "$APPLE_API_KEY" \
+            --issuer "$APPLE_API_ISSUER" \
+            ${{ inputs.macos_notarization == 'full' && '--wait' || '' }}
+
+          if [[ "${{ inputs.macos_notarization }}" == "full" ]]; then
+            xcrun stapler staple "$DMG_PATH"
+          fi
+
+      - name: Verify macOS disk image
+        run: |
+          set -euo pipefail
+          scripts/verify-macos-app.sh \
+            --notarization "${{ inputs.macos_notarization }}" \
+            "$DMG_PATH"
+
+      - name: Upload macOS disk image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-limits-macos-dmg
+          path: ${{ env.DMG_PATH }}
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Archive macOS app bundle
         run: |
@@ -204,7 +249,8 @@ jobs:
             --notarization "${{ inputs.macos_notarization }}" \
             "target/release/bundle/macos/AI Limits.app.zip"
 
-      - name: Upload macOS app artifact
+      # Kept as a build artifact for diagnostics only; the release ships the disk image.
+      - name: Upload macOS app bundle artifact
         uses: actions/upload-artifact@v4
         with:
           name: ai-limits-macos-app
@@ -317,8 +363,8 @@ jobs:
           tag="${{ inputs.version }}"
           mkdir -p release-assets/upload
 
-          cp "release-assets/raw/ai-limits-macos-app/AI Limits.app.zip" \
-            "release-assets/upload/AI-Limits-${tag}-macos-app.zip"
+          macos_dmg="$(find release-assets/raw/ai-limits-macos-dmg -type f -name '*.dmg' | head -n 1)"
+          cp "$macos_dmg" "release-assets/upload/AI-Limits-${tag}-macos.dmg"
 
           windows_exe="$(find release-assets/raw/ai-limits-windows-unsigned -type f -name '*.exe' | head -n 1)"
           windows_msi="$(find release-assets/raw/ai-limits-windows-unsigned -type f -name '*.msi' | head -n 1)"

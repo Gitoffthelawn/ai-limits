@@ -9,7 +9,6 @@ This file is the current working backlog for the project.
 - Subscription details
 - macOS widgets
 - macOS menu bar
-- macOS .dmg
 
 ## Ideas
 

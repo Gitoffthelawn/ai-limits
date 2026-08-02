@@ -4,6 +4,8 @@
 
 A macOS artifact intended for users must be trusted by macOS: Developer ID signed, Apple-notarized, and stapled. The final archived artifact must be verified after packaging, because packaging can invalidate the properties being protected.
 
+This applies to every layer the user receives. macOS assesses a downloaded disk image on its own, so the disk image needs its own notarization ticket and is not covered by the ticket stapled to the application bundle inside it. The packaging tool signs the disk image but notarizes only the application bundle, so the disk image is notarized and stapled as a separate step, and both layers are verified.
+
 ## Modes
 
 - `full` is the release-ready mode: signing, notarization, and stapling are complete.

@@ -26,6 +26,7 @@ Distribution meaning:
 - this is a local build, not a GitHub build;
 - how it is used depends on the task, but it is not the primary distribution channel;
 - for prod, pre-prod, and shared test builds, use GitHub Actions;
+- the published macOS distributable is the signed and notarized disk image built by GitHub Actions, not this bundle;
 - local macOS builds do not replace GitHub signing or notarization.
 
 Related documents:

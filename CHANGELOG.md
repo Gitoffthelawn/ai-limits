@@ -4,6 +4,7 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+- macOS is now installed from a signed and notarized disk image; the application bundle archive is no longer published as a separate download.
 - Added a thin gray border to browser showcase window frames so README screenshots stay visible on light and dark backgrounds.
 - Refreshed README showcase screenshots from the current UI.
 
