@@ -1,0 +1,46 @@
+.app {
+  min-height: 100vh;
+  padding: var(--space-28);
+}
+
+.app-toolbar,
+.status-line {
+  width: min(100%, var(--content-width));
+  margin: var(--space-0) auto var(--space-16);
+}
+
+.app-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-10);
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-10);
+}
+
+.settings-menu {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.refresh-button {
+  flex: 1 1 auto;
+}
+
+.status-line {
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+  text-align: center;
+}
+
+.status-line.loading {
+  color: var(--text-muted);
+}
+
+.status-line.error {
+  color: var(--danger-text);
+}

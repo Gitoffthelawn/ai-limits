@@ -1,0 +1,139 @@
+:root {
+  --font-family-base: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  --font-size-xs: 13px;
+  --font-size-sm: 14px;
+  --font-size-md: 15px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 22px;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.4;
+  --line-height-relaxed: 1.45;
+  --line-height-compact: 1.35;
+
+  --space-0: 0;
+  --space-2: 2px;
+  --space-6: 6px;
+  --space-7: 7px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-14: 14px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-28: 28px;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-pill: 999px;
+  --radius-circle: 50%;
+
+  --border-width: 1px;
+  --border-width-focus: 2px;
+  --border-width-spinner: 3px;
+  --border-control: var(--border-width) solid var(--border-strong);
+  --border-surface: var(--border-width) solid var(--border);
+
+  --app-min-width: 320px;
+  --content-width: 1120px;
+  --settings-button-size: 36px;
+  --help-menu-width: 168px;
+  --toggle-width: 42px;
+  --toggle-height: 22px;
+  --toggle-knob-size: 16px;
+  --toggle-knob-travel: 20px;
+  --status-indicator-size: 22px;
+  --meter-height: 10px;
+  --select-min-width: 120px;
+  --settings-dropdown-min-width: 220px;
+  --settings-dropdown-max-width-offset: 56px;
+  --settings-dropdown-max-height-offset: 80px;
+  --provider-block-min-height: 320px;
+  /* Longest source line: "Local files, as of Sep 30, 00:00" at 13px (~188px text) + padding/border + tolerance */
+  --provider-card-min-width: 230px;
+  --provider-status-z-index: 2;
+  --dropdown-z-index: 10;
+
+  --shadow-control: 0 1px 2px var(--shadow);
+  --shadow-dropdown: 0 8px 24px var(--shadow);
+  --shadow-provider-elevated: 0 10px 28px rgba(0, 0, 0, 0.28);
+  --shadow-none: 0 0 0 transparent;
+
+  --motion-fast: 0.15s ease;
+  --motion-spin: 0.8s linear infinite;
+  --mix-active-warning: 22%;
+  --mix-hover-warning: 32%;
+  --mix-hover-success: 16%;
+  --mix-status-surface: 82%;
+
+  --transparent: transparent;
+  --white: #ffffff;
+  --accent-danger: #ff2a22;
+  --accent-warning: #ffcf16;
+  --accent-success: #7ed941;
+  --danger-text: #b01812;
+  --success-text: #315f17;
+  --app-bg: var(--white);
+  --surface: var(--white);
+  --surface-hover: #fff8d9;
+  --surface-muted: #f6f7f8;
+  --text: #171a1f;
+  --text-muted: #5f6670;
+  --border: #d9dde3;
+  --border-strong: #bfc6d0;
+  --shadow: rgba(23, 26, 31, 0.12);
+  --meter-bg: var(--white);
+  --focus: var(--accent-success);
+  --segmented-track: #e2e6eb;
+  --segmented-track-border: #bfc6d0;
+  --segmented-unselected-text: #3d4450;
+  --segmented-selected-bg: #ffffff;
+
+  --mix-provider-text: 20%;
+  --mix-provider-text-dark: 18%;
+  --mix-provider-text-muted-dark: 14%;
+  --provider-brand-opacity-light: 0.15;
+  --provider-brand-opacity-dark: 0.24;
+
+  --provider-brand-default: #000000;
+  --provider-brand-default-rgb: 0, 0, 0;
+
+  --provider-brand-claude: #d97757;
+  --provider-brand-claude-rgb: 217, 119, 87;
+
+  --provider-brand-codex: #7a9dff;
+  --provider-brand-codex-rgb: 122, 157, 255;
+
+  --provider-brand-cursor: #26261e;
+  --provider-brand-cursor-rgb: 38, 38, 30;
+  --provider-brand-opacity-cursor-dark: 0.38;
+  --provider-border-cursor-dark: #6f6c52;
+  --provider-border-overlay-cursor-dark: rgba(255, 207, 22, 0.18);
+
+  color: var(--text);
+  background: var(--app-bg);
+  font-family: var(--font-family-base);
+}
+
+:root[data-theme="dark"] {
+  --app-bg: #111214;
+  --surface: #1a1c20;
+  --surface-hover: #242126;
+  --surface-muted: #202328;
+  --text: #f5f7fa;
+  --text-muted: #b8c0cc;
+  --danger-text: #ff8f89;
+  --success-text: #b2f185;
+  --border: #343941;
+  --border-strong: #4c545f;
+  --shadow: rgba(0, 0, 0, 0.42);
+  --meter-bg: #59616c;
+  --segmented-track: #2d3239;
+  --segmented-track-border: #5c6674;
+  --segmented-unselected-text: #e8ecf2;
+  --segmented-selected-bg: #434b56;
+}

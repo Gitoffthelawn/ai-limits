@@ -1,0 +1,242 @@
+body.screenshot-showcase {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 48px;
+  background:
+    radial-gradient(circle at top, #eef3ff 0, #dfe7f3 42%, #cfd8e6 100%);
+}
+
+.showcase-stage {
+  display: grid;
+  width: min(100%, 1440px);
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 28px;
+}
+
+.showcase-platforms {
+  display: grid;
+  gap: 8px;
+}
+
+.showcase-platforms button {
+  min-width: 112px;
+  border: 1px solid rgba(23, 26, 31, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #283242;
+  font: 600 14px/1.2 var(--font-family-base);
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+.showcase-platforms button[aria-pressed="true"] {
+  border-color: #4c6fff;
+  background: #4c6fff;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(39, 75, 181, 0.22);
+}
+
+.showcase-capture-area {
+  width: min(100%, calc(1010px + 4mm));
+  justify-self: start;
+  max-width: 100%;
+  padding: 2mm;
+}
+
+.showcase-window {
+  width: 100%;
+  min-width: 320px;
+  min-height: 540px;
+  overflow: auto;
+  border: 1px solid rgba(23, 26, 31, 0.28);
+  background: var(--app-bg);
+  box-shadow: 0 28px 70px rgba(28, 46, 78, 0.32);
+}
+
+.showcase-window .app {
+  min-width: 320px;
+  min-height: 540px;
+  padding: 28px;
+}
+
+.showcase-titlebar {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  height: 38px;
+  background: #f4f4f5;
+  color: #30343a;
+  font: 600 13px/1 var(--font-family-base);
+  user-select: none;
+}
+
+.showcase-window-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 14px;
+}
+
+.showcase-window-controls span {
+  display: block;
+  width: 12px;
+  height: 12px;
+}
+
+.showcase-window-title {
+  text-align: center;
+}
+
+.showcase-window-brand {
+  display: flex;
+  grid-column: 2;
+  grid-row: 1;
+  align-items: center;
+  gap: 7px;
+}
+
+.showcase-app-icon {
+  display: none;
+  width: 16px;
+  height: 16px;
+  background: center / contain no-repeat url("../favicon.png");
+}
+
+.showcase-window--macos {
+  border-color: #121315;
+  border-radius: 18px;
+  box-shadow: 0 32px 80px rgba(28, 46, 78, 0.32);
+}
+
+.showcase-window--macos .showcase-titlebar {
+  display: flex;
+  height: 38px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.025);
+  background: rgba(18, 19, 21, 0.9);
+  color: rgba(245, 247, 250, 0.82);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.035) inset;
+  backdrop-filter: blur(28px) saturate(135%);
+  -webkit-backdrop-filter: blur(28px) saturate(135%);
+}
+
+.showcase-window--macos .showcase-window-title {
+  color: rgba(245, 247, 250, 0.82);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-align: left;
+}
+
+.showcase-window--macos .showcase-window-brand {
+  flex: 0 0 auto;
+  margin-left: 10px;
+}
+
+.showcase-window--macos .showcase-window-controls {
+  flex: 0 0 auto;
+  padding-left: 12px;
+}
+
+.showcase-window--macos .showcase-titlebar-spacer {
+  flex: 1 1 auto;
+}
+
+.showcase-window--macos .showcase-window-controls span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.08) inset,
+    0 1px 1px rgba(255, 255, 255, 0.5) inset;
+}
+
+.showcase-window--macos .showcase-window-controls span:nth-child(1) { background: #ff5f57; }
+.showcase-window--macos .showcase-window-controls span:nth-child(2) { background: #ffbd2e; }
+.showcase-window--macos .showcase-window-controls span:nth-child(3) { background: #28c840; }
+
+.showcase-window--windows {
+  border-radius: 4px;
+}
+
+.showcase-window--windows .showcase-titlebar {
+  height: 32px;
+  background: #f8f9fb;
+}
+
+.showcase-window--windows .showcase-window-controls {
+  grid-column: 3;
+  grid-row: 1;
+  justify-content: flex-end;
+  gap: 0;
+  padding: 0;
+}
+
+.showcase-window--windows .showcase-window-brand {
+  grid-column: 1;
+  margin-left: 10px;
+}
+
+.showcase-window--windows .showcase-window-title {
+  text-align: left;
+}
+
+.showcase-window--windows .showcase-app-icon {
+  display: block;
+}
+
+.showcase-window--windows .showcase-window-controls span {
+  position: relative;
+  width: 46px;
+  height: 32px;
+}
+
+.showcase-window--windows .showcase-window-controls span::before,
+.showcase-window--windows .showcase-window-controls span::after {
+  position: absolute;
+  content: "";
+}
+
+.showcase-window--windows .showcase-window-controls span:nth-child(1)::before { width: 10px; border-top: 1px solid #343a43; top: 16px; left: 18px; }
+.showcase-window--windows .showcase-window-controls span:nth-child(2)::before { width: 9px; height: 8px; border: 1px solid #343a43; top: 11px; left: 18px; }
+.showcase-window--windows .showcase-window-controls span:nth-child(3)::before { width: 12px; border-top: 1px solid #343a43; transform: rotate(45deg); top: 15px; left: 17px; }
+.showcase-window--windows .showcase-window-controls span:nth-child(3)::after { width: 12px; border-top: 1px solid #343a43; transform: rotate(-45deg); top: 15px; left: 17px; }
+
+.showcase-window--linux {
+  border-radius: 8px;
+}
+
+.showcase-window--linux .showcase-titlebar {
+  height: 36px;
+  background: #30323b;
+  color: #f4f4f7;
+}
+
+.showcase-window--linux .showcase-window-controls {
+  grid-column: 3;
+  grid-row: 1;
+  justify-content: flex-end;
+  gap: 6px;
+  padding-right: 12px;
+}
+
+.showcase-window--linux .showcase-window-controls span {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: #4b4e5c;
+}
+
+.showcase-window--linux .showcase-window-controls span:nth-child(1)::before { position: absolute; top: 6px; left: 3px; width: 8px; border-top: 1px solid #f4f4f7; content: ""; }
+.showcase-window--linux .showcase-window-controls span:nth-child(2)::before { position: absolute; top: 3px; left: 3px; width: 6px; height: 5px; border: 1px solid #f4f4f7; content: ""; }
+.showcase-window--linux .showcase-window-controls span:nth-child(3)::before { position: absolute; top: 6px; left: 2px; width: 10px; border-top: 1px solid #f4f4f7; transform: rotate(45deg); content: ""; }
+.showcase-window--linux .showcase-window-controls span:nth-child(3)::after { position: absolute; top: 6px; left: 2px; width: 10px; border-top: 1px solid #f4f4f7; transform: rotate(-45deg); content: ""; }
+
+@media (max-width: 860px) {
+  body.screenshot-showcase { padding: 20px; }
+  .showcase-stage { grid-template-columns: 1fr; }
+  .showcase-platforms { grid-template-columns: repeat(3, 1fr); }
+  .showcase-platforms button { min-width: 0; }
+}

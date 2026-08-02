@@ -86,4 +86,4 @@ IPC goals, constraints, and command rules are documented in [inter-process-commu
 | `showcase.js` | browser screenshot showcase |
 | `links.js` | allowlisted external links |
 
-Styles stay in `frontend/styles.css`.
+Styles enter through `frontend/styles.css`, which imports area stylesheets under `frontend/styles/` (tokens, base, showcase, toolbar, settings, providers, help) in cascade order.
