@@ -257,7 +257,7 @@ async function refreshSingleProvider(providerId, { showLoading = true } = {}) {
 
   providerRefreshInFlight.add(providerId);
 
-  if (showLoading) {
+  if (showLoading && !isScreenshotShowcase) {
     setProviderStatus(providerId, "loading");
   }
 
@@ -280,13 +280,17 @@ async function refreshSingleProvider(providerId, { showLoading = true } = {}) {
       attachCliAuthorizationHandlers(block);
     }
 
+    if (isScreenshotShowcase) {
+      return;
+    }
+
     if (isProviderRefreshSuccess(provider)) {
       setProviderStatus(providerId, "updated", "Updated");
     } else {
       setProviderStatus(providerId, "failed", "Failed");
     }
   } catch {
-    if (isProviderEnabled(providerId)) {
+    if (isProviderEnabled(providerId) && !isScreenshotShowcase) {
       setProviderStatus(providerId, "failed", "Failed");
     }
   } finally {
@@ -315,8 +319,10 @@ export function refreshEnabledProviders({ initial = false } = {}) {
     );
   }
 
-  for (const providerId of enabledProviders) {
-    setProviderStatus(providerId, "loading");
+  if (!isScreenshotShowcase) {
+    for (const providerId of enabledProviders) {
+      setProviderStatus(providerId, "loading");
+    }
   }
 
   for (const providerId of enabledProviders) {

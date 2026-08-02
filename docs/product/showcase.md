@@ -4,6 +4,8 @@ The browser showcase renders the production desktop frontend with fixed demonstr
 
 From the project root, run `python3 -m http.server 1420 --bind 127.0.0.1 --directory frontend`, then open `http://127.0.0.1:1420/?showcase=macos`. Replace `macos` with `windows` or `linux`, or use the platform controls beside the frame.
 
+To replace the README images in `docs/readmes/screenshots/` in one step, run `npm run screenshots:update` (or `sh scripts/update-showcase-screenshots.sh`). The script starts the local frontend server, captures the five showcase shots (including settings and help), overwrites those PNG files, and stops the server when finished.
+
 The fixed data is defined in `frontend/modules/showcase.js` so its shape follows the rendered provider cards. Update it only when a new screenshot needs different content or the displayed data model changes.
 
-The frame starts at a compact size and can be resized by dragging its invisible bottom-right corner. The three platform controls change only the decorative window chrome.
+The frame starts at a compact size and can be resized by dragging its invisible bottom-right corner. The three platform controls change only the decorative window chrome. Showcase windows use a 1px gray border so README screenshots stay visible on light and dark GitHub backgrounds.
