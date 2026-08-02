@@ -14,4 +14,7 @@ Provide collaborators and early users with one downloadable set of working deskt
 - Do not present a macOS artifact as notarized unless the `full` signing mode completed.
 - Stop publication if release metadata is invalid, the changelog is empty, or the source revision changed during the release process.
 
+- Publish the macOS update archive alongside the disk image, and publish the update manifest it is referenced from. Both are produced by the release workflow; see [auto-update](auto-update.md).
+- The release tag and the version in [tauri.conf.json](../../src-tauri/tauri.conf.json) must match, because installed copies compare their version against the released one.
+
 The current publication channel is a GitHub pre-release created by the [desktop workflow](../../.github/workflows/desktop-build.yml). The channel may change without changing these rules.

@@ -64,11 +64,22 @@ jobs:
 
           python3 - <<'PY'
           from pathlib import Path
+          import json
           import os
           import re
 
-          text = Path("CHANGELOG.md").read_text()
           tag = os.environ["RELEASE_TAG"]
+
+          # Installed clients compare their built-in version against the version in
+          # the update manifest, which is derived from this tag. A mismatch would
+          # either hide the release from the updater or offer it in a loop.
+          configured = json.loads(Path("src-tauri/tauri.conf.json").read_text())["version"]
+          if configured != tag.lstrip("v"):
+              raise SystemExit(
+                  f"src-tauri/tauri.conf.json declares version {configured}, which does not match {tag}."
+              )
+
+          text = Path("CHANGELOG.md").read_text()
           if re.search(rf"^## \[{re.escape(tag)}\]", text, re.MULTILINE):
               raise SystemExit(f"CHANGELOG.md already contains a section for {tag}.")
           matches = list(re.finditer(r"^## Unreleased\s*$", text, re.MULTILINE))
@@ -107,6 +118,10 @@ jobs:
       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
       APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
       APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+      # Signs the auto-update archive. Unrelated to Apple code signing: installed
+      # clients verify this signature against the public key built into the app.
+      TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
     steps:
       - name: Checkout
@@ -164,6 +179,15 @@ jobs:
             echo "APPLE_API_KEY=${APPLE_API_KEY_ID}"
             echo "APPLE_API_ISSUER=${APPLE_API_ISSUER}"
           } >> "$GITHUB_ENV"
+
+      - name: Verify updater signing key
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${TAURI_SIGNING_PRIVATE_KEY:-}" ]]; then
+            echo "Missing secret: TAURI_SIGNING_PRIVATE_KEY" >&2
+            exit 1
+          fi
 
       - name: Install npm dependencies
         run: npm ci
@@ -248,6 +272,31 @@ jobs:
           scripts/verify-macos-app.sh \
             --notarization "${{ inputs.macos_notarization }}" \
             "target/release/bundle/macos/AI Limits.app.zip"
+
+      - name: Collect macOS updater artifacts
+        run: |
+          set -euo pipefail
+
+          bundle_dir="target/universal-apple-darwin/release/bundle/macos"
+          archive="$(find "$bundle_dir" -maxdepth 1 -name '*.app.tar.gz' -print -quit)"
+          signature="$(find "$bundle_dir" -maxdepth 1 -name '*.app.tar.gz.sig' -print -quit)"
+
+          if [[ -z "$archive" || -z "$signature" ]]; then
+            echo "The bundler produced no updater artifacts. Check createUpdaterArtifacts in tauri.conf.json." >&2
+            exit 1
+          fi
+
+          mkdir -p updater-artifacts
+          cp "$archive" "updater-artifacts/AI-Limits-macos.app.tar.gz"
+          cp "$signature" "updater-artifacts/AI-Limits-macos.app.tar.gz.sig"
+
+      - name: Upload macOS updater artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-limits-macos-updater
+          path: updater-artifacts/*
+          if-no-files-found: error
+          retention-days: 14
 
       # Kept as a build artifact for diagnostics only; the release ships the disk image.
       - name: Upload macOS app bundle artifact
@@ -376,6 +425,10 @@ jobs:
           cp "$linux_deb" "release-assets/upload/AI-Limits-${tag}-linux.deb"
           cp "$linux_appimage" "release-assets/upload/AI-Limits-${tag}-linux.AppImage"
 
+          # The auto-updater downloads this archive, not the disk image.
+          updater_archive="release-assets/raw/ai-limits-macos-updater/AI-Limits-macos.app.tar.gz"
+          cp "$updater_archive" "release-assets/upload/AI-Limits-${tag}-macos.app.tar.gz"
+
           {
             echo "tag=${tag}"
             echo "title=AI Limits ${tag}"
@@ -446,9 +499,49 @@ jobs:
             echo "Unstable desktop build. ${macos_note} Windows and Linux are unsigned."
           } > release-notes.md
 
+          python3 - <<'PY'
+          from datetime import datetime, timezone
+          from pathlib import Path
+          import json
+          import os
+
+          tag = os.environ["RELEASE_TAG"]
+          repository = os.environ["GITHUB_REPOSITORY"]
+          signature = Path(
+              "release-assets/raw/ai-limits-macos-updater/AI-Limits-macos.app.tar.gz.sig"
+          ).read_text().strip()
+          if not signature:
+              raise SystemExit("The macOS updater signature is empty.")
+
+          url = (
+              f"https://github.com/{repository}/releases/download/{tag}"
+              f"/AI-Limits-{tag}-macos.app.tar.gz"
+          )
+          notes = Path("release-changes.md").read_text().strip()
+
+          # The macOS build is universal, so every macOS target key resolves to the
+          # same archive. Windows and Linux ship unsigned and are absent here, which
+          # makes their clients report no available update.
+          macos = {"signature": signature, "url": url}
+          manifest = {
+              "version": tag.lstrip("v"),
+              "notes": notes,
+              "pub_date": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+              "platforms": {
+                  "darwin-universal": macos,
+                  "darwin-aarch64": macos,
+                  "darwin-x86_64": macos,
+              },
+          }
+
+          path = Path("updater/latest.json")
+          path.parent.mkdir(exist_ok=True)
+          path.write_text(json.dumps(manifest, indent=2) + "\n")
+          PY
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md
+          git add CHANGELOG.md updater/latest.json
           git commit -m "Release $RELEASE_TAG"
           git tag -a "$RELEASE_TAG" -F tag-notes.md
           git push --atomic origin HEAD:refs/heads/main "refs/tags/$RELEASE_TAG"

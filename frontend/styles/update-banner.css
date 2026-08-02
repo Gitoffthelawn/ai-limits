@@ -1,0 +1,61 @@
+/* Notice shown once a downloaded update is waiting for a restart. */
+.update-banner {
+  width: min(100%, var(--content-width));
+  margin: var(--space-0) auto var(--space-16);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-10);
+  padding: var(--space-10) var(--space-14);
+  border: var(--border-control);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.update-banner[hidden] {
+  display: none;
+}
+
+.update-banner-text {
+  color: var(--text);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+}
+
+.update-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.update-restart-button,
+.update-dismiss-button {
+  border: var(--border-control);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-6) var(--space-12);
+  cursor: pointer;
+}
+
+.update-restart-button {
+  border-color: var(--accent-success);
+  background: color-mix(in srgb, var(--accent-success) var(--mix-hover-success), var(--surface));
+}
+
+.update-restart-button:hover,
+.update-dismiss-button:hover {
+  background: var(--surface-hover);
+}
+
+/* Neutral controls warm to yellow in dark theme. See docs/desktop/ui/styleguide.md. */
+:root[data-theme="dark"] .update-restart-button:hover,
+:root[data-theme="dark"] .update-dismiss-button:hover {
+  border-color: var(--accent-warning);
+  background: color-mix(in srgb, var(--accent-warning) var(--mix-hover-warning), var(--surface));
+  color: var(--text);
+}

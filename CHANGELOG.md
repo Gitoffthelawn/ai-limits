@@ -4,6 +4,7 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+- macOS installations now update themselves: the app checks for a new release at startup and every 12 hours, downloads it in the background, and offers a restart once it is ready. Automatic updates can be turned off in Settings.
 - Gave the macOS application icon the rounded shape the platform expects, leaving the Windows and Linux icons edge to edge.
 
 ## [v0.1.0](https://github.com/md2it/ai-limits/releases/tag/v0.1.0) — 2026-08-02

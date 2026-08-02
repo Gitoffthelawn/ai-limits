@@ -30,8 +30,13 @@ export const SOURCE_PRIORITY_LABELS = {
 
 export const DEFAULT_APP_SETTINGS = {
   notifications: true,
+  autoUpdate: true,
   cursor: true,
   cloud: true,
   codex: true,
   sourcePriority: "full",
 };
+
+/// How long the app waits between automatic update checks while it stays open.
+/// A check also runs once at startup.
+export const APP_UPDATE_CHECK_INTERVAL_MS = 12 * 60 * 60 * 1000;

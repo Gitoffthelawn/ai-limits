@@ -1,3 +1,4 @@
+pub mod app_update;
 mod collect;
 mod provider_limits;
 

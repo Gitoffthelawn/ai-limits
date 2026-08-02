@@ -125,12 +125,38 @@
                   <input type="checkbox" id="setting-notifications" checked />
                 </label>
                 <label class="settings-toggle">
+                  <span>Automatic updates</span>
+                  <input type="checkbox" id="setting-auto-update" checked />
+                </label>
+                <label class="settings-toggle">
                   <span>Dark theme</span>
                   <input type="checkbox" id="setting-dark-theme" />
                 </label>
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section
+        class="update-banner"
+        id="update-banner"
+        aria-live="polite"
+        hidden
+      >
+        <span class="update-banner-text" id="update-banner-text"></span>
+        <div class="update-banner-actions">
+          <button type="button" class="update-restart-button" id="update-restart">
+            Restart now
+          </button>
+          <button
+            type="button"
+            class="update-dismiss-button"
+            id="update-dismiss"
+            aria-label="Dismiss update notice"
+          >
+            Later
+          </button>
         </div>
       </section>
 
