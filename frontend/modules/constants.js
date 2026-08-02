@@ -35,9 +35,3 @@ export const DEFAULT_APP_SETTINGS = {
   codex: true,
   sourcePriority: "full",
 };
-
-export const THEME_ACCENTS = {
-  danger: [255, 42, 34],
-  warning: [255, 207, 22],
-  success: [126, 217, 65],
-};

@@ -52,17 +52,6 @@ export function formatDecimal(value) {
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
 }
 
-export function colorForRemaining(remainingPercent, accents) {
-  const clamped = Math.max(0, Math.min(100, remainingPercent));
-  if (clamped <= 1) return `rgb(${accents.danger.join(", ")})`;
-  const stops = [{ pct: 1, rgb: accents.danger }, { pct: 50, rgb: accents.warning }, { pct: 100, rgb: accents.success }];
-  const upperIndex = stops.findIndex((stop) => clamped <= stop.pct);
-  const upper = stops[upperIndex];
-  const lower = stops[Math.max(0, upperIndex - 1)];
-  const ratio = (clamped - lower.pct) / (upper.pct - lower.pct || 1);
-  return `rgb(${lower.rgb.map((channel, index) => Math.round(channel + (upper.rgb[index] - channel) * ratio)).join(", ")})`;
-}
-
 function toDate(value) {
   if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
   if (typeof value === "number") {

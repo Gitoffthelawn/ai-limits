@@ -1,5 +1,5 @@
-import { THEME_ACCENTS, updateFrequencyOptions } from "./constants.js";
-import { colorForRemaining, escapeHtml, formatDecimal, formatSourceIdLine, formatSourceTimestampLine, formatTimestampForDisplay } from "./provider-formatters.js";
+import { updateFrequencyOptions } from "./constants.js";
+import { escapeHtml, formatDecimal, formatSourceIdLine, formatSourceTimestampLine, formatTimestampForDisplay } from "./provider-formatters.js";
 import { buildSourcePriorityControlHtml } from "./settings.js";
 
 function providerLabel(providerId) {
@@ -98,16 +98,14 @@ function buildLimitRowsHtml(provider) {
     const remaining = Number(limit.remainingPercentage) || 0;
     const percent = remaining.toFixed(1);
     const width = Math.max(0, Math.min(100, remaining));
-    const fillColor = colorForRemaining(remaining, THEME_ACCENTS);
+    const meterTone = width <= 1 ? "danger" : width <= 50 ? "warning" : "success";
     const formattedResetTime = formatTimestampForDisplay(limit.resetTime);
     const resetText = formattedResetTime ? `reset ${escapeHtml(formattedResetTime)}` : "";
 
     return `
       <div class="limit-row">
         <div class="limit-top">${escapeHtml(limit.label)} | ${percent}% left</div>
-        <div class="meter" aria-label="${escapeHtml(provider.label)} ${escapeHtml(limit.label)} ${percent}% left">
-          <span style="width: ${width}%; background: ${fillColor}"></span>
-        </div>
+        <progress class="meter meter--${meterTone}" value="${width}" max="100" aria-label="${escapeHtml(provider.label)} ${escapeHtml(limit.label)} ${percent}% left"></progress>
         ${resetText ? `<div class="limit-reset">${resetText}</div>` : ""}
       </div>
     `;

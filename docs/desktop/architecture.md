@@ -19,6 +19,8 @@ A shared desktop/CLI settings contract is not part of the current architecture.
 
 The desktop application uses Tauri as a desktop adapter to the existing Rust core.
 
+The webview uses a restrictive Content Security Policy. It loads scripts, styles, fonts, and images only from the packaged application; the only additional resource source is `data:` for the local CSS icon. Tauri IPC is limited to `ipc:` and `http://ipc.localhost`. New frontend assets or network calls must update the policy deliberately and retain the least-privilege scope.
+
 Rules:
 
 - the shared core must live in `lib.rs` and the `src/` modules
