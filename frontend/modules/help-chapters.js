@@ -172,6 +172,48 @@ export const HELP_CHAPTERS = [
     },
   },
   {
+    id: "updates",
+    label: "Updates",
+    title: "Updates",
+    render() {
+      return `
+        <p>
+          When automatic updates are on, AI-Limits looks for a new release and
+          downloads it in the background. It never restarts on its own: the
+          version you are using keeps running until you choose to restart.
+        </p>
+        <dl class="info-terms">
+          <div>
+            <dt>Schedule</dt>
+            <dd>Once at startup, then every 12 hours while the app stays open.</dd>
+          </div>
+          <div>
+            <dt>Applying</dt>
+            <dd>A ready update shows a notice with a Restart now action.</dd>
+          </div>
+          <div>
+            <dt>Control</dt>
+            <dd>
+              Turn automatic updates off in settings; the app then makes no
+              update requests at all.
+            </dd>
+          </div>
+          <div>
+            <dt>Source</dt>
+            <dd>
+              Signed releases from the project's GitHub repository; an update
+              that fails its signature check is discarded.
+            </dd>
+          </div>
+          <div>
+            <dt>Platform</dt>
+            <dd>macOS only for now; Windows and Linux are next.</dd>
+          </div>
+        </dl>
+      `;
+    },
+  },
+  {
     id: "permissions",
     label: "Permissions",
     title: "Permissions",
@@ -193,6 +235,10 @@ export const HELP_CHAPTERS = [
           <div>
             <dt>Notifications</dt>
             <dd>To alert you when a limit runs low.</dd>
+          </div>
+          <div>
+            <dt>Updates</dt>
+            <dd>To download a new version when automatic updates are on.</dd>
           </div>
           <div>
             <dt>CLI</dt>

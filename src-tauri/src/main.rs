@@ -16,6 +16,7 @@ const HELP_CHAPTERS: &[(&str, &str)] = &[
     ("source-priority", "Source priority"),
     ("data-errors", "Data availability"),
     ("notifications", "Notifications"),
+    ("updates", "Updates"),
     ("permissions", "Permissions"),
     ("cli-mode", "CLI mode"),
     ("limitations", "Limitations"),
@@ -32,6 +33,7 @@ fn main() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(Arc::new(Mutex::new(HashSet::<String>::new())))
         .setup(|app| {
             notifications::start_notification_bridge(app.handle().clone());
@@ -48,6 +50,8 @@ fn main() {
             commands::start_provider_cli_login,
             commands::get_cli_command,
             commands::run_cli_in_terminal,
+            commands::app_update::download_app_update,
+            commands::app_update::restart_app,
         ])
         .run(tauri::generate_context!())
         .expect("failed to run Tauri application");

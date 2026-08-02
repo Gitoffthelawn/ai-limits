@@ -5,6 +5,7 @@ import {
   setSettingsMenuOpen,
   handleSettingsChange,
 } from "./settings.js";
+import { initAppUpdates, syncAppUpdateSchedule } from "./app-update.js";
 import { initHelp, renderHelpMenu, openHelp, closeHelp, isHelpOpen } from "./help.js";
 import { setupScreenshotShowcase } from "./showcase.js";
 import {
@@ -33,7 +34,15 @@ const settingInputs = {
   codex: document.querySelector("#setting-codex"),
   sourcePriority: document.querySelector("#setting-source-priority"),
   sourcePriorityInfo: document.querySelector("#setting-source-priority-info"),
+  autoUpdate: document.querySelector("#setting-auto-update"),
   darkTheme: document.querySelector("#setting-dark-theme"),
+};
+
+const updateBannerEls = {
+  banner: document.querySelector("#update-banner"),
+  bannerText: document.querySelector("#update-banner-text"),
+  restartButton: document.querySelector("#update-restart"),
+  dismissButton: document.querySelector("#update-dismiss"),
 };
 
 const menuEls = { settingsDropdown, settingsButton };
@@ -48,8 +57,10 @@ initSettings(settingInputs, {
   onChanged({ newlyEnabled }) {
     removeDisabledProviderBlocks();
     restoreNewlyEnabledProviders(newlyEnabled);
+    syncAppUpdateSchedule();
   },
 });
+initAppUpdates(updateBannerEls);
 initHelp(
   { helpMenu, helpContent, helpView, homeView },
   { onCloseSettings: closeSettingsMenu },

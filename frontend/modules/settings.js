@@ -46,6 +46,10 @@ function loadAppSettings() {
         typeof parsed.notifications === "boolean"
           ? parsed.notifications
           : DEFAULT_APP_SETTINGS.notifications,
+      autoUpdate:
+        typeof parsed.autoUpdate === "boolean"
+          ? parsed.autoUpdate
+          : DEFAULT_APP_SETTINGS.autoUpdate,
       cursor: typeof parsed.cursor === "boolean" ? parsed.cursor : DEFAULT_APP_SETTINGS.cursor,
       cloud: typeof parsed.cloud === "boolean" ? parsed.cloud : DEFAULT_APP_SETTINGS.cloud,
       codex: typeof parsed.codex === "boolean" ? parsed.codex : DEFAULT_APP_SETTINGS.codex,
@@ -103,6 +107,7 @@ function renderSettingsSourcePriorityControl() {
 
 export function syncSettingsInputs() {
   settingInputs.notifications.checked = appSettings.notifications;
+  settingInputs.autoUpdate.checked = appSettings.autoUpdate;
   settingInputs.cursor.checked = appSettings.cursor;
   settingInputs.cloud.checked = appSettings.cloud;
   settingInputs.codex.checked = appSettings.codex;
@@ -119,6 +124,10 @@ export function settingsToQuery() {
     sourcePriority: appSettings.sourcePriority,
     notificationsEnabled: appSettings.notifications,
   };
+}
+
+export function isAutoUpdateEnabled() {
+  return appSettings.autoUpdate;
 }
 
 export function isProviderEnabled(providerId) {
@@ -144,6 +153,7 @@ export function handleSettingsChange() {
 
   appSettings = {
     notifications: settingInputs.notifications.checked,
+    autoUpdate: settingInputs.autoUpdate.checked,
     cursor: settingInputs.cursor.checked,
     cloud: settingInputs.cloud.checked,
     codex: settingInputs.codex.checked,

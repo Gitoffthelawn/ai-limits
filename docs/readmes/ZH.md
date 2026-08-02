@@ -7,9 +7,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.1.0/AI-Limits-v0.1.0-macos.dmg"><img src="https://shieldcn.dev/badge/macOS-v0.1.0-grey.svg?logo=apple" alt="下载 macOS 版本"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.1.0/AI-Limits-v0.1.0-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.1.0-blue.svg?logo=ri:FaWindows" alt="下载 Windows 版本"></a>
-  <a href="https://github.com/md2it/ai-limits/releases/download/v0.1.0/AI-Limits-v0.1.0-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.1.0-yellow.svg?logo=linux" alt="下载 Linux 版本"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.2.0/AI-Limits-v0.2.0-macos.dmg"><img src="https://shieldcn.dev/badge/macOS-v0.2.0-grey.svg?logo=apple" alt="下载 macOS 版本"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.2.0/AI-Limits-v0.2.0-windows-setup.exe"><img src="https://shieldcn.dev/badge/Windows-v0.2.0-blue.svg?logo=ri:FaWindows" alt="下载 Windows 版本"></a>
+  <a href="https://github.com/md2it/ai-limits/releases/download/v0.2.0/AI-Limits-v0.2.0-linux.AppImage"><img src="https://shieldcn.dev/badge/Linux-v0.2.0-yellow.svg?logo=linux" alt="下载 Linux 版本"></a>
 </p>
 
 ---
