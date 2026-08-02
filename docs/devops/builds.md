@@ -10,6 +10,10 @@
 
 The current implementation is [GitHub Actions](../../.github/workflows/desktop-build.yml). It is an implementation detail and may be replaced without changing this process.
 
+## Distributable Formats
+
+Each platform publishes the format its users install from: a disk image on macOS, an installer on Windows, a package and a portable image on Linux. A raw application bundle is a build output, not a published format.
+
 ## Current Security Policy
 
 - macOS release artifacts must be signed, notarized, and stapled.

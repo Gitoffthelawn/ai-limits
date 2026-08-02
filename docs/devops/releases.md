@@ -10,6 +10,7 @@ Provide collaborators and early users with one downloadable set of working deskt
 - The release version follows [versioning](versioning.md).
 - The `Unreleased` section of [CHANGELOG.md](../../CHANGELOG.md) is the source of product-change text; commit messages are not a release-note source.
 - Publish separate assets per operating system and state the security status of each platform.
+- Publish one asset per installation method, so a platform never offers the same installation twice in different packaging. macOS publishes the disk image; the application bundle archive stays a build artifact.
 - Do not present a macOS artifact as notarized unless the `full` signing mode completed.
 - Stop publication if release metadata is invalid, the changelog is empty, or the source revision changed during the release process.
 
