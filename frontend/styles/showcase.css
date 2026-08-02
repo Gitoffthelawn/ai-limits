@@ -50,7 +50,7 @@ body.screenshot-showcase {
   min-width: 320px;
   min-height: 540px;
   overflow: auto;
-  border: 1px solid rgba(23, 26, 31, 0.28);
+  border: 1px solid #b8bcc6;
   background: var(--app-bg);
   box-shadow: 0 28px 70px rgba(28, 46, 78, 0.32);
 }
@@ -105,7 +105,6 @@ body.screenshot-showcase {
 }
 
 .showcase-window--macos {
-  border-color: #121315;
   border-radius: 18px;
   box-shadow: 0 32px 80px rgba(28, 46, 78, 0.32);
 }

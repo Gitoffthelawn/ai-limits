@@ -4,6 +4,8 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+- Added a thin gray border to browser showcase window frames so README screenshots stay visible on light and dark backgrounds.
+- Refreshed README showcase screenshots from the current UI.
 - Fixed Codex CLI authorization detection when the CLI writes its signed-in status to diagnostic output.
 - Enabled a restrictive Content Security Policy for the desktop app.
 

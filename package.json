@@ -2,13 +2,15 @@
   "scripts": {
     "icons:generate": "sh scripts/generate-desktop-icons.sh",
     "quality": "sh scripts/quality.sh",
+    "screenshots:update": "sh scripts/update-showcase-screenshots.sh",
     "tauri": "npm run tauri:dev",
     "tauri:dev": "npm run quality && sh scripts/tauri-clean-dev-assets.sh && tauri dev --no-watch",
     "tauri:build": "npm run quality && tauri build",
     "tauri:build:debug": "npm run quality && tauri build --debug --bundles app"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.11.4"
+    "@tauri-apps/cli": "^2.11.4",
+    "playwright": "^1.58.2"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.11.1"
