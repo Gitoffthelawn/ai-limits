@@ -4,6 +4,7 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+- Simplified the macOS menu bar: dropped the unused File and View menus, and replaced the app menu's Services item with a Settings… item that opens the desktop app's settings panel.
 - Added the app version to Help > About.
 - Fixed the macOS install disk image shipping without its styled window: the background and Applications-folder shortcut were silently missing since the first release with a disk image, because the step that arranged them needed a Finder permission unavailable in GitHub Actions.
 

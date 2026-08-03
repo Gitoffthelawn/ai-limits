@@ -58,37 +58,104 @@ fn main() {
         .expect("failed to run Tauri application");
 }
 
-/// Appends the Help sub-pages to the default macOS Help menu so each chapter can
-/// be opened from the menu bar in addition to the in-app info button.
+/// Builds the macOS menu bar. Starts from the app/Edit/Window/Help submenus
+/// Tauri would generate by default, but drops File and View (unused by this
+/// app) and replaces the app-menu Services item with a Settings item that
+/// opens the in-app settings panel.
 #[cfg(target_os = "macos")]
 fn install_help_menu(app: &tauri::App) -> tauri::Result<()> {
-    use tauri::menu::{Menu, MenuItem, HELP_SUBMENU_ID};
+    use tauri::menu::{Menu, MenuItem, PredefinedMenuItem, Submenu, HELP_SUBMENU_ID, WINDOW_SUBMENU_ID};
 
     let handle = app.handle();
-    let menu = Menu::default(handle)?;
+    let pkg_info = handle.package_info();
+    let about_metadata = tauri::menu::AboutMetadata {
+        name: Some(pkg_info.name.clone()),
+        version: Some(pkg_info.version.to_string()),
+        ..Default::default()
+    };
 
-    if let Some(help_menu) = menu
-        .get(HELP_SUBMENU_ID)
-        .and_then(|item| item.as_submenu().cloned())
-    {
-        for (id, label) in HELP_CHAPTERS {
-            let item = MenuItem::with_id(handle, format!("help:{id}"), label, true, None::<&str>)?;
-            help_menu.append(&item)?;
-        }
+    let settings_item = MenuItem::with_id(
+        handle,
+        "open-settings",
+        "Settings…",
+        true,
+        Some("Cmd+,"),
+    )?;
+
+    let app_menu = Submenu::with_items(
+        handle,
+        pkg_info.name.clone(),
+        true,
+        &[
+            &PredefinedMenuItem::about(handle, None, Some(about_metadata))?,
+            &PredefinedMenuItem::separator(handle)?,
+            &settings_item,
+            &PredefinedMenuItem::separator(handle)?,
+            &PredefinedMenuItem::hide(handle, None)?,
+            &PredefinedMenuItem::hide_others(handle, None)?,
+            &PredefinedMenuItem::separator(handle)?,
+            &PredefinedMenuItem::quit(handle, None)?,
+        ],
+    )?;
+
+    let edit_menu = Submenu::with_items(
+        handle,
+        "Edit",
+        true,
+        &[
+            &PredefinedMenuItem::undo(handle, None)?,
+            &PredefinedMenuItem::redo(handle, None)?,
+            &PredefinedMenuItem::separator(handle)?,
+            &PredefinedMenuItem::cut(handle, None)?,
+            &PredefinedMenuItem::copy(handle, None)?,
+            &PredefinedMenuItem::paste(handle, None)?,
+            &PredefinedMenuItem::select_all(handle, None)?,
+        ],
+    )?;
+
+    let window_menu = Submenu::with_id_and_items(
+        handle,
+        WINDOW_SUBMENU_ID,
+        "Window",
+        true,
+        &[
+            &PredefinedMenuItem::minimize(handle, None)?,
+            &PredefinedMenuItem::maximize(handle, None)?,
+            &PredefinedMenuItem::separator(handle)?,
+            &PredefinedMenuItem::close_window(handle, None)?,
+        ],
+    )?;
+
+    let help_menu = Submenu::with_id_and_items(handle, HELP_SUBMENU_ID, "Help", true, &[])?;
+    for (id, label) in HELP_CHAPTERS {
+        let item = MenuItem::with_id(handle, format!("help:{id}"), label, true, None::<&str>)?;
+        help_menu.append(&item)?;
     }
+
+    let menu = Menu::with_items(
+        handle,
+        &[&app_menu, &edit_menu, &window_menu, &help_menu],
+    )?;
 
     app.set_menu(menu)?;
     Ok(())
 }
 
-/// Routes a native Help menu selection to the web view, which owns the Help UI.
+/// Routes native app-menu selections to the web view, which owns the Help and
+/// Settings UI.
 fn handle_menu_event(app: &tauri::AppHandle, menu_id: &str) {
     use tauri::Manager;
 
-    let Some(chapter) = menu_id.strip_prefix("help:") else {
+    let Some(window) = app.get_webview_window("main") else {
         return;
     };
-    let Some(window) = app.get_webview_window("main") else {
+
+    if menu_id == "open-settings" {
+        let _ = window.eval("window.__openSettingsFromNative && window.__openSettingsFromNative()");
+        return;
+    }
+
+    let Some(chapter) = menu_id.strip_prefix("help:") else {
         return;
     };
 

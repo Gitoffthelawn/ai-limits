@@ -94,6 +94,11 @@ window.__openHelpFromNative = (chapterId) => {
   openHelp(chapterId);
 };
 
+// Bridge for the macOS native AI Limits > Settings… menu item (see src-tauri/src/main.rs).
+window.__openSettingsFromNative = () => {
+  setSettingsMenuOpen(true, menuEls);
+};
+
 for (const input of Object.values(settingInputs)) {
   if (input === settingInputs.sourcePriority || input === settingInputs.sourcePriorityInfo) {
     continue;
