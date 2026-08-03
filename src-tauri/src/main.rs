@@ -64,7 +64,9 @@ fn main() {
 /// opens the in-app settings panel.
 #[cfg(target_os = "macos")]
 fn install_help_menu(app: &tauri::App) -> tauri::Result<()> {
-    use tauri::menu::{Menu, MenuItem, PredefinedMenuItem, Submenu, HELP_SUBMENU_ID, WINDOW_SUBMENU_ID};
+    use tauri::menu::{
+        Menu, MenuItem, PredefinedMenuItem, Submenu, HELP_SUBMENU_ID, WINDOW_SUBMENU_ID,
+    };
 
     let handle = app.handle();
     let pkg_info = handle.package_info();
@@ -74,13 +76,8 @@ fn install_help_menu(app: &tauri::App) -> tauri::Result<()> {
         ..Default::default()
     };
 
-    let settings_item = MenuItem::with_id(
-        handle,
-        "open-settings",
-        "Settings…",
-        true,
-        Some("Cmd+,"),
-    )?;
+    let settings_item =
+        MenuItem::with_id(handle, "open-settings", "Settings…", true, Some("Cmd+,"))?;
 
     let app_menu = Submenu::with_items(
         handle,
@@ -132,10 +129,7 @@ fn install_help_menu(app: &tauri::App) -> tauri::Result<()> {
         help_menu.append(&item)?;
     }
 
-    let menu = Menu::with_items(
-        handle,
-        &[&app_menu, &edit_menu, &window_menu, &help_menu],
-    )?;
+    let menu = Menu::with_items(handle, &[&app_menu, &edit_menu, &window_menu, &help_menu])?;
 
     app.set_menu(menu)?;
     Ok(())
