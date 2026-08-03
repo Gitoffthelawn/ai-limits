@@ -26,7 +26,7 @@ Related:
 - frontend settings travel as command request parameters; they are not read from a shared backend config file
 - provider response fields are display-oriented and camelCase for the frontend
 - provider source, data timestamp, reset time, error state, and no-fresh-data state come from the backend response
-- provider update interval, pending state, status badges, and saved UI settings are frontend state
+- provider update interval, pending state, and saved UI settings are frontend state
 - external URL opening is allowlisted in code
 - opening the CLI in a terminal is supported on macOS only; other platforms must fail as unsupported
 

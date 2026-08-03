@@ -15,6 +15,7 @@ import {
   refreshEnabledProviders,
   refreshProviderSectionsFromCache,
   removeDisabledProviderBlocks,
+  scheduleSectionSlotAlignment,
   restoreNewlyEnabledProviders,
 } from "./providers.js";
 
@@ -133,6 +134,8 @@ if (typeof window.matchMedia === "function") {
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncSystemTheme);
   window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", syncSystemTheme);
 }
+
+window.addEventListener("resize", scheduleSectionSlotAlignment);
 
 document.addEventListener("click", () => {
   closeSettingsMenu();

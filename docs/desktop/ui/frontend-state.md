@@ -20,8 +20,8 @@ User-facing problem and recovery rules are documented in [problems.md](problems.
 | `limits[].label` | row label before `% left` |
 | `limits[].remainingPercentage` | displayed percent, bar width, bar color |
 | `limits[].resetTime` | optional reset line |
-| `plan` | Plan section content, always an object `{ lines: string[], links: { label: string, url: string }[] }`, never `null`. `lines` are ready-to-render text lines built by the backend from `account.plan`, `account.subscription_started_at`, `account.renewal_at`, `account.price_amount`, `account.price_currency`, and `account.price_note`; the frontend renders them verbatim in order. `links` carries at most `Manage plan` (from `account.plan_management_url`) and `Manage billing` (from `account.billing_management_url`); missing URLs are omitted by the backend. The section is hidden when both `lines` and `links` are empty |
-| `usage` | Usage section content, always an object `{ lines: string[] }`, never `null`. `lines` are ready-to-render text lines built by the backend, at most one per non-empty `usage.tokens`/`usage.money`/`usage.activity`/`usage.models` group, in that order; the frontend renders them verbatim in order. The section is hidden when `lines` is empty |
+| `plan` | Plan section content, always an object `{ lines: string[], links: { label: string, url: string }[] }`, never `null`. `lines` are ready-to-render text lines built by the backend from `account.plan`, `account.subscription_started_at`, `account.renewal_at`, `account.price_amount`, `account.price_currency`, and `account.price_note`; the frontend renders them verbatim in order. `links` carries at most `Manage plan` (from `account.plan_management_url`) and `Manage billing` (from `account.billing_management_url`); missing URLs are omitted by the backend. When both `lines` and `links` are empty, the section has no heading and no lines; if Show plan is on, the card still reserves the equalized slot — see [provider-blocks.md](provider-blocks.md#section-slot-alignment) |
+| `usage` | Usage section content, always an object `{ lines: string[] }`, never `null`. `lines` are ready-to-render text lines built by the backend, at most one per non-empty `usage.tokens`/`usage.money`/`usage.activity`/`usage.models` group, in that order; the frontend renders them verbatim in order. When `lines` is empty, the section has no heading and no lines; if Show usage is on, the card still reserves the equalized slot — see [provider-blocks.md](provider-blocks.md#section-slot-alignment) |
 | `sourceId` | origin label in `{label},`; possible values: `Local files`, `CLI`, `API2`, `Unknown` |
 | `dataTimestamp` | `as of {timestamp}`; missing value displays `unknown` |
 | `selectedUpdateFrequency` | fallback default for provider interval if no local value exists |
@@ -46,7 +46,6 @@ These values are not returned by the backend:
 - provider update interval selected in the dropdown after local initialization.
 - provider refresh timers.
 - provider refresh in-flight markers.
-- transient provider status: `Updating`, `Updated`, `Failed`.
 - settings dropdown open/closed state.
 - help view open/closed state and the selected help chapter.
 

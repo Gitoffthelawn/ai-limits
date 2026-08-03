@@ -86,18 +86,12 @@
 .provider-block .source-info,
 .provider-block .section-heading-label,
 .provider-block .plan-links-separator,
-.provider-block .no-fresh-data,
-.provider-block .provider-status {
+.provider-block .no-fresh-data {
   color: var(--provider-text-muted);
 }
 
-.provider-block .provider-link,
-.provider-block .provider-status.updated {
+.provider-block .provider-link {
   color: var(--success-text);
-}
-
-.provider-block .provider-status.loading .provider-status-indicator {
-  border-top-color: var(--provider-brand);
 }
 
 .provider-content {
@@ -118,80 +112,18 @@
   line-height: var(--line-height-tight);
 }
 
-.provider-status {
-  position: absolute;
-  inset: 0;
-  z-index: var(--provider-status-z-index);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-10);
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--surface) var(--mix-status-surface), var(--transparent));
-  color: var(--text-muted);
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-tight);
-  pointer-events: none;
-}
-
-.provider-status[hidden] {
-  display: none;
-}
-
-.provider-status-indicator {
-  display: inline-flex;
-  width: var(--status-indicator-size);
-  height: var(--toggle-height);
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-}
-
-.provider-status.loading .provider-status-indicator {
-  border: var(--border-width-spinner) solid var(--border-strong);
-  border-top-color: var(--accent-success);
-  border-radius: var(--radius-circle);
-  animation: provider-spin var(--motion-spin);
-}
-
-.provider-status.updated {
-  color: var(--success-text);
-}
-
-.provider-status.updated .provider-status-indicator::before {
-  content: "✓";
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-}
-
-.provider-status.failed {
-  color: var(--danger-text);
-}
-
-.provider-status.failed .provider-status-indicator::before {
-  content: "!";
-  width: var(--status-indicator-size);
-  height: var(--toggle-height);
-  border-radius: var(--radius-circle);
-  background: var(--danger-text);
-  color: var(--white);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  line-height: var(--toggle-height);
-  text-align: center;
-}
-
-@keyframes provider-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
 
 /* Sections carry their own leading heading, so the spacing between them is
-   the grid gap rather than a margin on a separator element. Empty sections
-   render nothing at all and therefore take up no gap. */
+   the grid gap rather than a margin on a separator element. Each section slot
+   reserves the measured height for its slot type; an empty slot stays blank
+   but still occupies that space when the display toggle is on. */
+.provider-section {
+  display: grid;
+  align-content: start;
+  gap: var(--space-10);
+  min-height: 0;
+}
+
 .provider-sections {
   display: grid;
   gap: var(--space-16);

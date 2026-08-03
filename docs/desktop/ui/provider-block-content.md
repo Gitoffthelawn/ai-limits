@@ -1,6 +1,6 @@
 # Tauri UI Provider Block Content
 
-Every section opens with a labelled divider, as documented in [provider-blocks.md](provider-blocks.md). A value that is absent contributes no line; a section with no values at all is omitted together with its heading. Nothing is ever rendered as an empty value, a dash, or a placeholder.
+Every section opens with a labelled divider when it has content, as documented in [provider-blocks.md](provider-blocks.md). A value that is absent contributes no line. A section with no values at all has no heading and no lines; when its display toggle is on, the card still reserves an empty equalized slot — see [section slot alignment](provider-blocks.md#section-slot-alignment). Nothing is ever rendered as an empty value, a dash, or a placeholder.
 
 ---
 
@@ -116,7 +116,7 @@ A known zero renders as a line. `Sessions 0` states that the source reports no s
 
 The remaining `usage` fields — the token breakdown, money, events, latest activity, and top model — stay in structured data and are not displayed. Keeping the set to four metrics is what makes cards comparable and keeps them short; a fifth line would be spent differently by each source and the vertical alignment between cards would be lost.
 
-A source that reports none of these four metrics shows no Usage section.
+A source that reports none of these four metrics shows no Usage heading and no Usage lines; when Show usage is on, the card still reserves the equalized Usage slot — see [section slot alignment](provider-blocks.md#section-slot-alignment).
 
 Only Codex reports a `Files` count. Both Claude sources and `cursor_api2` leave `usage.activity.files_count` `null` as a confirmed source limit, so their Usage sections are three lines; a scanned-file or event count is never substituted for it.
 

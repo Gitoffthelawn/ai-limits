@@ -1,6 +1,5 @@
 import {
   PROVIDER_IDS,
-  PROVIDER_STATUS_HIDE_MS,
 } from "./constants.js";
 import {
   attachSourcePriorityControls,
@@ -20,8 +19,9 @@ let providerList = null;
 let statusLine = null;
 
 const providerRefreshInFlight = new Set();
-const providerStatusHideTimers = new Map();
 const providerDataCache = new Map();
+const SECTION_SLOT_KINDS = ["limits", "plan", "usage"];
+let sectionSlotAlignmentFrame = 0;
 
 export function initProviders(elements) {
   providerList = elements.providerList;
@@ -32,60 +32,45 @@ function getProviderBlock(providerId) {
   return providerList.querySelector(`[data-provider-id="${providerId}"]`);
 }
 
-function clearProviderStatusHideTimer(providerId) {
-  const timerId = providerStatusHideTimers.get(providerId);
-  if (timerId == null) {
+function applySectionSlotAlignment() {
+  sectionSlotAlignmentFrame = 0;
+
+  if (!providerList) {
     return;
   }
 
-  clearTimeout(timerId);
-  providerStatusHideTimers.delete(providerId);
+  const sectionsByKind = new Map(SECTION_SLOT_KINDS.map((kind) => [kind, []]));
+
+  for (const section of providerList.querySelectorAll(".provider-section[data-section-slot]")) {
+    section.style.minHeight = "";
+    const sections = sectionsByKind.get(section.dataset.sectionSlot);
+    if (sections) {
+      sections.push(section);
+    }
+  }
+
+  for (const sections of sectionsByKind.values()) {
+    if (!sections.length) {
+      continue;
+    }
+
+    const maxHeight = sections.reduce(
+      (height, section) => Math.max(height, section.getBoundingClientRect().height),
+      0,
+    );
+
+    for (const section of sections) {
+      section.style.minHeight = `${maxHeight}px`;
+    }
+  }
 }
 
-function hideProviderStatus(providerId) {
-  const block = getProviderBlock(providerId);
-  if (!block) {
+export function scheduleSectionSlotAlignment() {
+  if (!providerList || sectionSlotAlignmentFrame) {
     return;
   }
 
-  const status = block.querySelector(".provider-status");
-  status.hidden = true;
-  status.classList.remove("loading", "updated", "failed");
-  status.querySelector(".provider-status-text").textContent = "";
-}
-
-function scheduleHideProviderStatus(providerId) {
-  clearProviderStatusHideTimer(providerId);
-
-  const timerId = setTimeout(() => {
-    providerStatusHideTimers.delete(providerId);
-    hideProviderStatus(providerId);
-  }, PROVIDER_STATUS_HIDE_MS);
-  providerStatusHideTimers.set(providerId, timerId);
-}
-
-function setProviderStatus(providerId, statusType, statusText = "") {
-  const block = getProviderBlock(providerId);
-  if (!block) {
-    return;
-  }
-
-  clearProviderStatusHideTimer(providerId);
-
-  const status = block.querySelector(".provider-status");
-  status.hidden = false;
-  status.classList.remove("loading", "updated", "failed");
-  status.classList.add(statusType);
-  status.querySelector(".provider-status-text").textContent =
-    statusText || (statusType === "loading" ? "Updating" : "");
-
-  if (statusType === "updated" || statusType === "failed") {
-    scheduleHideProviderStatus(providerId);
-  }
-}
-
-function isProviderRefreshSuccess(provider) {
-  return !provider.errorMessage && !provider.authorizationRequired;
+  sectionSlotAlignmentFrame = window.requestAnimationFrame(applySectionSlotAlignment);
 }
 
 function attachProviderBlockHandlers(block, providerId) {
@@ -161,6 +146,8 @@ export function refreshProviderSectionsFromCache() {
     updateProviderBlockData(block, provider);
     attachSectionHandlers(block);
   }
+
+  scheduleSectionSlotAlignment();
 }
 
 async function startProviderCliLogin(provider) {
@@ -232,9 +219,10 @@ export function removeDisabledProviderBlocks() {
     }
 
     stopProviderRefreshTimer(providerId);
-    clearProviderStatusHideTimer(providerId);
     getProviderBlock(providerId)?.remove();
   }
+
+  scheduleSectionSlotAlignment();
 }
 
 export function restoreNewlyEnabledProviders(providerIds) {
@@ -259,6 +247,8 @@ export function restoreNewlyEnabledProviders(providerIds) {
     insertProviderBlockInOrder(block, providerId);
     refreshSingleProvider(providerId);
   }
+
+  scheduleSectionSlotAlignment();
 }
 
 async function fetchSingleProviderLimits(providerId) {
@@ -280,16 +270,12 @@ async function fetchSingleProviderLimits(providerId) {
   });
 }
 
-async function refreshSingleProvider(providerId, { showLoading = true } = {}) {
+async function refreshSingleProvider(providerId) {
   if (!isProviderEnabled(providerId) || providerRefreshInFlight.has(providerId)) {
     return;
   }
 
   providerRefreshInFlight.add(providerId);
-
-  if (showLoading && !isScreenshotShowcase) {
-    setProviderStatus(providerId, "loading");
-  }
 
   try {
     const provider = await fetchSingleProviderLimits(providerId);
@@ -308,21 +294,8 @@ async function refreshSingleProvider(providerId, { showLoading = true } = {}) {
       updateProviderBlockData(block, provider);
       attachSectionHandlers(block);
     }
-
-    if (isScreenshotShowcase) {
-      return;
-    }
-
-    if (isProviderRefreshSuccess(provider)) {
-      setProviderStatus(providerId, "updated", "Updated");
-    } else {
-      setProviderStatus(providerId, "failed", "Failed");
-    }
-  } catch {
-    if (isProviderEnabled(providerId) && !isScreenshotShowcase) {
-      setProviderStatus(providerId, "failed", "Failed");
-    }
   } finally {
+    scheduleSectionSlotAlignment();
     providerRefreshInFlight.delete(providerId);
   }
 }
@@ -346,15 +319,10 @@ export function refreshEnabledProviders({ initial = false } = {}) {
         mountProviderBlock(createEmptyProvider(providerId, getProviderInterval(providerId))),
       ),
     );
-  }
-
-  if (!isScreenshotShowcase) {
-    for (const providerId of enabledProviders) {
-      setProviderStatus(providerId, "loading");
-    }
+    scheduleSectionSlotAlignment();
   }
 
   for (const providerId of enabledProviders) {
-    refreshSingleProvider(providerId, { showLoading: false });
+    refreshSingleProvider(providerId);
   }
 }

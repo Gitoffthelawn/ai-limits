@@ -114,36 +114,19 @@ function buildLimitRowsHtml(provider) {
   }).join("");
 }
 
-// Limits, Plan, and Usage are the desktop rendering of the product's three
-// output kinds (see docs/product/output-kinds.md). Each is shown only when
-// it has content and only when its display toggle is on.
-//
-// Every visible section opens with a labelled divider carrying the section
-// name (see docs/desktop/ui/provider-blocks.md "Section Headings"). The
-// heading belongs to its section rather than sitting between two sections,
-// so the first visible section carries one too. A section whose body is
-// empty returns an empty string and therefore contributes neither heading
-// nor rule: a card never shows a heading over nothing, and there is never a
-// leading, trailing, or duplicated rule.
-
 const SECTION_HEADINGS = {
   limits: "LIMITS",
   plan: "SUBSCRIPTION",
   usage: "USAGE",
 };
 
-// The rules on either side of the label are drawn by CSS pseudo-elements on
-// .section-heading, so they are decoration the accessibility tree never sees,
-// while the label itself stays a real heading element.
+// A section slot is always rendered when its display toggle is on. Content
+// adds the divider heading and body; an empty slot stays blank and is later
+// sized to match the tallest visible slot of the same kind.
 function buildProviderSectionHtml(kind, bodyHtml) {
-  if (!bodyHtml) {
-    return "";
-  }
-
   return `
-    <div class="provider-section provider-section--${kind}">
-      <h3 class="section-heading"><span class="section-heading-label">${escapeHtml(SECTION_HEADINGS[kind])}</span></h3>
-      <div class="provider-section-body">${bodyHtml}</div>
+    <div class="provider-section provider-section--${kind}" data-section-slot="${kind}">
+      ${bodyHtml ? `<h3 class="section-heading"><span class="section-heading-label">${escapeHtml(SECTION_HEADINGS[kind])}</span></h3><div class="provider-section-body">${bodyHtml}</div>` : ""}
     </div>
   `;
 }
@@ -208,10 +191,6 @@ export function renderProvider(provider, selectedUpdateFrequency) {
   const frequencyOptions = updateFrequencyOptions.map((option) => `<option ${option === selectedUpdateFrequency ? "selected" : ""}>${option}</option>`).join("");
 
   block.innerHTML = `
-    <div class="provider-status" hidden aria-live="polite">
-      <span class="provider-status-indicator" aria-hidden="true"></span>
-      <span class="provider-status-text"></span>
-    </div>
     <div class="provider-content">
       <div class="provider-header">
         <h2>${escapeHtml(provider.label)}</h2>

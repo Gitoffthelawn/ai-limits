@@ -8,7 +8,6 @@ export const updateFrequencyOptions = [
 ];
 
 export const DEFAULT_UPDATE_FREQUENCY = "5 min";
-export const PROVIDER_STATUS_HIDE_MS = 4000;
 export const SETTINGS_STORAGE_KEY = "ai-limits-settings";
 export const PROVIDER_INTERVALS_STORAGE_KEY = "ai-limits-provider-intervals";
 export const THEME_STORAGE_KEY = "ai-limits-theme";
