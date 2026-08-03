@@ -10,7 +10,14 @@ pub struct Notification {
     pub title: String,
     pub subtitle: String,
     pub message: String,
-    pub color: NotificationColor,
+    pub color: Option<NotificationColor>,
+    /// When true, `send_for_report_with_delivery` delivers this notification
+    /// unconditionally instead of gating it behind the process-lifetime
+    /// `sent` set. Edge-triggered candidates (100% again) already have their
+    /// own persistent-store check for "is this a fresh transition"; a static
+    /// `dedupe_key` would otherwise wrongly suppress a later, genuinely new
+    /// occurrence of the same transition within one run.
+    pub always_deliver: bool,
 }
 
 impl Notification {
@@ -38,17 +45,44 @@ impl Notification {
             subtitle: format!("{provider} {type_label} - {remaining_percent}% left"),
             message: format!("reset {}", reset_label(resets_at, time_context)),
             color: kind.color(),
+            always_deliver: false,
+        }
+    }
+
+    /// "100% again": fired when a limit's remaining percent returns to
+    /// exactly 100 after a stored value below 100. See the "100% again"
+    /// section of `docs/notifications/overview.md` for trigger rules.
+    pub fn replenished(
+        provider: &str,
+        limit_name: &str,
+        resets_at: Option<&str>,
+        time_context: &TimeContext,
+    ) -> Self {
+        let provider = provider_label(provider);
+        let type_label = limit_type_label(limit_name);
+        Self {
+            dedupe_key: format!("{provider}|{type_label}|100-again"),
+            title: format!("{} AI Limits", LimitNotificationKind::Replenished.emoji()),
+            subtitle: format!("{provider} {type_label} - 100% again"),
+            message: format!("reset {}", reset_label(resets_at, time_context)),
+            color: LimitNotificationKind::Replenished.color(),
+            always_deliver: true,
         }
     }
 
     pub fn test(kind: LimitNotificationKind) -> Self {
         let remaining_percent = kind.remaining_percent();
+        let subtitle = match kind {
+            LimitNotificationKind::Replenished => "AI Limits test - 100% again".to_string(),
+            _ => format!("AI Limits test - {remaining_percent}% left"),
+        };
         Self {
             dedupe_key: format!("test|{remaining_percent}"),
             title: format!("{} AI Limits", kind.emoji()),
-            subtitle: format!("AI Limits test - {remaining_percent}% left"),
+            subtitle,
             message: "reset unknown".to_string(),
             color: kind.color(),
+            always_deliver: kind == LimitNotificationKind::Replenished,
         }
     }
 }

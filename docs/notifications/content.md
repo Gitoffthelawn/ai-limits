@@ -30,7 +30,9 @@ Notification actions and buttons are not required.
 
 ## Notification Types
 
-Notification types are based on remaining limit thresholds:
+### Low remaining
+
+Notification types based on remaining limit thresholds:
 
 - 75% remaining:
   - trigger when 25% or more of the limit is spent
@@ -47,7 +49,7 @@ Notification types are based on remaining limit thresholds:
 
 Colors are optional because system notification customization is platform-dependent.
 
-Notification text template:
+Text template:
 
 ```text
 $EMOJI AI Limits
@@ -66,7 +68,7 @@ Fields:
   - `🔴` for less than 10% remaining
 - `PROVIDER_NAME`: a canonical name from the shared [provider naming rules](../presentation/provider-names.md)
 - `TYPE`: `5h`, `weekly`, `Cursor Models`, or `Other Models`
-- `TIME`: reset timestamp formatted according to [time-display.md](../presentation/time-display.md). The notification body keeps the contextual `reset ` prefix; the shared time formatter only owns the date-time value.
+- `TIME`: reset timestamp formatted according to [time-display.md](../presentation/time-display.md). The notification body keeps the contextual `reset ` prefix; the shared time formatter only owns the date-time value
 
 Examples:
 
@@ -85,5 +87,27 @@ reset Jul 7, 22:22
 ```text
 🔴 AI Limits
 Claude 5h - 7% left
+reset Jul 7, 22:22
+```
+
+### 100% again
+
+Fires when a limit is fully available again. Trigger rules are in [overview.md](overview.md).
+
+Text template:
+
+```text
+🔔 AI Limits
+$PROVIDER_NAME $TYPE - 100% again
+reset $TIME
+```
+
+Same field rules as low remaining for `PROVIDER_NAME`, `TYPE`, and `TIME`.
+
+Example:
+
+```text
+🔔 AI Limits
+Codex 5h - 100% again
 reset Jul 7, 22:22
 ```

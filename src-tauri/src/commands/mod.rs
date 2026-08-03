@@ -10,6 +10,7 @@ use ai_limits::infra::os_access;
 use ai_limits::infra::os_access::{
     allowed_cli_command_is_available, CLAUDE_CLI_COMMAND, CODEX_CLI_COMMAND,
 };
+use ai_limits::notifications::PreviousRemainingStore;
 use ai_limits::types::CliAuthorization;
 
 pub use provider_limits::{ProviderLimits, ProviderLimitsQuery};
@@ -27,11 +28,19 @@ pub async fn get_single_provider_limits(
     query: ProviderLimitsQuery,
     app: tauri::AppHandle,
     sent_notifications: tauri::State<'_, Arc<Mutex<HashSet<String>>>>,
+    remaining_store: tauri::State<'_, Arc<dyn PreviousRemainingStore>>,
 ) -> Result<ProviderLimits, String> {
     let sent_notifications = Arc::clone(sent_notifications.inner());
+    let remaining_store = Arc::clone(remaining_store.inner());
 
     tauri::async_runtime::spawn_blocking(move || {
-        collect_single_provider_limits(&provider_id, &query, app, sent_notifications)
+        collect_single_provider_limits(
+            &provider_id,
+            &query,
+            app,
+            sent_notifications,
+            remaining_store,
+        )
     })
     .await
     .map_err(|error| error.to_string())?

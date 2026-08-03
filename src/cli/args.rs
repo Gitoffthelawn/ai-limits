@@ -242,6 +242,10 @@ mod tests {
             parse(&["--test-notification=75"]).test_notification,
             Some(LimitNotificationKind::Remaining75)
         );
+        assert_eq!(
+            parse(&["--test-notification=100"]).test_notification,
+            Some(LimitNotificationKind::Replenished)
+        );
         assert!(parse_args(["--test-notification=30"].into_iter().map(String::from)).is_err());
     }
 

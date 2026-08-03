@@ -1,10 +1,23 @@
 use std::io::{BufRead, BufReader};
 use std::net::{TcpListener, TcpStream};
+use std::path::PathBuf;
 use std::thread;
 
 use ai_limits::notifications::{Notification, NotificationDelivery};
-use tauri::AppHandle;
+use tauri::{AppHandle, Manager};
 use tauri_plugin_notification::NotificationExt;
+
+const PREVIOUS_REMAINING_STORE_FILE: &str = "notifications-previous-remaining.json";
+
+/// Where the "100% again" previous-remaining store is persisted. Lives in the
+/// Tauri app data directory because the shared core must not depend on Tauri
+/// for path resolution; this is the only place that knows the concrete path.
+pub fn previous_remaining_store_path(app: &AppHandle) -> tauri::Result<PathBuf> {
+    Ok(app
+        .path()
+        .app_data_dir()?
+        .join(PREVIOUS_REMAINING_STORE_FILE))
+}
 
 pub fn start_notification_bridge(app: AppHandle) {
     thread::spawn(move || {

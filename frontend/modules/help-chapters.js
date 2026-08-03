@@ -151,18 +151,25 @@ export const HELP_CHAPTERS = [
     render() {
       return `
         <p>
-          When enabled, AI-Limits sends a system notification as a provider's
-          remaining limit runs low, so you don't have to keep the app open to
-          notice.
+          When enabled, AI-Limits sends a system notification for a
+          provider's remaining limit, so you don't have to keep the app open
+          to notice.
         </p>
         <dl class="info-terms">
           <div>
-            <dt>Trigger</dt>
-            <dd>A provider's remaining limit crosses a low threshold.</dd>
+            <dt>Low remaining</dt>
+            <dd>Fires when a remaining limit crosses a low threshold.</dd>
+          </div>
+          <div>
+            <dt>100% again</dt>
+            <dd>
+              Fires on an exact return to 100% after a stored lower reading;
+              first readings and partial rises below 100% don't notify.
+            </dd>
           </div>
           <div>
             <dt>Control</dt>
-            <dd>Toggle notifications on or off any time in settings.</dd>
+            <dd>One toggle in settings covers every notification type.</dd>
           </div>
           <div>
             <dt>Platform</dt>

@@ -4,6 +4,7 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+- Added a "100% again" notification: AI-Limits now alerts you when a provider's remaining limit returns to exactly 100% after having been lower, in addition to the existing low-remaining alerts. It only fires on an exact return to 100%; a first reading or a partial rise (for example 40% to 97%) does not notify.
 - Codex limits now come from the Codex CLI's app-server, which answers in seconds instead of driving the CLI's text interface. Codex reports exact reset times, the plan tier, the credit balance, the number of available limit resets, and the lifetime token total.
 - Claude limits read through the CLI now come from a direct usage request instead of driving the CLI's text interface: they arrive in about two seconds, without a terminal emulator, and without using up any of the account's quota. Claude now reports the plan tier, exact reset times, the extra usage allowance, and the spend for the current period.
 - Cursor now reports the plan name and price, the renewal date, the included spend allowance, the token breakdown and total, and the session, turn, and event counts for the current billing cycle, alongside the usage percentages it already showed.

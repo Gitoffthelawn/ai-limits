@@ -19,8 +19,9 @@ Notifications are a shared product capability. They are used by the desktop inte
 Code layout (`src/notifications/`):
 
 - `mod.rs` — public facade, delivery trait, candidate orchestration (`send_for_report*`, `notifications_for_*`), and package tests
-- `kinds.rs` — threshold kinds, colors, and remaining-percent matching
+- `kinds.rs` — notification kinds, colors, and remaining-percent matching
 - `content.rs` — notification DTO and title/subtitle/body/label projection
+- `store.rs` — previous-remaining store trait and its file-backed implementation
 - `tauri_bridge.rs` — TCP bridge adapter that requests delivery from the desktop app
 
 The application uses one common notification domain model.
@@ -35,6 +36,7 @@ The target delivery adapter is Tauri notifications. Platform-specific notificati
 shared core
   structured source data
   notification thresholds
+  previous successful remaining store
   notification text
   dedupe keys
 
@@ -73,7 +75,7 @@ Rules:
 - when Tauri is unavailable, the notification is skipped without additional terminal output
 - the application does not use a separate notification helper process
 
-The user-facing notification setting controls whether notification checks are enabled.
+The user-facing notification setting controls whether notification checks are enabled. One setting covers every notification type in [content.md](content.md).
 
 ---
 
@@ -92,9 +94,26 @@ Rules:
 - notifications do not replace each other; every delivered notification is kept as a separate system notification
 - the same running process should not repeatedly send the same notification
 - notifications are independent for each provider, for example Codex, Claude, and Cursor
-- notifications are independent for each called data source
-- if different data sources return different limit data for the same provider, this is acceptable
-- each called and enabled source is evaluated separately and can produce its own notification candidate
+- low-remaining notifications may still be produced per called data source when sources differ
+- the 100% again type uses a shared previous-remaining key of provider + limit name and must not fire twice for the same transition when multiple sources report the same limit; a later, independent drop-below-100-then-100 cycle for that same key is a new transition and must notify again
+
+---
+
+## Previous remaining store
+
+For 100% again, the application keeps the last successful remaining percent per limit.
+
+Key:
+
+- provider identity + limit name
+- example: Codex + `5h`
+- source identity is not part of the key
+
+Persistence:
+
+- the store survives application restarts
+- only a successful structured snapshot with a known remaining percent for that limit updates the stored value
+- rejected, unavailable, or otherwise unsuccessful snapshots do not clear or rewrite the stored value
 
 ---
 
@@ -105,3 +124,41 @@ Notification triggers are calculated from structured data.
 Structured data is used because it is standardized and easier to process consistently across providers and sources.
 
 Notification calculation is independent from the delivery channel. The same candidate generation rules apply whether the request originates from the Tauri UI or from the terminal interface.
+
+### Low remaining
+
+For each shown limit with a known remaining percent, choose the matching low-remaining type from [content.md](content.md) when remaining is at or below that type's band.
+
+### 100% again
+
+Fire only when all of the following hold:
+
+- the current successful snapshot has remaining percent exactly `100`
+- comparison uses the exact value `100`, not a display-rounded percent
+- a previous successful remaining value exists for the same provider + limit name key
+- that previous value is strictly below `100`
+
+Do not fire when:
+
+- there is no previous successful value for the key (cold start, first sighting, or any gap with nothing stored)
+- the previous value is already `100`
+- remaining rose but is not exactly `100` (for example `40` → `97`)
+
+After a successful snapshot is evaluated for a limit, update the stored previous remaining for that key to the current remaining percent.
+
+Intentional omission:
+
+- reaching an expected reset date-time alone does not produce a notification
+- only an exact return to `100` remaining counts as replenishment confidence for this product version
+
+---
+
+## User Help
+
+Help copy for notifications must stay short. Target meaning for the Help chapter:
+
+- one settings toggle enables all notification types
+- low remaining uses the existing threshold icons
+- 100% again notifies only on an exact return to 100% after a stored lower reading
+- first readings and partial rises below 100% do not notify
+- macOS only for now

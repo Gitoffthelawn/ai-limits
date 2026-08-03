@@ -16,14 +16,18 @@ pub enum LimitNotificationKind {
     Remaining50,
     Remaining25,
     Remaining10,
+    /// "100% again": an exact return to 100% remaining after a stored lower
+    /// reading. See `docs/notifications/overview.md` for the trigger rules.
+    Replenished,
 }
 
 impl LimitNotificationKind {
-    pub const ALL: [Self; 4] = [
+    pub const ALL: [Self; 5] = [
         Self::Remaining75,
         Self::Remaining50,
         Self::Remaining25,
         Self::Remaining10,
+        Self::Replenished,
     ];
 
     pub fn parse(value: &str) -> Result<Self, String> {
@@ -32,7 +36,8 @@ impl LimitNotificationKind {
             "50" => Ok(Self::Remaining50),
             "25" => Ok(Self::Remaining25),
             "10" => Ok(Self::Remaining10),
-            _ => Err("expected one of: 75, 50, 25, 10".to_string()),
+            "100" => Ok(Self::Replenished),
+            _ => Err("expected one of: 75, 50, 25, 10, 100".to_string()),
         }
     }
 
@@ -42,15 +47,19 @@ impl LimitNotificationKind {
             Self::Remaining50 => 50,
             Self::Remaining25 => 25,
             Self::Remaining10 => 10,
+            Self::Replenished => 100,
         }
     }
 
-    pub fn color(self) -> NotificationColor {
+    /// `None` for `Replenished`: content.md defines no color for 100% again,
+    /// only its fixed 🔔 emoji.
+    pub fn color(self) -> Option<NotificationColor> {
         match self {
-            Self::Remaining75 => NotificationColor::Green,
-            Self::Remaining50 => NotificationColor::Yellow,
-            Self::Remaining25 => NotificationColor::Orange,
-            Self::Remaining10 => NotificationColor::Red,
+            Self::Remaining75 => Some(NotificationColor::Green),
+            Self::Remaining50 => Some(NotificationColor::Yellow),
+            Self::Remaining25 => Some(NotificationColor::Orange),
+            Self::Remaining10 => Some(NotificationColor::Red),
+            Self::Replenished => None,
         }
     }
 
@@ -60,6 +69,7 @@ impl LimitNotificationKind {
             Self::Remaining50 => "🟡",
             Self::Remaining25 => "🟠",
             Self::Remaining10 => "🔴",
+            Self::Replenished => "🔔",
         }
     }
 }

@@ -67,7 +67,7 @@ Defaults:
 
 User experience:
 
-- Notifications controls whether the app sends system limit alerts
+- Notifications controls whether the app sends system limit alerts for every notification type in [../../notifications/content.md](../../notifications/content.md), including low remaining and 100% again
 - Cursor, Cloud, and Codex control which provider blocks are shown and which providers are included in the next limits request
 - Cloud corresponds to Claude
 - Changing a toggle saves the choice and hides disabled provider blocks, but does not start a refresh

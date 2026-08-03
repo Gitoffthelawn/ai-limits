@@ -63,7 +63,7 @@ From the user's point of view, the system provides six core capabilities:
 
 6. Receive notifications
 
-   The user receives native macOS system notifications for remaining-limit thresholds. Notifications are delivered through the desktop app.
+   The user receives native macOS system notifications for remaining-limit thresholds and for an exact return to 100% available. Notifications are delivered through the desktop app.
 
 Limits, plan, and usage are the product's three user-facing output kinds. They are defined, independent of any single interface, in [output-kinds.md](output-kinds.md).
 
@@ -85,6 +85,6 @@ The product flow can be described as a business-readable process:
 
    The system exposes the normalized information to the user as clear answers about limits and usage, in the desktop app and in the terminal.
 
-4. Notify for remaining-limit thresholds
+4. Notify for limit events
 
-   The system turns the normalized information into notification candidates when remaining limits are within defined thresholds, and the macOS desktop app delivers them as native system notifications. Hard usage blocking will reuse the same normalized information once implemented.
+   The system turns the normalized information into notification candidates when remaining limits are within defined thresholds or when a limit returns to exactly 100% available after a stored lower reading, and the macOS desktop app delivers them as native system notifications. Hard usage blocking will reuse the same normalized information once implemented.

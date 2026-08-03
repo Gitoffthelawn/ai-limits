@@ -6,6 +6,8 @@ use std::collections::HashSet;
 use std::process::ExitCode;
 use std::sync::{Arc, Mutex};
 
+use tauri::Manager;
+
 /// Help sub-pages exposed in the macOS native Help menu. Kept in sync with the
 /// `HELP_CHAPTERS` list in the frontend (frontend/modules/help-chapters.js) so
 /// the native menu mirrors the in-app Help sidebar.
@@ -37,6 +39,12 @@ fn main() {
         .manage(Arc::new(Mutex::new(HashSet::<String>::new())))
         .setup(|app| {
             notifications::start_notification_bridge(app.handle().clone());
+            let store_path = notifications::previous_remaining_store_path(app.handle())?;
+            let remaining_store: Arc<dyn ai_limits::notifications::PreviousRemainingStore> =
+                Arc::new(ai_limits::notifications::FileRemainingStore::new(
+                    store_path,
+                ));
+            app.manage(remaining_store);
             #[cfg(target_os = "macos")]
             install_help_menu(app)?;
             Ok(())
