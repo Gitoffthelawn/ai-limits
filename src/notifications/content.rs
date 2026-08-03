@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::presentation::{format_user_timestamp, TimeContext};
+use crate::presentation::{format_user_timestamp, limit_type_label, TimeContext};
 
 use super::kinds::{LimitNotificationKind, NotificationColor};
 
@@ -60,18 +60,6 @@ fn provider_label(provider: &str) -> String {
         "cursor" => "Cursor".to_string(),
         "" => "AI Limits".to_string(),
         _ => title_case(provider),
-    }
-}
-
-fn limit_type_label(limit_name: &str) -> String {
-    match limit_name.trim().to_ascii_lowercase().as_str() {
-        "5h" | "five_hour" | "five hour" | "session" | "primary" => "5h".to_string(),
-        "weekly" | "week" | "7d" | "seven_day" | "seven day" | "secondary" => "weekly".to_string(),
-        "auto" => "auto".to_string(),
-        "plan" | "total" => "plan".to_string(),
-        "api" | "api_models" | "api models" => "api".to_string(),
-        "" => "limit".to_string(),
-        value => value.replace('_', " "),
     }
 }
 

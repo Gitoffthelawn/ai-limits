@@ -43,6 +43,8 @@ The bar width is `25` characters. Each filled bar character `■` represents `4%
 
 Limit rows use fixed visible column widths: `{window}` is 4 characters, `{bar}` is 25 characters, and `{left}` is 11 characters right-aligned. The ` | reset ` separator starts at the same column on every row.
 
+For Cursor, the terminal shows only the two usage pools as `Curs` and `Oth` (desktop and notifications use the full `Cursor Models` / `Other Models` labels). Structured `plan_usage` and `included_spend` are not printed.
+
 The `{left}` percentage label follows the shared [limit display rules](../presentation/limit-display.md). Structured source data may keep finer precision; terminal rendering uses the displayed value for bar and color thresholds.
 
 User-facing timestamps follow the shared rules in [time-display.md](../presentation/time-display.md): local system timezone, `HH:MM` for today, `MMM D, HH:MM` for another date, and no timezone suffix. Terminal rows keep their own contextual labels, for example `reset {time}` for limit reset time and `Source {source}: {time}` for provider data time. If a source timestamp cannot be parsed reliably, keep the original source text.

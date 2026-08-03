@@ -7,8 +7,9 @@ pub use bar::{
     LIMIT_LEFT_WIDTH, LIMIT_WINDOW_WIDTH,
 };
 pub use labels::{
-    format_data_as_of, format_unavailable_block, provider_label, source_label_for_display,
-    window_label_for_display, ProviderBlock,
+    format_data_as_of, format_unavailable_block, is_limit_shown_to_user, limit_type_label,
+    provider_label, source_label_for_display, window_label_for_desktop, window_label_for_display,
+    ProviderBlock,
 };
 pub use numbers::{
     format_compact_number, format_decimal, format_money, format_number, format_percent,

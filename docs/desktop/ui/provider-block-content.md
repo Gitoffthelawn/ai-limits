@@ -16,7 +16,9 @@ Each limit row is rendered as a vertical group:
 2. Full-width remaining bar.
 3. Reset text line below the bar: `reset {time}`, for example `reset Jul 6, 01:49`.
 
-The limit type, such as `5h`, `7d`, `plan`, `auto`, or `api`, must not consume a separate left column. This lets every bar use 100% of the provider block content width.
+The limit type, such as `5h`, `7d`, `Cursor Models`, or `Other Models`, must not consume a separate left column. This lets every bar use 100% of the provider block content width.
+
+Cursor surfaces only the two usage pools (`Cursor Models` from structured `auto`, `Other Models` from `api_models`). Structured `plan_usage` and `included_spend` stay in the data model and are not rendered on the card.
 
 The remaining-limit value follows the shared [limit display rules](../../presentation/limit-display.md).
 

@@ -65,7 +65,7 @@ Fields:
   - `🟠` for 25-10% remaining
   - `🔴` for less than 10% remaining
 - `PROVIDER_NAME`: a canonical name from the shared [provider naming rules](../presentation/provider-names.md)
-- `TYPE`: `5h`, `weekly`, `auto`, `plan`, or `api`
+- `TYPE`: `5h`, `weekly`, `Cursor Models`, or `Other Models`
 - `TIME`: reset timestamp formatted according to [time-display.md](../presentation/time-display.md). The notification body keeps the contextual `reset ` prefix; the shared time formatter only owns the date-time value.
 
 Examples:
@@ -78,7 +78,7 @@ reset 22:22
 
 ```text
 🟢 AI Limits
-Cursor auto - 65% left
+Cursor Cursor Models - 65% left
 reset Jul 7, 22:22
 ```
 

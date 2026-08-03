@@ -64,9 +64,8 @@ export const SHOWCASE_PROVIDERS = {
     dataTimestamp: "20:02",
     selectedUpdateFrequency: "5 min",
     limits: [
-      { label: "plan", remainingPercentage: 46.6, resetTime: "Jul 28, 05:00" },
-      { label: "auto", remainingPercentage: 53.9, resetTime: null },
-      { label: "api", remainingPercentage: 0.0, resetTime: null },
+      { label: "Cursor Models", remainingPercentage: 53.9, resetTime: null },
+      { label: "Other Models", remainingPercentage: 0.0, resetTime: null },
     ],
     creditsRemaining: null,
     availableLimitResets: null,

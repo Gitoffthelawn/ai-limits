@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use std::io;
 
-use crate::presentation::TimeContext;
+use crate::presentation::{is_limit_shown_to_user, TimeContext};
 use crate::types::{SourceReport, StructuredSourceInfo};
 
 mod content;
@@ -54,6 +54,7 @@ pub fn notifications_for_structured(info: &StructuredSourceInfo) -> Vec<Notifica
 
     info.limits
         .iter()
+        .filter(|limit| is_limit_shown_to_user(limit))
         .filter_map(|limit| {
             let remaining = kinds::remaining_percent(limit)?;
             let kind = kinds::matching_kind(remaining)?;

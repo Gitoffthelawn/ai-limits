@@ -1,10 +1,10 @@
 use crate::types::{LimitInfo, StructuredSourceInfo};
 
 use super::common::{
-    format_data_as_of, format_decimal, format_percent, format_unavailable_block, normalize_percent,
-    pad_visible_left, pad_visible_right, provider_label, remaining_percent_for_display,
-    render_limit_bar, window_label_for_display, ColorConfig, ProviderBlock, LIMIT_BAR_WIDTH,
-    LIMIT_LEFT_WIDTH, LIMIT_WINDOW_WIDTH,
+    format_data_as_of, format_decimal, format_percent, format_unavailable_block,
+    is_limit_shown_to_user, normalize_percent, pad_visible_left, pad_visible_right, provider_label,
+    remaining_percent_for_display, render_limit_bar, window_label_for_display, ColorConfig,
+    ProviderBlock, LIMIT_BAR_WIDTH, LIMIT_LEFT_WIDTH, LIMIT_WINDOW_WIDTH,
 };
 use super::time::{format_user_timestamp, TimeContext};
 
@@ -24,6 +24,7 @@ fn format_limits_body(info: &StructuredSourceInfo, color: &ColorConfig) -> Strin
     let limit_rows = info
         .limits
         .iter()
+        .filter(|limit| is_limit_shown_to_user(limit))
         .filter_map(|limit| format_limit_row(limit, color, &time_context))
         .collect::<Vec<_>>();
 

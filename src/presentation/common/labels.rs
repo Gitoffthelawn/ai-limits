@@ -51,6 +51,16 @@ pub fn source_label_for_display(source: &str) -> String {
     source.replace('_', "-")
 }
 
+/// Cursor `plan_usage` and `included_spend` stay in structured data but are not
+/// shown in user-facing surfaces (terminal, desktop, notifications).
+pub fn is_limit_shown_to_user(limit: &LimitInfo) -> bool {
+    !matches!(
+        limit.name.trim().to_ascii_lowercase().as_str(),
+        "plan_usage" | "included_spend" | "plan" | "total"
+    )
+}
+
+/// Compact window label for the terminal (`LIMIT_WINDOW_WIDTH` is 4).
 pub fn window_label_for_display(limit: &LimitInfo) -> String {
     if let Some(minutes) = limit.window_minutes {
         return compact_window_from_minutes(minutes);
@@ -64,6 +74,26 @@ pub fn window_label_for_display(limit: &LimitInfo) -> String {
     }
 
     compact_name_label(&limit.name)
+}
+
+/// Desktop card labels — full Cursor pool names, compact otherwise.
+pub fn window_label_for_desktop(limit: &LimitInfo) -> String {
+    match limit.name.trim().to_ascii_lowercase().as_str() {
+        "auto" | "api_models" | "api" | "api models" => limit_type_label(&limit.name),
+        _ => window_label_for_display(limit),
+    }
+}
+
+/// Notification `$TYPE` label — full Cursor pool names.
+pub fn limit_type_label(limit_name: &str) -> String {
+    match limit_name.trim().to_ascii_lowercase().as_str() {
+        "5h" | "five_hour" | "five hour" | "session" | "primary" => "5h".to_string(),
+        "weekly" | "week" | "7d" | "seven_day" | "seven day" | "secondary" => "weekly".to_string(),
+        "auto" => "Cursor Models".to_string(),
+        "api" | "api_models" | "api models" => "Other Models".to_string(),
+        "" => "limit".to_string(),
+        value => value.replace('_', " "),
+    }
 }
 
 fn compact_window_from_minutes(minutes: u64) -> String {
@@ -93,9 +123,8 @@ fn compact_name_label(name: &str) -> String {
     match name {
         "5h limit" => "5h".to_string(),
         "Weekly limit" => "7d".to_string(),
-        "auto" => "auto".to_string(),
-        "api_models" => "api".to_string(),
-        "plan_usage" => "plan".to_string(),
+        "auto" => "Curs".to_string(),
+        "api_models" => "Oth".to_string(),
         other => {
             let trimmed = other.trim();
             if trimmed.chars().count() <= 4 {

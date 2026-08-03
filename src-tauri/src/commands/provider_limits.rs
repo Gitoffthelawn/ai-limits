@@ -1,7 +1,8 @@
 use ai_limits::get_limits::{SourcePriority, UiSourcePlanOptions};
 use ai_limits::presentation::{
-    format_user_timestamp, normalize_percent, plan_display_lines, remaining_percent_for_display,
-    source_label_for_display, usage_display_lines, window_label_for_display, TimeContext,
+    format_user_timestamp, is_limit_shown_to_user, normalize_percent, plan_display_lines,
+    remaining_percent_for_display, source_label_for_display, usage_display_lines,
+    window_label_for_desktop, TimeContext,
 };
 use ai_limits::types::{AccountInfo, StructuredSourceInfo};
 
@@ -82,10 +83,11 @@ pub(super) fn provider_limits_from_structured(
     let limits: Vec<ProviderLimitRow> = info
         .limits
         .iter()
+        .filter(|limit| is_limit_shown_to_user(limit))
         .filter_map(|limit| {
             let remaining = normalize_percent(remaining_percent_for_display(limit)?);
             Some(ProviderLimitRow {
-                label: window_label_for_display(limit),
+                label: window_label_for_desktop(limit),
                 remaining_percentage: remaining,
                 reset_time: limit
                     .resets_at
@@ -189,8 +191,8 @@ fn provider_label(id: &str) -> String {
 mod tests {
     use super::*;
     use ai_limits::types::{
-        ActivityUsage, CliAuthorization, ModelUsage, MoneyUsage, SourceStatus, TokenUsage,
-        UsageInfo,
+        ActivityUsage, CliAuthorization, LimitInfo, ModelUsage, MoneyUsage, SourceStatus,
+        TokenUsage, UsageInfo,
     };
 
     fn structured_with_resets(available_limit_resets: Option<u64>) -> StructuredSourceInfo {
@@ -471,6 +473,45 @@ mod tests {
         let response = provider_limits_from_structured("cursor", &info);
 
         assert!(response.usage.lines.is_empty());
+    }
+
+    #[test]
+    fn projects_cursor_pools_with_full_labels_and_hides_plan_and_included() {
+        let mut info = structured_source(
+            "cursor",
+            "cursor_api2",
+            AccountInfo::default(),
+            UsageInfo::default(),
+        );
+        info.status.data_available = true;
+        info.limits = vec![
+            LimitInfo {
+                name: "plan_usage".to_string(),
+                remaining_percent: Some(50.0),
+                ..Default::default()
+            },
+            LimitInfo {
+                name: "auto".to_string(),
+                remaining_percent: Some(80.0),
+                ..Default::default()
+            },
+            LimitInfo {
+                name: "api_models".to_string(),
+                remaining_percent: Some(20.0),
+                ..Default::default()
+            },
+            LimitInfo {
+                name: "included_spend".to_string(),
+                remaining_percent: Some(40.0),
+                ..Default::default()
+            },
+        ];
+        let response = provider_limits_from_structured("cursor", &info);
+
+        assert_eq!(response.limits.len(), 2);
+        assert_eq!(response.limits[0].label, "Cursor Models");
+        assert_eq!(response.limits[1].label, "Other Models");
+        assert!(!response.no_fresh_data);
     }
 
     #[test]

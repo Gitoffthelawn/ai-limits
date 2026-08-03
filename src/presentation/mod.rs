@@ -5,8 +5,9 @@ mod time;
 mod usage;
 
 pub use common::{
-    normalize_percent, remaining_percent_for_display, source_label_for_display,
-    window_label_for_display, ColorConfig, ProviderBlock,
+    is_limit_shown_to_user, limit_type_label, normalize_percent, remaining_percent_for_display,
+    source_label_for_display, window_label_for_desktop, window_label_for_display, ColorConfig,
+    ProviderBlock,
 };
 pub use limits::limits_block;
 pub use sections::{plan_display_lines, usage_display_lines};
@@ -324,8 +325,7 @@ mod tests {
     fn limits_block_shows_one_decimal_place_for_fractional_percent() {
         let mut info = sample_limits_info();
         info.limits = vec![LimitInfo {
-            name: "plan_usage".to_string(),
-            window_label: Some("plan".to_string()),
+            name: "auto".to_string(),
             used_percent: Some(37.5),
             remaining_percent: Some(62.5),
             resets_at: Some("Jul 3, 21:41 UTC-2".to_string()),
@@ -334,7 +334,71 @@ mod tests {
 
         let block = limits_block(&info, &ColorConfig { enabled: false });
 
+        assert!(block.body.contains("Curs"));
         assert!(block.body.contains("62.5% left"));
+    }
+
+    #[test]
+    fn limits_block_hides_cursor_plan_and_included_spend() {
+        let mut info = sample_limits_info();
+        info.provider = "cursor".to_string();
+        info.source = "cursor_api2".to_string();
+        info.limits = vec![
+            LimitInfo {
+                name: "plan_usage".to_string(),
+                remaining_percent: Some(50.0),
+                ..Default::default()
+            },
+            LimitInfo {
+                name: "auto".to_string(),
+                remaining_percent: Some(80.0),
+                ..Default::default()
+            },
+            LimitInfo {
+                name: "api_models".to_string(),
+                remaining_percent: Some(20.0),
+                ..Default::default()
+            },
+            LimitInfo {
+                name: "included_spend".to_string(),
+                remaining_percent: Some(40.0),
+                ..Default::default()
+            },
+        ];
+
+        let block = limits_block(&info, &ColorConfig { enabled: false });
+
+        assert!(!block.body.contains("plan"));
+        assert!(!block.body.contains("incl"));
+        assert!(block.body.contains("Curs"));
+        assert!(block.body.contains("Oth"));
+    }
+
+    #[test]
+    fn window_label_maps_cursor_pools_for_terminal_and_desktop() {
+        let auto = LimitInfo {
+            name: "auto".to_string(),
+            ..Default::default()
+        };
+        let api = LimitInfo {
+            name: "api_models".to_string(),
+            ..Default::default()
+        };
+
+        assert_eq!(common::window_label_for_display(&auto), "Curs");
+        assert_eq!(common::window_label_for_display(&api), "Oth");
+        assert_eq!(common::window_label_for_desktop(&auto), "Cursor Models");
+        assert_eq!(common::window_label_for_desktop(&api), "Other Models");
+        assert_eq!(common::limit_type_label("auto"), "Cursor Models");
+        assert_eq!(common::limit_type_label("api_models"), "Other Models");
+        assert!(!common::is_limit_shown_to_user(&LimitInfo {
+            name: "plan_usage".to_string(),
+            ..Default::default()
+        }));
+        assert!(!common::is_limit_shown_to_user(&LimitInfo {
+            name: "included_spend".to_string(),
+            ..Default::default()
+        }));
     }
 
     #[test]
