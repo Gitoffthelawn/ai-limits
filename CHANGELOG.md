@@ -4,6 +4,7 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+- Added the app version to Help > About.
 - Fixed the macOS install disk image shipping without its styled window: the background and Applications-folder shortcut were silently missing since the first release with a disk image, because the step that arranged them needed a Finder permission unavailable in GitHub Actions.
 
 ## [v0.2.0](https://github.com/md2it/ai-limits/releases/tag/v0.2.0) — 2026-08-03
