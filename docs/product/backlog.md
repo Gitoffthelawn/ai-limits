@@ -6,7 +6,7 @@ This file is the current working backlog for the project.
 
 ## Planned
 
-- Subscription details
+- Subscription details (spec: [output-kinds.md](output-kinds.md), [get-limits/structured-info-schema.md](../get-limits/structured-info-schema.md), [desktop/ui/provider-blocks.md](../desktop/ui/provider-blocks.md))
 - macOS widgets
 - macOS menu bar
 

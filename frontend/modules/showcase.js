@@ -19,6 +19,13 @@ export const SHOWCASE_PROVIDERS = {
     ],
     creditsRemaining: 39,
     availableLimitResets: 1,
+    plan: {
+      lines: ["Plan: Plus", "Started Jan 12, 2026 · renews Aug 8, 2026"],
+      links: [],
+    },
+    usage: {
+      lines: ["Tokens: 1.5B total (1.4B cached)", "Events: 22,545 · Files touched: 921"],
+    },
     errorMessage: null,
     noFreshData: false,
     authorizationRequired: null,
@@ -35,6 +42,13 @@ export const SHOWCASE_PROVIDERS = {
     ],
     creditsRemaining: null,
     availableLimitResets: null,
+    plan: {
+      lines: [],
+      links: [],
+    },
+    usage: {
+      lines: ["Tokens: 711.2M total", "Sessions: 92 · Turns: 6,394", "Top model: claude-sonnet-5"],
+    },
     errorMessage: null,
     noFreshData: false,
     authorizationRequired: null,
@@ -52,6 +66,13 @@ export const SHOWCASE_PROVIDERS = {
     ],
     creditsRemaining: null,
     availableLimitResets: null,
+    plan: {
+      lines: ["Renews Jul 28, 2026"],
+      links: [],
+    },
+    usage: {
+      lines: ["Spend this period: $20.00 USD"],
+    },
     errorMessage: null,
     noFreshData: false,
     authorizationRequired: null,

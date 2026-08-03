@@ -132,6 +132,13 @@ pub struct AccountInfo {
     pub credits_total: Option<f64>,
     pub credits_used: Option<f64>,
     pub credits_remaining: Option<f64>,
+    pub subscription_started_at: Option<String>,
+    pub renewal_at: Option<String>,
+    pub price_amount: Option<f64>,
+    pub price_currency: Option<String>,
+    pub price_note: Option<String>,
+    pub plan_management_url: Option<String>,
+    pub billing_management_url: Option<String>,
 }
 
 pub type StructuredAccount = AccountInfo;

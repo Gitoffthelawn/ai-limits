@@ -37,7 +37,7 @@ The product ships as two interfaces sharing one core:
 
 ## User capabilities
 
-From the user's point of view, the system provides five core capabilities:
+From the user's point of view, the system provides six core capabilities:
 
 1. Get limits
 
@@ -45,19 +45,27 @@ From the user's point of view, the system provides five core capabilities:
 
 2. Get usage
 
-   The user can see how much of the available limit has already been used for a selected tool or provider. This is currently available only in the terminal, not in the desktop app.
+   The user can see how much of the available limit has already been used for a selected tool or provider.
 
-3. Check access
+3. Get plan details
+
+   The user can see whatever subscription/tariff context a provider exposes: plan name, subscription start date, and next renewal date. This gives the user a compact way to keep subscriptions under control without opening the provider's own billing page.
+
+   Coverage is uneven and depends entirely on what each source publishes. Today Codex reports a plan name and both dates, Cursor reports a renewal date only, and Claude reports no subscription data at all. Price is specified in the data model but no current source exposes it, so it is not displayed for any provider.
+
+4. Check access
 
    The user can verify whether the system has enough access to read the required usage and limit information from the relevant source.
 
-4. Configure defaults and repeat checks
+5. Configure defaults and repeat checks
 
-   The user can select source priority, visible providers, notifications, and a refresh interval for each provider in the desktop app. The terminal uses built-in defaults and explicit command-line options for a single query.
+   The user can select source priority, visible providers, notifications, a refresh interval, and which output kinds (limits, plan, usage) are shown for each provider in the desktop app. The terminal uses built-in defaults and explicit command-line options for a single query.
 
-5. Receive notifications
+6. Receive notifications
 
    The user receives native macOS system notifications for remaining-limit thresholds. Notifications are delivered through the desktop app.
+
+Limits, plan, and usage are the product's three user-facing output kinds. They are defined, independent of any single interface, in [output-kinds.md](output-kinds.md).
 
 Hard usage blocking, stopping usage automatically when a limit is reached, is a planned capability and not yet implemented.
 

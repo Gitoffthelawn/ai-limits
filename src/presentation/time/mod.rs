@@ -8,7 +8,7 @@ use crate::types::StructuredSourceInfo;
 use format::strip_display_timezone_suffix;
 use parse::{parse_instant_reference, parse_to_local};
 
-pub use format::format_local_datetime;
+pub use format::{format_local_date, format_local_datetime};
 
 pub struct TimeContext {
     reference: DateTime<Local>,
@@ -33,6 +33,12 @@ pub fn format_user_timestamp(value: &str, context: &TimeContext) -> String {
         .unwrap_or_else(|| strip_display_timezone_suffix(value))
 }
 
+pub fn format_user_date(value: &str, context: &TimeContext) -> String {
+    parse_to_local(value, context)
+        .map(format_local_date)
+        .unwrap_or_else(|| strip_display_timezone_suffix(value))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -49,6 +55,56 @@ mod tests {
             parse_iso_or_unix(iso).expect("timestamp should parse"),
             context.reference,
         )
+    }
+
+    fn expected_local_date(iso: &str) -> String {
+        format_local_date(parse_iso_or_unix(iso).expect("timestamp should parse"))
+    }
+
+    #[test]
+    fn date_only_format_keeps_the_year_for_a_past_year() {
+        let context = fixed_context("2026-08-02T12:00:00Z");
+        let formatted = format_user_date("2024-01-12T12:00:00Z", &context);
+
+        assert_eq!(formatted, expected_local_date("2024-01-12T12:00:00Z"));
+        assert!(formatted.contains("2024"));
+        assert!(!formatted.contains("2026"));
+        assert!(!formatted.contains(':'));
+    }
+
+    #[test]
+    fn date_only_format_keeps_the_year_within_the_current_year() {
+        let context = fixed_context("2026-08-02T12:00:00Z");
+        let formatted = format_user_date("2026-08-28T12:00:00Z", &context);
+
+        assert_eq!(formatted, expected_local_date("2026-08-28T12:00:00Z"));
+        assert!(formatted.contains("2026"));
+        assert!(!formatted.contains(':'));
+    }
+
+    #[test]
+    fn date_only_format_keeps_the_date_for_today_instead_of_the_time() {
+        let context = fixed_context("2026-08-02T12:00:00Z");
+        let formatted = format_user_date("2026-08-02T12:30:00Z", &context);
+
+        assert_eq!(formatted, expected_local_date("2026-08-02T12:30:00Z"));
+        assert!(formatted.contains("2026"));
+        assert!(!formatted.contains(':'));
+        assert_ne!(
+            formatted,
+            format_user_timestamp("2026-08-02T12:30:00Z", &context)
+        );
+    }
+
+    #[test]
+    fn date_only_format_degrades_like_timestamps_for_unparseable_input() {
+        let context = fixed_context("2026-08-02T12:00:00Z");
+
+        assert_eq!(
+            format_user_date("whenever it renews (Asia/Nicosia)", &context),
+            "whenever it renews"
+        );
+        assert_eq!(format_user_date("not a date", &context), "not a date");
     }
 
     #[test]

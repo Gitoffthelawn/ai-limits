@@ -4,6 +4,7 @@ import {
   syncSettingsInputs,
   setSettingsMenuOpen,
   handleSettingsChange,
+  handleDisplaySettingsChange,
 } from "./settings.js";
 import { initAppUpdates, syncAppUpdateSchedule } from "./app-update.js";
 import { initHelp, renderHelpMenu, openHelp, closeHelp, isHelpOpen } from "./help.js";
@@ -12,6 +13,7 @@ import {
   initProviders,
   initProviderIntervals,
   refreshEnabledProviders,
+  refreshProviderSectionsFromCache,
   removeDisabledProviderBlocks,
   restoreNewlyEnabledProviders,
 } from "./providers.js";
@@ -32,6 +34,9 @@ const settingInputs = {
   cursor: document.querySelector("#setting-cursor"),
   cloud: document.querySelector("#setting-cloud"),
   codex: document.querySelector("#setting-codex"),
+  showLimits: document.querySelector("#setting-show-limits"),
+  showPlan: document.querySelector("#setting-show-plan"),
+  showUsage: document.querySelector("#setting-show-usage"),
   sourcePriority: document.querySelector("#setting-source-priority"),
   sourcePriorityInfo: document.querySelector("#setting-source-priority-info"),
   autoUpdate: document.querySelector("#setting-auto-update"),
@@ -58,6 +63,9 @@ initSettings(settingInputs, {
     removeDisabledProviderBlocks();
     restoreNewlyEnabledProviders(newlyEnabled);
     syncAppUpdateSchedule();
+  },
+  onDisplayChanged() {
+    refreshProviderSectionsFromCache();
   },
 });
 initAppUpdates(updateBannerEls);
@@ -99,6 +107,8 @@ window.__openSettingsFromNative = () => {
   setSettingsMenuOpen(true, menuEls);
 };
 
+const displaySettingInputs = [settingInputs.showLimits, settingInputs.showPlan, settingInputs.showUsage];
+
 for (const input of Object.values(settingInputs)) {
   if (input === settingInputs.sourcePriority || input === settingInputs.sourcePriorityInfo) {
     continue;
@@ -108,6 +118,11 @@ for (const input of Object.values(settingInputs)) {
     input.addEventListener("change", (event) => {
       setManualTheme(event.target.checked);
     });
+    continue;
+  }
+
+  if (displaySettingInputs.includes(input)) {
+    input.addEventListener("change", handleDisplaySettingsChange);
     continue;
   }
 

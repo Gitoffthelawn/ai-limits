@@ -17,6 +17,9 @@ The method:
 - uses an access token after `cursor agent login`
 - calls `GetCurrentPeriodUsage`
 - returns included usage, usage percentages, and billing cycle
+- reuses the parsed `billingCycleEnd` for both `limits[].resets_at` and `account.renewal_at`; no past-date guard is applied, because the value comes from a live response describing the current period rather than from a cached local credential, which is the same boundary `src/get_limits/freshness.rs` draws when it rejects expired resets for local sources only
+- leaves `account.subscription_started_at` `null`: `billingCycleStart` is the current period start, not the date the plan began
+- leaves `account.plan` `null`: the endpoint carries no tier name
 - uses Cursor's stable internal endpoint, whose contract is not publicly documented
 - requires a separate security review before production use
 

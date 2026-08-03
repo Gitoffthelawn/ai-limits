@@ -1,7 +1,6 @@
 import { EXTERNAL_LINKS } from "./constants.js";
 
-export async function openExternalSetup(linkId) {
-  const url = EXTERNAL_LINKS[linkId];
+export async function openExternalUrl(url) {
   if (!url) {
     return;
   }
@@ -13,4 +12,8 @@ export async function openExternalSetup(linkId) {
   }
 
   window.open(url, "_blank", "noopener,noreferrer");
+}
+
+export async function openExternalSetup(linkId) {
+  return openExternalUrl(EXTERNAL_LINKS[linkId]);
 }

@@ -1,3 +1,4 @@
+mod auth;
 mod parse;
 mod project;
 mod raw;
@@ -12,6 +13,7 @@ pub use raw::{
     CodexLocalRateLimitWindow, CodexLocalRateLimits, CodexLocalRaw, CodexLocalTokenTotals,
 };
 
+use auth::{read_subscription, CodexLocalSubscription};
 use project::{build_structured, source_data_from_raw};
 use raw::{raw_from_usage, CodexLocalUsage};
 use scan::{codex_home, scan_dir};
@@ -22,7 +24,8 @@ pub fn get_usage() -> std::io::Result<SourceData> {
 
 pub fn collect() -> std::io::Result<SourceData> {
     let root = codex_home()?;
-    let collected_at = Some(Utc::now().format("%Y-%m-%dT%H:%M:%SZ").to_string());
+    let now = Utc::now();
+    let collected_at = Some(now.format("%Y-%m-%dT%H:%M:%SZ").to_string());
 
     if !root.exists() {
         let raw = CodexLocalRaw {
@@ -31,6 +34,7 @@ pub fn collect() -> std::io::Result<SourceData> {
         };
         let structured = build_structured(
             &raw,
+            &CodexLocalSubscription::default(),
             collected_at,
             false,
             false,
@@ -49,7 +53,15 @@ pub fn collect() -> std::io::Result<SourceData> {
     } else {
         (true, None)
     };
-    let structured = build_structured(&raw, collected_at, true, data_available, message);
+    let subscription = read_subscription(&root, now);
+    let structured = build_structured(
+        &raw,
+        &subscription,
+        collected_at,
+        true,
+        data_available,
+        message,
+    );
 
     Ok(source_data_from_raw(&raw, structured))
 }
@@ -60,11 +72,28 @@ mod tests {
     use std::fs;
     use std::path::{Path, PathBuf};
 
+    use super::auth::CodexLocalSubscription;
     use super::parse::parse_credits;
     use super::project::{build_structured, decode_raw, format_unix_utc};
     use super::raw::{raw_from_usage, CodexLocalRateLimits, CodexLocalRaw, CodexLocalUsage};
     use super::scan::scan_file;
-    use crate::types::SourceData;
+    use crate::types::{SourceData, StructuredSourceInfo};
+
+    fn structured_for(
+        raw: &CodexLocalRaw,
+        access_available: bool,
+        data_available: bool,
+        message: Option<&str>,
+    ) -> StructuredSourceInfo {
+        build_structured(
+            raw,
+            &CodexLocalSubscription::default(),
+            None,
+            access_available,
+            data_available,
+            message.map(ToString::to_string),
+        )
+    }
 
     fn fixture_path(suffix: &str) -> PathBuf {
         env::temp_dir().join(format!(
@@ -93,7 +122,7 @@ mod tests {
             "structured",
         );
 
-        let structured = build_structured(&raw, None, true, true, None);
+        let structured = structured_for(&raw, true, true, None);
 
         assert_eq!(structured.provider, "codex");
         assert_eq!(structured.source, "codex_local");
@@ -147,13 +176,7 @@ mod tests {
             root: "/missing/.codex".to_string(),
             ..CodexLocalRaw::default()
         };
-        let structured = build_structured(
-            &raw,
-            None,
-            false,
-            false,
-            Some("not found: /missing/.codex".to_string()),
-        );
+        let structured = structured_for(&raw, false, false, Some("not found: /missing/.codex"));
 
         assert!(!structured.status.access_available);
         assert!(!structured.status.data_available);
@@ -172,13 +195,7 @@ mod tests {
             files_scanned: 3,
             ..CodexLocalRaw::default()
         };
-        let structured = build_structured(
-            &raw,
-            None,
-            true,
-            false,
-            Some("token events: not found".to_string()),
-        );
+        let structured = structured_for(&raw, true, false, Some("token events: not found"));
 
         assert!(structured.status.access_available);
         assert!(!structured.status.data_available);
@@ -199,7 +216,7 @@ mod tests {
             "latest-limits",
         );
 
-        let structured = build_structured(&raw, None, true, true, None);
+        let structured = structured_for(&raw, true, true, None);
         let primary = structured
             .limits
             .iter()
@@ -223,7 +240,7 @@ mod tests {
             "null-info",
         );
 
-        let structured = build_structured(&raw, None, true, true, None);
+        let structured = structured_for(&raw, true, true, None);
 
         assert_eq!(raw.totals.total_tokens, 15);
         assert_eq!(structured.account.plan.as_deref(), Some("plus"));
@@ -251,12 +268,59 @@ mod tests {
             ..CodexLocalRaw::default()
         };
 
-        let structured = build_structured(&raw, None, true, true, None);
+        let structured = structured_for(&raw, true, true, None);
 
         assert_eq!(structured.account.credits_remaining, None);
         assert!(structured
             .diagnostics
             .contains(&"credits: unlimited".to_string()));
+    }
+
+    #[test]
+    fn subscription_dates_reach_account_with_renewal_note() {
+        let raw = CodexLocalRaw {
+            root: "/tmp/.codex".to_string(),
+            token_events: 1,
+            ..CodexLocalRaw::default()
+        };
+        let subscription = CodexLocalSubscription {
+            started_at: Some("2026-06-02T11:47:15Z".to_string()),
+            renewal_at: Some("2026-08-02T11:47:15Z".to_string()),
+            diagnostics: vec!["renewal date is the subscription active-until date".to_string()],
+        };
+
+        let structured = build_structured(&raw, &subscription, None, true, true, None);
+
+        assert_eq!(
+            structured.account.subscription_started_at.as_deref(),
+            Some("2026-06-02T11:47:15Z")
+        );
+        assert_eq!(
+            structured.account.renewal_at.as_deref(),
+            Some("2026-08-02T11:47:15Z")
+        );
+        assert!(structured
+            .diagnostics
+            .iter()
+            .any(|entry| entry.contains("active-until")));
+        assert_eq!(structured.account.price_amount, None);
+        assert_eq!(structured.account.price_currency, None);
+        assert_eq!(structured.account.plan_management_url, None);
+        assert_eq!(structured.account.billing_management_url, None);
+    }
+
+    #[test]
+    fn missing_subscription_dates_stay_null() {
+        let raw = CodexLocalRaw {
+            root: "/tmp/.codex".to_string(),
+            token_events: 1,
+            ..CodexLocalRaw::default()
+        };
+
+        let structured = structured_for(&raw, true, true, None);
+
+        assert_eq!(structured.account.subscription_started_at, None);
+        assert_eq!(structured.account.renewal_at, None);
     }
 
     #[test]
@@ -303,7 +367,7 @@ mod tests {
 "#,
             "collect-source-data",
         );
-        let structured = build_structured(&raw, None, true, true, None);
+        let structured = structured_for(&raw, true, true, None);
         let data = SourceData {
             raw: serde_json::to_string(&raw).ok(),
             structured,

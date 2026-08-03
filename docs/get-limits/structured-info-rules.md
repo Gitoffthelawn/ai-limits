@@ -26,6 +26,18 @@ The default terminal output uses `source` and `data_as_of` for the `Source {sour
 
 `usage.activity.latest_activity_at` is a separate business fact about user activity. It must not be treated as the default `Source {source}` timestamp unless it is also the best known timestamp for the source data itself.
 
+## Subscription fields
+
+`account.subscription_started_at` is when the user's current plan/subscription began. It is not the account creation date if the account existed on a different plan before.
+
+`account.renewal_at` is the next billing/renewal date for the subscription itself. It is a separate business fact from `limits[].resets_at`, which is the automatic reset time of a rate-limit window, and from `available_limit_resets`, which is a manually redeemable reset count.
+
+`account.price_amount` and `account.price_currency` carry the price as reported by the source, in the source's own currency. They must not be converted to another currency by the collection layer.
+
+`account.price_note` must be filled with a short, user-readable disclaimer whenever the source does not guarantee that `price_amount`/`price_currency` is the price every user on that plan pays, for example because price can vary by country, region, currency, or active promotion. When the source-reported price is unconditional for the account being read, `price_note` may stay `null`.
+
+`account.plan_management_url` and `account.billing_management_url` are optional deep links into the provider's own plan-change and billing-management pages. They must be `null` when the source does not expose a reliable link for the authenticated account; they must never be guessed or constructed from a generic provider marketing URL.
+
 ## Empty and unavailable values
 
 If a value is not present in the source data, use `null`.

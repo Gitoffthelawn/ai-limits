@@ -10,10 +10,12 @@ import { getAppTheme } from "./theme.js";
 let settingInputs = null;
 let appSettings = { ...DEFAULT_APP_SETTINGS };
 let onSettingsChanged = null;
+let onDisplaySettingsChanged = null;
 
-export function initSettings(inputs, { onChanged } = {}) {
+export function initSettings(inputs, { onChanged, onDisplayChanged } = {}) {
   settingInputs = inputs;
   onSettingsChanged = onChanged ?? null;
+  onDisplaySettingsChanged = onDisplayChanged ?? null;
   appSettings = loadAppSettings();
 }
 
@@ -54,6 +56,9 @@ function loadAppSettings() {
       cloud: typeof parsed.cloud === "boolean" ? parsed.cloud : DEFAULT_APP_SETTINGS.cloud,
       codex: typeof parsed.codex === "boolean" ? parsed.codex : DEFAULT_APP_SETTINGS.codex,
       sourcePriority: migrateSourcePriority(parsed),
+      showLimits: typeof parsed.showLimits === "boolean" ? parsed.showLimits : DEFAULT_APP_SETTINGS.showLimits,
+      showPlan: typeof parsed.showPlan === "boolean" ? parsed.showPlan : DEFAULT_APP_SETTINGS.showPlan,
+      showUsage: typeof parsed.showUsage === "boolean" ? parsed.showUsage : DEFAULT_APP_SETTINGS.showUsage,
     };
   } catch {
     return { ...DEFAULT_APP_SETTINGS };
@@ -111,9 +116,24 @@ export function syncSettingsInputs() {
   settingInputs.cursor.checked = appSettings.cursor;
   settingInputs.cloud.checked = appSettings.cloud;
   settingInputs.codex.checked = appSettings.codex;
+  settingInputs.showLimits.checked = appSettings.showLimits;
+  settingInputs.showPlan.checked = appSettings.showPlan;
+  settingInputs.showUsage.checked = appSettings.showUsage;
   settingInputs.darkTheme.checked = getAppTheme().value === "dark";
   renderSettingsSourcePriorityControl();
   syncSourcePriorityControls();
+}
+
+export function isShowLimitsEnabled() {
+  return appSettings.showLimits;
+}
+
+export function isShowPlanEnabled() {
+  return appSettings.showPlan;
+}
+
+export function isShowUsageEnabled() {
+  return appSettings.showUsage;
 }
 
 export function settingsToQuery() {
@@ -152,12 +172,12 @@ export function handleSettingsChange() {
   const previouslyEnabled = PROVIDER_IDS.filter(isProviderEnabled);
 
   appSettings = {
+    ...appSettings,
     notifications: settingInputs.notifications.checked,
     autoUpdate: settingInputs.autoUpdate.checked,
     cursor: settingInputs.cursor.checked,
     cloud: settingInputs.cloud.checked,
     codex: settingInputs.codex.checked,
-    sourcePriority: appSettings.sourcePriority,
   };
   saveAppSettings();
 
@@ -167,4 +187,20 @@ export function handleSettingsChange() {
 
   syncSourcePriorityControls();
   onSettingsChanged?.({ newlyEnabled });
+}
+
+// Display toggles (Show limits / Show plan / Show usage) never affect what is
+// requested from the backend and never trigger a refresh. They only change
+// what the frontend renders from data it already holds, so this handler saves
+// the choice and asks the caller to re-render already-mounted provider blocks
+// in place, unlike handleSettingsChange above.
+export function handleDisplaySettingsChange() {
+  appSettings = {
+    ...appSettings,
+    showLimits: settingInputs.showLimits.checked,
+    showPlan: settingInputs.showPlan.checked,
+    showUsage: settingInputs.showUsage.checked,
+  };
+  saveAppSettings();
+  onDisplaySettingsChanged?.();
 }

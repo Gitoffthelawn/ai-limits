@@ -39,3 +39,19 @@ pub fn format_number(value: u64) -> String {
 
     formatted.chars().rev().collect()
 }
+
+pub fn format_compact_number(value: u64) -> String {
+    match value {
+        value if value >= 1_000_000_000 => format!("{:.1}B", value as f64 / 1_000_000_000.0),
+        value if value >= 1_000_000 => format!("{:.1}M", value as f64 / 1_000_000.0),
+        value => format_number(value),
+    }
+}
+
+pub fn format_money(amount: f64, currency: Option<&str>) -> String {
+    match currency {
+        None => format!("${amount:.2}"),
+        Some(code) if code.eq_ignore_ascii_case("usd") => format!("${amount:.2}"),
+        Some(code) => format!("{amount:.2} {code}"),
+    }
+}

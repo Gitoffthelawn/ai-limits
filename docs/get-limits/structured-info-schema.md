@@ -22,6 +22,13 @@ account:
   credits_total: number | null
   credits_used: number | null
   credits_remaining: number | null
+  subscription_started_at: string | null
+  renewal_at: string | null
+  price_amount: number | null
+  price_currency: string | null
+  price_note: string | null
+  plan_management_url: string | null
+  billing_management_url: string | null
 limits:
   - name: string
     window_label: string | null
@@ -65,3 +72,5 @@ diagnostics:
 For Codex CLI, the intended source is the interactive `/usage` view. `usage` is Codex's command and UI terminology; `available_limit_resets` is the ai-limits product field. The raw source is the rendered CLI TUI stream, not a documented local JSON object or array. Sources that do not expose a manual reset count must return `available_limit_resets: null`.
 
 The Rust structured model serializes `available_limit_resets`. Codex CLI populates it from the read-only `/usage` view.
+
+`account.subscription_started_at`, `account.renewal_at`, `account.price_amount`, `account.price_currency`, `account.price_note`, `account.plan_management_url`, and `account.billing_management_url` are the subscription fields that back the product's **Plan** output kind, defined in [product/output-kinds.md](../product/output-kinds.md). Population and disclaimer rules for these fields are documented in [structured-info-rules.md](structured-info-rules.md).

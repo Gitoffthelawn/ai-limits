@@ -1,5 +1,6 @@
 mod common;
 mod limits;
+mod sections;
 mod time;
 mod usage;
 
@@ -8,7 +9,8 @@ pub use common::{
     window_label_for_display, ColorConfig, ProviderBlock,
 };
 pub use limits::limits_block;
-pub use time::{format_user_timestamp, TimeContext};
+pub use sections::{plan_display_lines, usage_display_lines};
+pub use time::{format_user_date, format_user_timestamp, TimeContext};
 pub use usage::usage_block;
 
 pub fn format_raw_output(data: &crate::types::SourceData) -> String {

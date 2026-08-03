@@ -1,9 +1,9 @@
 use ai_limits::get_limits::{SourcePriority, UiSourcePlanOptions};
 use ai_limits::presentation::{
-    format_user_timestamp, normalize_percent, remaining_percent_for_display,
-    source_label_for_display, window_label_for_display, TimeContext,
+    format_user_timestamp, normalize_percent, plan_display_lines, remaining_percent_for_display,
+    source_label_for_display, usage_display_lines, window_label_for_display, TimeContext,
 };
-use ai_limits::types::StructuredSourceInfo;
+use ai_limits::types::{AccountInfo, StructuredSourceInfo};
 
 #[derive(Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -39,6 +39,8 @@ pub struct ProviderLimits {
     limits: Vec<ProviderLimitRow>,
     credits_remaining: Option<f64>,
     available_limit_resets: Option<u64>,
+    plan: ProviderPlan,
+    usage: ProviderUsage,
     error_message: Option<String>,
     no_fresh_data: bool,
     authorization_required: Option<String>,
@@ -50,6 +52,26 @@ pub struct ProviderLimitRow {
     label: String,
     remaining_percentage: f64,
     reset_time: Option<String>,
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProviderPlan {
+    lines: Vec<String>,
+    links: Vec<ProviderLink>,
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProviderLink {
+    label: String,
+    url: String,
+}
+
+#[derive(serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProviderUsage {
+    lines: Vec<String>,
 }
 
 pub(super) fn provider_limits_from_structured(
@@ -106,6 +128,13 @@ pub(super) fn provider_limits_from_structured(
         limits,
         credits_remaining: info.account.credits_remaining,
         available_limit_resets: info.available_limit_resets,
+        plan: ProviderPlan {
+            lines: plan_display_lines(&info.account, &time_context),
+            links: plan_links(&info.account),
+        },
+        usage: ProviderUsage {
+            lines: usage_display_lines(&info.usage),
+        },
         error_message,
         no_fresh_data,
         authorization_required,
@@ -122,10 +151,30 @@ pub(super) fn provider_error(id: &str, message: String) -> ProviderLimits {
         limits: Vec::new(),
         credits_remaining: None,
         available_limit_resets: None,
+        plan: ProviderPlan {
+            lines: Vec::new(),
+            links: Vec::new(),
+        },
+        usage: ProviderUsage { lines: Vec::new() },
         error_message: Some(message),
         no_fresh_data: false,
         authorization_required: None,
     }
+}
+
+fn plan_links(account: &AccountInfo) -> Vec<ProviderLink> {
+    [
+        (account.plan_management_url.as_deref(), "Manage plan"),
+        (account.billing_management_url.as_deref(), "Manage billing"),
+    ]
+    .into_iter()
+    .filter_map(|(url, label)| {
+        url.map(|url| ProviderLink {
+            label: label.to_string(),
+            url: url.to_string(),
+        })
+    })
+    .collect()
 }
 
 fn provider_label(id: &str) -> String {
@@ -139,7 +188,10 @@ fn provider_label(id: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ai_limits::types::{AccountInfo, CliAuthorization, SourceStatus, UsageInfo};
+    use ai_limits::types::{
+        ActivityUsage, CliAuthorization, ModelUsage, MoneyUsage, SourceStatus, TokenUsage,
+        UsageInfo,
+    };
 
     fn structured_with_resets(available_limit_resets: Option<u64>) -> StructuredSourceInfo {
         StructuredSourceInfo {
@@ -233,5 +285,292 @@ mod tests {
         assert_eq!(response.authorization_required.as_deref(), Some("claude"));
         assert!(response.error_message.is_none());
         assert!(!response.no_fresh_data);
+    }
+
+    fn structured_source(
+        provider: &str,
+        source: &str,
+        account: AccountInfo,
+        usage: UsageInfo,
+    ) -> StructuredSourceInfo {
+        StructuredSourceInfo {
+            provider: provider.to_string(),
+            source: source.to_string(),
+            account,
+            usage,
+            ..structured_with_resets(None)
+        }
+    }
+
+    fn serialized(response: &ProviderLimits) -> serde_json::Value {
+        serde_json::to_value(response).expect("response should serialize")
+    }
+
+    fn codex_local() -> StructuredSourceInfo {
+        structured_source(
+            "codex",
+            "codex_local",
+            AccountInfo {
+                plan: Some("plus".to_string()),
+                credits_remaining: Some(38.6355075),
+                ..Default::default()
+            },
+            UsageInfo {
+                tokens: TokenUsage {
+                    input: Some(1_538_117_126),
+                    cached_input: Some(1_440_486_272),
+                    output: Some(7_290_916),
+                    reasoning_output: Some(1_386_692),
+                    total: Some(1_545_504_962),
+                    ..Default::default()
+                },
+                activity: ActivityUsage {
+                    events_count: Some(22_545),
+                    files_count: Some(921),
+                    latest_activity_at: Some("2026-08-02T15:47:37.356Z".to_string()),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        )
+    }
+
+    #[test]
+    fn projects_codex_local_plan_and_usage() {
+        let response = provider_limits_from_structured("codex", &codex_local());
+
+        assert_eq!(response.plan.lines, vec!["Plan: Plus".to_string()]);
+        assert!(response.plan.links.is_empty());
+        assert_eq!(
+            response.usage.lines,
+            vec![
+                "Tokens: 1.5B total".to_string(),
+                "Files: 921 \u{b7} Events: 22,545".to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn keeps_credits_remaining_out_of_the_plan_section() {
+        let response = provider_limits_from_structured("codex", &codex_local());
+        let json = serialized(&response);
+
+        assert_eq!(json["creditsRemaining"], serde_json::json!(38.6355075));
+        assert!(!response.plan.lines.iter().any(|line| line.contains("38.6")));
+    }
+
+    #[test]
+    fn projects_codex_cli_without_plan_or_usage_lines() {
+        let info = structured_source(
+            "codex",
+            "codex_cli",
+            AccountInfo {
+                credits_remaining: Some(39.0),
+                ..Default::default()
+            },
+            UsageInfo::default(),
+        );
+        let response = provider_limits_from_structured("codex", &info);
+
+        assert!(response.plan.lines.is_empty());
+        assert!(response.plan.links.is_empty());
+        assert!(response.usage.lines.is_empty());
+        assert_eq!(response.credits_remaining, Some(39.0));
+    }
+
+    #[test]
+    fn projects_claude_cli_zero_usage_as_known_zero_lines() {
+        let info = structured_source(
+            "claude",
+            "claude_cli",
+            AccountInfo::default(),
+            UsageInfo {
+                tokens: TokenUsage {
+                    input: Some(0),
+                    cached_input: Some(0),
+                    output: Some(0),
+                    reasoning_output: Some(0),
+                    cache_read: Some(0),
+                    cache_write: Some(0),
+                    total: Some(0),
+                },
+                money: MoneyUsage {
+                    used_amount: Some(0.0),
+                    total_amount: Some(0.0),
+                    currency: Some("usd".to_string()),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        );
+        let response = provider_limits_from_structured("claude", &info);
+
+        assert!(response.plan.lines.is_empty());
+        assert_eq!(
+            response.usage.lines,
+            vec![
+                "Tokens: 0 total".to_string(),
+                "Spend this period: $0.00".to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn projects_claude_local_usage_groups() {
+        let info = structured_source(
+            "claude",
+            "claude_local",
+            AccountInfo::default(),
+            UsageInfo {
+                tokens: TokenUsage {
+                    input: Some(1_847_433),
+                    output: Some(3_326_333),
+                    cache_read: Some(685_869_426),
+                    cache_write: Some(20_146_310),
+                    total: Some(711_189_502),
+                    ..Default::default()
+                },
+                activity: ActivityUsage {
+                    files_count: Some(223),
+                    sessions_count: Some(92),
+                    turns_count: Some(6_394),
+                    ..Default::default()
+                },
+                models: ModelUsage {
+                    top_model: Some("claude-sonnet-5".to_string()),
+                },
+                ..Default::default()
+            },
+        );
+        let response = provider_limits_from_structured("claude", &info);
+
+        assert_eq!(
+            response.usage.lines,
+            vec![
+                "Tokens: 711.2M total".to_string(),
+                "Sessions: 92 \u{b7} Turns: 6,394 \u{b7} Files: 223".to_string(),
+                "Top model: claude-sonnet-5".to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn projects_cursor_api2_money_only_usage() {
+        let info = structured_source(
+            "cursor",
+            "cursor_api2",
+            AccountInfo::default(),
+            UsageInfo {
+                money: MoneyUsage {
+                    total_amount: Some(20.0),
+                    currency: Some("USD".to_string()),
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+        );
+        let response = provider_limits_from_structured("cursor", &info);
+
+        assert_eq!(
+            response.usage.lines,
+            vec!["Spend this period: $20.00".to_string()]
+        );
+    }
+
+    #[test]
+    fn projects_plan_links_from_management_urls() {
+        let info = structured_source(
+            "codex",
+            "codex_local",
+            AccountInfo {
+                plan: Some("pro".to_string()),
+                plan_management_url: Some("https://example.test/plan".to_string()),
+                billing_management_url: Some("https://example.test/billing".to_string()),
+                ..Default::default()
+            },
+            UsageInfo::default(),
+        );
+        let json = serialized(&provider_limits_from_structured("codex", &info));
+
+        assert_eq!(
+            json["plan"]["links"],
+            serde_json::json!([
+                { "label": "Manage plan", "url": "https://example.test/plan" },
+                { "label": "Manage billing", "url": "https://example.test/billing" },
+            ])
+        );
+    }
+
+    #[test]
+    fn omits_missing_management_urls_from_plan_links() {
+        let info = structured_source(
+            "codex",
+            "codex_local",
+            AccountInfo {
+                billing_management_url: Some("https://example.test/billing".to_string()),
+                ..Default::default()
+            },
+            UsageInfo::default(),
+        );
+        let response = provider_limits_from_structured("codex", &info);
+
+        assert_eq!(response.plan.links.len(), 1);
+        assert_eq!(response.plan.links[0].label, "Manage billing");
+    }
+
+    #[test]
+    fn serializes_empty_plan_and_usage_objects_instead_of_null() {
+        let json = serialized(&provider_limits_from_structured(
+            "codex",
+            &structured_with_resets(None),
+        ));
+
+        assert_eq!(
+            json["plan"],
+            serde_json::json!({ "lines": [], "links": [] })
+        );
+        assert_eq!(json["usage"], serde_json::json!({ "lines": [] }));
+    }
+
+    #[test]
+    fn provider_error_emits_empty_plan_and_usage_objects() {
+        let json = serialized(&provider_error("codex", "boom".to_string()));
+
+        assert_eq!(
+            json["plan"],
+            serde_json::json!({ "lines": [], "links": [] })
+        );
+        assert_eq!(json["usage"], serde_json::json!({ "lines": [] }));
+    }
+
+    #[test]
+    fn serializes_plan_dates_and_price_as_display_lines() {
+        let info = structured_source(
+            "codex",
+            "codex_local",
+            AccountInfo {
+                plan: Some("plus".to_string()),
+                subscription_started_at: Some("2024-01-12T12:00:00Z".to_string()),
+                renewal_at: Some("2026-08-28T12:00:00Z".to_string()),
+                price_amount: Some(20.0),
+                price_currency: Some("USD".to_string()),
+                price_note: Some("may vary by country/currency".to_string()),
+                ..Default::default()
+            },
+            UsageInfo::default(),
+        );
+        let response = provider_limits_from_structured("codex", &info);
+
+        assert_eq!(response.plan.lines.len(), 3);
+        assert_eq!(response.plan.lines[0], "Plan: Plus");
+        assert!(response.plan.lines[1].starts_with("Started "));
+        assert!(response.plan.lines[1].contains(" \u{b7} renews "));
+        assert!(response.plan.lines[1].contains("2024"));
+        assert!(response.plan.lines[1].contains("2026"));
+        assert!(!response.plan.lines[1].contains(':'));
+        assert_eq!(
+            response.plan.lines[2],
+            "$20.00 (may vary by country/currency)"
+        );
     }
 }

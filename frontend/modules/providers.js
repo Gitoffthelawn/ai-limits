@@ -9,6 +9,7 @@ import {
   syncSourcePriorityControls,
 } from "./settings.js";
 import { openHelp } from "./help.js";
+import { openExternalUrl } from "./links.js";
 import { isScreenshotShowcase, SHOWCASE_PROVIDERS } from "./showcase.js";
 import { ensureProviderInterval, getProviderInterval, restartProviderRefreshTimer, setProviderInterval, stopProviderRefreshTimer } from "./provider-refresh-intervals.js";
 import { createEmptyProvider, renderProvider, updateProviderBlockData } from "./provider-rendering.js";
@@ -96,8 +97,7 @@ function attachProviderBlockHandlers(block, providerId) {
   block.querySelector("[data-manual-refresh]")?.addEventListener("click", () => {
     refreshSingleProvider(providerId);
   });
-  attachSourcePriorityBlockHandlers(block);
-  attachCliAuthorizationHandlers(block);
+  attachSectionHandlers(block);
 }
 
 function attachSourcePriorityBlockHandlers(block) {
@@ -131,6 +131,36 @@ function attachCliAuthorizationHandlers(block) {
   loginButton.addEventListener("click", () => {
     startProviderCliLogin(loginButton.dataset.providerCliLogin);
   });
+}
+
+function attachPlanLinkHandlers(block) {
+  for (const link of block.querySelectorAll("[data-plan-link-url]")) {
+    link.addEventListener("click", () => {
+      openExternalUrl(link.dataset.planLinkUrl);
+    });
+  }
+}
+
+function attachSectionHandlers(block) {
+  attachSourcePriorityBlockHandlers(block);
+  attachCliAuthorizationHandlers(block);
+  attachPlanLinkHandlers(block);
+}
+
+// Display toggles (Show limits / Show plan / Show usage) never trigger a
+// refresh: they re-render every already-mounted provider block from the
+// data already held in providerDataCache, instantly and without a backend
+// call. See handleDisplaySettingsChange in settings.js.
+export function refreshProviderSectionsFromCache() {
+  for (const provider of providerDataCache.values()) {
+    const block = getProviderBlock(provider.id);
+    if (!block) {
+      continue;
+    }
+
+    updateProviderBlockData(block, provider);
+    attachSectionHandlers(block);
+  }
 }
 
 async function startProviderCliLogin(provider) {
@@ -276,8 +306,7 @@ async function refreshSingleProvider(providerId, { showLoading = true } = {}) {
       insertProviderBlockInOrder(block, providerId);
     } else {
       updateProviderBlockData(block, provider);
-      attachSourcePriorityBlockHandlers(block);
-      attachCliAuthorizationHandlers(block);
+      attachSectionHandlers(block);
     }
 
     if (isScreenshotShowcase) {

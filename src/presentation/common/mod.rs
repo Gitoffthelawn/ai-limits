@@ -11,7 +11,8 @@ pub use labels::{
     window_label_for_display, ProviderBlock,
 };
 pub use numbers::{
-    format_decimal, format_number, format_percent, normalize_percent, remaining_percent_for_display,
+    format_compact_number, format_decimal, format_money, format_number, format_percent,
+    normalize_percent, remaining_percent_for_display,
 };
 
 #[cfg(test)]

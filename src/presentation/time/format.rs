@@ -13,6 +13,11 @@ pub fn format_local_datetime(dt: DateTime<Local>, reference: DateTime<Local>) ->
     format!("{} {}, {}", month, dt.day(), dt.format("%H:%M"))
 }
 
+pub fn format_local_date(dt: DateTime<Local>) -> String {
+    let month = MONTHS.get(dt.month0() as usize).copied().unwrap_or("???");
+    format!("{} {}, {}", month, dt.day(), dt.year())
+}
+
 pub(super) fn strip_display_timezone_suffix(value: &str) -> String {
     let trimmed = value.trim();
     let without_named_timezone = if let Some(open) = trimmed.rfind('(') {

@@ -5,6 +5,7 @@ use crate::types::{
     TokenUsage, UsageInfo,
 };
 
+use super::auth::CodexLocalSubscription;
 use super::raw::{CodexLocalRateLimitWindow, CodexLocalRateLimits, CodexLocalRaw};
 
 const PROVIDER: &str = "codex";
@@ -28,6 +29,7 @@ pub(super) fn source_data_from_raw(
 
 pub(super) fn build_structured(
     raw: &CodexLocalRaw,
+    subscription: &CodexLocalSubscription,
     collected_at: Option<String>,
     access_available: bool,
     data_available: bool,
@@ -50,7 +52,8 @@ pub(super) fn build_structured(
         diagnostics.push("limits/reset: unavailable in local Codex JSONL".to_string());
     }
 
-    let account = account_from_rate_limits(raw.latest_rate_limits.as_ref());
+    let account = account_from_rate_limits(raw.latest_rate_limits.as_ref(), subscription);
+    diagnostics.extend(subscription.diagnostics.iter().cloned());
     let usage = usage_from_raw(raw);
     let data_as_of = raw
         .latest_rate_limits_timestamp
@@ -81,20 +84,22 @@ pub(super) fn build_structured(
     }
 }
 
-fn account_from_rate_limits(rate_limits: Option<&CodexLocalRateLimits>) -> AccountInfo {
-    let Some(rate_limits) = rate_limits else {
-        return AccountInfo::default();
-    };
-
+fn account_from_rate_limits(
+    rate_limits: Option<&CodexLocalRateLimits>,
+    subscription: &CodexLocalSubscription,
+) -> AccountInfo {
     AccountInfo {
-        plan: rate_limits.plan_type.clone(),
-        credits_total: None,
-        credits_used: None,
-        credits_remaining: if rate_limits.credits_unlimited {
-            None
-        } else {
-            rate_limits.credits
-        },
+        plan: rate_limits.and_then(|limits| limits.plan_type.clone()),
+        credits_remaining: rate_limits.and_then(|limits| {
+            if limits.credits_unlimited {
+                None
+            } else {
+                limits.credits
+            }
+        }),
+        subscription_started_at: subscription.started_at.clone(),
+        renewal_at: subscription.renewal_at.clone(),
+        ..Default::default()
     }
 }
 

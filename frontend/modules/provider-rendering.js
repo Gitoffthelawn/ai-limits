@@ -1,6 +1,6 @@
 import { updateFrequencyOptions } from "./constants.js";
 import { escapeHtml, formatDecimal, formatSourceIdLine, formatSourceTimestampLine, formatTimestampForDisplay } from "./provider-formatters.js";
-import { buildSourcePriorityControlHtml } from "./settings.js";
+import { buildSourcePriorityControlHtml, isShowLimitsEnabled, isShowPlanEnabled, isShowUsageEnabled } from "./settings.js";
 
 function providerLabel(providerId) {
   return providerId.charAt(0).toUpperCase() + providerId.slice(1);
@@ -12,6 +12,8 @@ export function createEmptyProvider(providerId, selectedUpdateFrequency) {
     label: providerLabel(providerId),
     limits: [],
     availableLimitResets: null,
+    plan: { lines: [], links: [] },
+    usage: { lines: [] },
     sourceId: null,
     dataTimestamp: null,
     selectedUpdateFrequency,
@@ -112,6 +114,73 @@ function buildLimitRowsHtml(provider) {
   }).join("");
 }
 
+// Limits, Plan, and Usage are the desktop rendering of the product's three
+// output kinds (see docs/product/output-kinds.md). Each is shown only when
+// it has content and only when its display toggle is on; they are separated
+// from each other by a divider that appears only between two visible
+// sections, never leading, trailing, or next to a hidden one.
+
+function buildLimitsSectionHtml(provider) {
+  const limitRowsHtml = buildLimitRowsHtml(provider);
+  const creditsLine = formatCreditsLine(provider);
+  const limitResetsHtml = buildLimitResetsHtml(provider);
+
+  if (!limitRowsHtml && !creditsLine && !limitResetsHtml) {
+    return "";
+  }
+
+  return `
+    <div class="provider-section provider-section--limits">
+      <div class="limits">${limitRowsHtml}</div>
+      <p class="credits-info" ${creditsLine ? "" : "hidden"}>${escapeHtml(creditsLine)}</p>
+      <div class="limit-resets-slot">${limitResetsHtml}</div>
+    </div>
+  `;
+}
+
+function buildPlanLinesHtml(plan) {
+  return (plan?.lines ?? []).map((line) => `<p class="section-line">${escapeHtml(line)}</p>`).join("");
+}
+
+function buildPlanLinksHtml(plan) {
+  return (plan?.links ?? []).map((link) => `
+    <button type="button" class="provider-link provider-link--external" data-plan-link-url="${escapeHtml(link.url)}">
+      ${escapeHtml(link.label)}
+    </button>
+  `).join("");
+}
+
+function buildPlanSectionHtml(provider) {
+  const linesHtml = buildPlanLinesHtml(provider.plan);
+  const linksHtml = buildPlanLinksHtml(provider.plan);
+
+  if (!linesHtml && !linksHtml) {
+    return "";
+  }
+
+  return `<div class="provider-section provider-section--plan">${linesHtml}${linksHtml}</div>`;
+}
+
+function buildUsageSectionHtml(provider) {
+  const linesHtml = (provider.usage?.lines ?? []).map((line) => `<p class="section-line">${escapeHtml(line)}</p>`).join("");
+
+  if (!linesHtml) {
+    return "";
+  }
+
+  return `<div class="provider-section provider-section--usage">${linesHtml}</div>`;
+}
+
+function buildProviderSectionsHtml(provider) {
+  const sections = [
+    isShowLimitsEnabled() ? buildLimitsSectionHtml(provider) : "",
+    isShowPlanEnabled() ? buildPlanSectionHtml(provider) : "",
+    isShowUsageEnabled() ? buildUsageSectionHtml(provider) : "",
+  ].filter(Boolean);
+
+  return sections.join(`<hr class="section-divider" aria-hidden="true">`);
+}
+
 export function renderProvider(provider, selectedUpdateFrequency) {
   const block = document.createElement("article");
   block.className = "provider-block";
@@ -127,11 +196,7 @@ export function renderProvider(provider, selectedUpdateFrequency) {
       <div class="provider-header">
         <h2>${escapeHtml(provider.label)}</h2>
       </div>
-      <div class="limits">${buildLimitRowsHtml(provider)}</div>
-      <p class="credits-info" ${provider.creditsRemaining == null ? "hidden" : ""}>
-        ${escapeHtml(formatCreditsLine(provider))}
-      </p>
-      <div class="limit-resets-slot">${buildLimitResetsHtml(provider)}</div>
+      <div class="provider-sections">${buildProviderSectionsHtml(provider)}</div>
       <p class="source-info">
         <span class="source-id">${escapeHtml(formatSourceIdLine(provider))}</span>
         <span class="source-timestamp">${escapeHtml(formatSourceTimestampLine(provider))}</span>
@@ -152,12 +217,7 @@ export function renderProvider(provider, selectedUpdateFrequency) {
 }
 
 export function updateProviderBlockData(block, provider) {
-  block.querySelector(".limits").innerHTML = buildLimitRowsHtml(provider);
-  const creditsInfo = block.querySelector(".credits-info");
-  const creditsLine = formatCreditsLine(provider);
-  creditsInfo.hidden = !creditsLine;
-  creditsInfo.textContent = creditsLine;
-  block.querySelector(".limit-resets-slot").innerHTML = buildLimitResetsHtml(provider);
+  block.querySelector(".provider-sections").innerHTML = buildProviderSectionsHtml(provider);
   block.querySelector(".source-id").textContent = formatSourceIdLine(provider);
   block.querySelector(".source-timestamp").textContent = formatSourceTimestampLine(provider);
 }

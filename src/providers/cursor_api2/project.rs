@@ -1,5 +1,5 @@
 use crate::types::{
-    LimitInfo, MoneyUsage, SourceData, SourceStatus, StructuredSourceInfo, UsageInfo,
+    AccountInfo, LimitInfo, MoneyUsage, SourceData, SourceStatus, StructuredSourceInfo, UsageInfo,
 };
 
 use super::helpers::{
@@ -115,7 +115,10 @@ pub fn build_source_data(response: &str) -> SourceData {
             raw_data_available: true,
             collected_at: Some(collected_at.clone()),
             data_as_of: Some(collected_at),
-            account: Default::default(),
+            account: AccountInfo {
+                renewal_at: parsed.billing_cycle_end.map(format_unix_ms_timestamp),
+                ..Default::default()
+            },
             limits,
             available_limit_resets: None,
             usage: UsageInfo {
@@ -235,6 +238,38 @@ mod tests {
         assert_eq!(structured.usage.money.remaining_amount, Some(20.0));
         assert_eq!(structured.usage.money.total_amount, Some(20.0));
         assert_eq!(structured.usage.money.currency.as_deref(), Some("USD"));
+    }
+
+    #[test]
+    fn renewal_at_reuses_the_billing_cycle_end() {
+        let structured = build_source_data(SAMPLE_RESPONSE).structured;
+        let plan = structured
+            .limits
+            .iter()
+            .find(|limit| limit.name == "plan_usage")
+            .expect("plan_usage limit");
+
+        assert_eq!(
+            structured.account.renewal_at.as_deref(),
+            Some("2026-07-28T00:00:00Z")
+        );
+        assert_eq!(structured.account.renewal_at, plan.resets_at);
+        assert_eq!(structured.account.subscription_started_at, None);
+        assert_eq!(structured.account.plan, None);
+        assert_eq!(structured.account.price_amount, None);
+        assert_eq!(structured.account.price_currency, None);
+        assert_eq!(structured.account.price_note, None);
+        assert_eq!(structured.account.plan_management_url, None);
+        assert_eq!(structured.account.billing_management_url, None);
+    }
+
+    #[test]
+    fn renewal_at_stays_null_without_a_billing_cycle_end() {
+        let raw = r#"{"planUsage":{"totalPercentUsed":10}}"#;
+        let structured = build_source_data(raw).structured;
+
+        assert_eq!(structured.account.renewal_at, None);
+        assert_eq!(structured.account.subscription_started_at, None);
     }
 
     #[test]

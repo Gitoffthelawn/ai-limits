@@ -176,6 +176,35 @@
   }
 }
 
+.provider-sections {
+  display: block;
+}
+
+.provider-section--plan,
+.provider-section--usage {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.section-line {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+}
+
+/* Separates the Limits, Plan, and Usage sections from each other using the
+   same provider border token stack as the card border and the metadata/
+   controls divider below, so it stays visible in both themes (see
+   docs/desktop/ui/provider-block-colors.md). Only rendered between two
+   sections that are both actually visible. */
+.section-divider {
+  border: 0;
+  border-top: var(--border-width) solid var(--provider-border-color);
+  box-shadow: inset 0 1px 0 var(--provider-border-overlay-color);
+  margin: var(--space-16) var(--space-0);
+}
+
 .limits {
   display: grid;
   gap: var(--space-12);
