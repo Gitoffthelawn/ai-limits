@@ -26,6 +26,7 @@ This document is a recommended guide for maintaining project documentation. It s
 - Keep documents concise, specific, and replaceable. Removing or replacing one document must not break the overall documentation structure.
 - Use one source of truth for each fact. Do not duplicate rules, contracts, or process details.
 - Describe the current system. Do not preserve implementation history, legacy behaviour, or compatibility details unless they are required for current work.
+- Describe behaviour, contracts, and requirements without binding them to a specific code implementation. Prefer meaning over code snippets and implementation details.
 - An approved specification may temporarily describe the next implementation before code exists. It must be synchronized with the code when the work is completed, revised when the decision changes, and removed if the work is cancelled.
 - Do not trust documentation blindly. When documentation and code disagree, clarify the expected behaviour with a person before updating either artifact.
 
