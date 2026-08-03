@@ -166,7 +166,7 @@ mod tests {
     #[test]
     fn non_local_sources_are_not_rejected_by_local_freshness_rule() {
         let report = report_for(
-            Source::CodexCli,
+            Source::CodexRpc,
             true,
             true,
             vec![LimitInfo {

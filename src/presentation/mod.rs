@@ -47,7 +47,7 @@ mod tests {
     fn sample_limits_info() -> StructuredSourceInfo {
         StructuredSourceInfo {
             provider: "codex".to_string(),
-            source: "codex_cli".to_string(),
+            source: "codex_rpc".to_string(),
             source_link: "docs/get-limits/providers/codex.md".to_string(),
             status: SourceStatus {
                 data_available: true,
@@ -163,7 +163,7 @@ mod tests {
         assert!(block.body.contains("8.0% left | reset Jun 30, 21:41"));
         assert!(block.body.contains("54.0% left | reset Jul 3, 21:41"));
         assert!(block.body.contains("Credits: 344.2"));
-        assert!(block.body.contains("Source codex-cli: Jul 3, 21:41"));
+        assert!(block.body.contains("Source codex-rpc: Jul 3, 21:41"));
     }
 
     #[test]
@@ -196,7 +196,7 @@ mod tests {
         let block = limits_block(&info, &ColorConfig { enabled: false });
         let credits = block.body.find("Credits: 344.2").expect("credits row");
         let resets = block.body.find("Resets:  1").expect("reset row");
-        let source = block.body.find("Source codex-cli:").expect("source row");
+        let source = block.body.find("Source codex-rpc:").expect("source row");
 
         assert!(credits < resets);
         assert!(resets < source);
@@ -217,11 +217,11 @@ mod tests {
         let block = limits_block(&info, &ColorConfig { enabled: false });
 
         assert!(block.body.contains("Unavailable: not logged in"));
-        assert!(block.body.contains("Source codex-cli: unknown"));
+        assert!(block.body.contains("Source codex-rpc: unknown"));
     }
 
     #[test]
-    fn limits_block_renders_codex_cli_authorization() {
+    fn limits_block_renders_codex_authorization() {
         use crate::types::CliAuthorization;
 
         let info = StructuredSourceInfo {
@@ -242,7 +242,7 @@ mod tests {
         assert!(block.body.contains("Run it: `codex login`"));
         assert!(!block.body.contains("Unavailable:"));
         assert!(!block.body.contains("Sign in"));
-        assert!(block.body.contains("Source codex-cli: unknown"));
+        assert!(block.body.contains("Source codex-rpc: unknown"));
     }
 
     #[test]
@@ -286,7 +286,7 @@ mod tests {
         assert!(block
             .body
             .contains("Other sources may still provide limit data."));
-        assert!(block.body.contains("Source codex-cli: Jul 3, 21:41"));
+        assert!(block.body.contains("Source codex-rpc: Jul 3, 21:41"));
     }
 
     #[test]
@@ -356,7 +356,7 @@ mod tests {
         let expected_reset = format_user_timestamp("2:20am (Asia/Nicosia)", &time_context);
 
         assert!(!block.body.contains("2026-06-29T23:09:29Z"));
-        assert!(block.body.contains("Source codex-cli:"));
+        assert!(block.body.contains("Source codex-rpc:"));
         assert!(block.body.contains(&format!(" | reset {expected_reset}")));
     }
 

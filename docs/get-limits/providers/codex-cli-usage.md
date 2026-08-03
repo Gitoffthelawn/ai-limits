@@ -1,6 +1,17 @@
 # Codex CLI Usage
 
-## Provider Method: `codex_cli_usage`
+## Provider Method: `codex_cli_usage` (legacy)
+
+This method is legacy. It is not part of any source chain and the system does not use it. The active Codex CLI-backed source is `codex_rpc_usage`, documented in [codex-rpc-usage.md](codex-rpc-usage.md).
+
+Why it was replaced:
+
+- TUI parsing is fragile by construction: the source is a rendered terminal stream with control sequences, and every value depends on current CLI wording and layout
+- it needs a PTY (`expect`) and a TTY-shaped environment, plus a two-pass `/status` dance for a limit refresh
+- `codex_rpc` returns strictly more: exact unix reset timestamps instead of rendered strings such as `16:44 on 8 Aug`, the plan tier as a protocol enum, a server-side lifetime token total, and the reset-credit records with type and expiry
+- the RPC path answers in seconds with an empty `stderr` and exit code 0
+
+The description below is kept so the path can be restored if the experimental `codex app-server` surface is removed from the CLI.
 
 Code layout (`src/providers/codex_cli/`):
 
@@ -30,9 +41,13 @@ Verified PoC details:
 - the parser waits for response indicators: startup screen, `refresh requested`, limit lines, or `Credits`
 - user-facing output shows only the found summary: `5h limit`, `Weekly limit`, and `Credits`
 
+### Plan name in the TUI dump
+
+The `/status` dump contains an account line of the form `Account: <email> (Plus)`, so the plan tier is parsable from the TUI. It is deliberately not used: `codex_rpc` returns the tier as the `PlanType` enum from `account/read`, which needs no parsing and no assumption about the parenthesized suffix. The line also carries the account email, which must never leave the parsing layer under the rules in [codex-rpc-usage.md](codex-rpc-usage.md#safety-rules); another reason not to depend on it.
+
 ### Manual Limit Resets
 
 Verified CLI behavior:
 
 - `/usage` reports the number of available manual resets, for example `You have 1 usage limit reset available`;
-The collector reads `/usage` after `/status` in the same PTY session, then interrupts the CLI. It never confirms or redeems a reset. The source is the rendered `/usage` TUI stream; no local JSON object or array for these records has been verified. The implementation extracts only `available_limit_resets`; it never enters the redemption path. The normalized field is defined in [structured-info.md](../structured-info.md).
+The collector read `/usage` after `/status` in the same PTY session, then interrupted the CLI. It never confirmed or redeemed a reset. The source was the rendered `/usage` TUI stream; no local JSON object or array for these records was verified. The implementation extracted only `available_limit_resets`; it never entered the redemption path. The normalized field is defined in [structured-info.md](../structured-info.md), and its active source is now `rateLimitResetCredits.availableCount` from `codex_rpc`.

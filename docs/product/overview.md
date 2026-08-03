@@ -51,7 +51,7 @@ From the user's point of view, the system provides six core capabilities:
 
    The user can see whatever subscription/tariff context a provider exposes: plan name, subscription start date, and next renewal date. This gives the user a compact way to keep subscriptions under control without opening the provider's own billing page.
 
-   Coverage is uneven and depends entirely on what each source publishes. Today Codex reports a plan name and both dates, Cursor reports a renewal date only, and Claude reports no subscription data at all. Price is specified in the data model but no current source exposes it, so it is not displayed for any provider.
+   Coverage is uneven and depends entirely on what each source publishes. Today Codex reports a plan name and both dates; Cursor reports a plan name, a renewal date, and a price; Claude reports a plan name and the subscription start date, but no renewal date. Price is exposed by Cursor only, and always with the disclaimer required by [get-limits/structured-info-rules.md](../get-limits/structured-info-rules.md), because the amount can vary by country, currency, tax, and promotion.
 
 4. Check access
 

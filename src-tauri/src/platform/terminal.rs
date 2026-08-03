@@ -2,6 +2,8 @@ use std::path::Path;
 #[cfg(target_os = "macos")]
 use std::process::Command;
 
+use ai_limits::infra::os_access;
+
 pub fn cli_command_for_current_executable() -> Result<String, String> {
     #[cfg(not(target_os = "macos"))]
     return Err("CLI command display is currently supported on macOS only".to_string());
@@ -40,10 +42,26 @@ pub fn open_with_command(command: &str) -> std::io::Result<()> {
 }
 
 fn cli_command_for_executable(executable: &Path) -> Result<String, String> {
-    let executable = executable
-        .to_str()
-        .ok_or_else(|| "The app path is not valid UTF-8".to_string())?;
-    Ok(format!("{} --cli", shell_quote(executable)))
+    Ok(format!("{} --cli", quoted_executable(executable)?))
+}
+
+/// The command is shown in the app and copied by hand, so an app installed
+/// under the home directory must not spell out the account name. `~` only
+/// expands unquoted, so the home prefix stays outside the quotes.
+fn quoted_executable(executable: &Path) -> Result<String, String> {
+    let home_relative = os_access::home_relative_path(executable)
+        .filter(|rest| !rest.as_os_str().is_empty())
+        .map(|rest| utf8_path(&rest).map(|rest| format!("~/{}", shell_quote(rest))));
+
+    match home_relative {
+        Some(command) => command,
+        None => utf8_path(executable).map(shell_quote),
+    }
+}
+
+fn utf8_path(path: &Path) -> Result<&str, String> {
+    path.to_str()
+        .ok_or_else(|| "The app path is not valid UTF-8".to_string())
 }
 
 fn shell_quote(value: &str) -> String {
@@ -77,6 +95,22 @@ mod tests {
             command,
             Ok("'/Applications/AI Limits.app/Contents/MacOS/ai-limits-desktop' --cli".to_string())
         );
+    }
+
+    #[test]
+    fn cli_command_shortens_an_app_installed_under_the_home_directory() {
+        let Some(home) = std::env::var_os("HOME").map(std::path::PathBuf::from) else {
+            return;
+        };
+        let command = cli_command_for_executable(
+            &home.join("Applications/AI Limits.app/Contents/MacOS/ai-limits-desktop"),
+        );
+
+        assert_eq!(
+            command,
+            Ok("~/'Applications/AI Limits.app/Contents/MacOS/ai-limits-desktop' --cli".to_string())
+        );
+        assert!(!command.unwrap().contains(&home.display().to_string()));
     }
 
     #[test]

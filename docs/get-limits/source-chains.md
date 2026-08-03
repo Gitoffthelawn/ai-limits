@@ -31,11 +31,11 @@ Cursor: cursor_api2
 
 ### `cli_fallback`
 
-Local/provider-native chain with CLI fallback for Codex and Claude.
+Local/provider-native chain with CLI fallback for Codex and Claude. The CLI-backed sources are `codex_rpc` and `claude_rpc`; the legacy `codex_cli` and `claude_cli` TUI sources are not part of any chain.
 
 ```text
-Codex: codex_local -> codex_cli
-Claude: claude_local -> claude_cli
+Codex: codex_local -> codex_rpc
+Claude: claude_local -> claude_rpc
 Cursor: cursor_api2
 ```
 
@@ -44,7 +44,7 @@ Cursor: cursor_api2
 CLI-first chain for more accurate and current Codex and Claude data. CLI checks may take longer.
 
 ```text
-Codex: codex_cli -> codex_local
-Claude: claude_cli -> claude_local
+Codex: codex_rpc -> codex_local
+Claude: claude_rpc -> claude_local
 Cursor: cursor_api2
 ```

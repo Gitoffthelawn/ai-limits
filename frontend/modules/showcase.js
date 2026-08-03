@@ -11,7 +11,7 @@ export const SHOWCASE_PROVIDERS = {
   codex: {
     id: "codex",
     label: "Codex",
-    sourceId: "codex-cli",
+    sourceId: "codex-rpc",
     dataTimestamp: "20:03",
     selectedUpdateFrequency: "5 min",
     limits: [
@@ -35,7 +35,7 @@ export const SHOWCASE_PROVIDERS = {
   claude: {
     id: "claude",
     label: "Claude",
-    sourceId: "claude-cli",
+    sourceId: "claude-rpc",
     dataTimestamp: "20:03",
     selectedUpdateFrequency: "5 min",
     limits: [

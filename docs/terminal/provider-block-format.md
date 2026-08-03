@@ -36,7 +36,7 @@ Example:
 5h   ■■□□□□□□□□□□□□□□□□□□□□□□□  8.0% left | reset Jun 30, 21:41
 7d   ■■■■■■■■■■■■■■□□□□□□□□□ 54.0% left | reset Jul 3, 21:41
 Credits: 344.2
-Source codex-cli: Jul 3, 21:41
+Source codex-rpc: Jul 3, 21:41
 ```
 
 The bar width is `25` characters. Each filled bar character `■` represents `4%`. Remaining limit is rounded to the nearest number of filled characters. Empty bar characters use `□`. ANSI color codes in the bar do not affect column width.
@@ -52,7 +52,7 @@ The filled bar characters show available remaining limit, not used limit. The wh
 If `data_as_of` is unavailable, print:
 
 ```text
-Source codex-cli: unknown
+Source codex-rpc: unknown
 ```
 
 The shared [limit data-state semantics](../presentation/data-states.md) distinguish unavailable and no-fresh-data results. User-facing problem and recovery rules are documented in [problems.md](problems.md). If the source is unavailable, print the provider block with the status message:
@@ -60,7 +60,7 @@ The shared [limit data-state semantics](../presentation/data-states.md) distingu
 ```text
      --------- CLAUDE --------
 Unavailable: not logged in
-Source claude-cli: unknown
+Source claude-rpc: unknown
 ```
 
 If the source is available but has no supported limit data, print the provider block with a short reason:
@@ -69,7 +69,7 @@ If the source is available but has no supported limit data, print the provider b
      --------- CODEX ---------
 No usable limit records from this source
 Other sources may still provide limit data.
-Source codex-cli: Jul 3, 21:41
+Source codex-rpc: Jul 3, 21:41
 ```
 
 ### Manual Limit Resets

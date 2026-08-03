@@ -3,13 +3,55 @@ use std::fs::{self, File};
 use std::io::{self, BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
-use crate::infra::os_access::claude_local_roots;
+use chrono::{DateTime, Utc};
+
+use crate::infra::os_access::{
+    claude_local_profile_path, claude_local_roots, claude_local_stats_cache_path,
+};
 
 use super::model::ClaudeLocalUsage;
-use super::parse::{extract_server_reset_anchor, extract_turn_usage};
+use super::parse::{
+    extract_server_reset_anchor, extract_turn_usage, parse_profile, parse_stats_cache,
+    ClaudeProfile, ClaudeStatsCache,
+};
 
 pub(super) fn default_roots() -> io::Result<Vec<PathBuf>> {
     claude_local_roots()
+}
+
+/// A missing or unreadable state file is never an error state for the source:
+/// it degrades to empty fields plus a fixed diagnostic literal. File content is
+/// never interpolated into any message.
+pub(super) fn read_profile(now: DateTime<Utc>) -> ClaudeProfile {
+    let Ok(path) = claude_local_profile_path() else {
+        return ClaudeProfile::failed("local profile: the home directory could not be located");
+    };
+
+    match fs::read_to_string(&path) {
+        Ok(content) => parse_profile(&content, now),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => {
+            ClaudeProfile::failed("local profile: ~/.claude.json was not found")
+        }
+        Err(_) => ClaudeProfile::failed("local profile: ~/.claude.json is unreadable"),
+    }
+}
+
+pub(super) fn read_stats_cache(now: DateTime<Utc>) -> ClaudeStatsCache {
+    let Ok(path) = claude_local_stats_cache_path() else {
+        return ClaudeStatsCache::failed(
+            "usage aggregates: the home directory could not be located",
+        );
+    };
+
+    match fs::read_to_string(&path) {
+        Ok(content) => parse_stats_cache(&content, now),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => {
+            ClaudeStatsCache::failed("usage aggregates: ~/.claude/stats-cache.json was not found")
+        }
+        Err(_) => {
+            ClaudeStatsCache::failed("usage aggregates: ~/.claude/stats-cache.json is unreadable")
+        }
+    }
 }
 
 pub(super) fn scan_root(root: &Path, usage: &mut ClaudeLocalUsage) -> io::Result<()> {

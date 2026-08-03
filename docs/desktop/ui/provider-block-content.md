@@ -74,7 +74,11 @@ Manage · Billing
 - price only: `≈ {price} /{period}`
 - neither: the line is omitted
 
-The `≈` sign is mandatory whenever a price is shown. It is the compact form of the price disclaimer: a plan's real cost varies by country, currency, tax, and promotional terms, and the product does not claim to know the exact amount charged. It replaces a separate disclaimer line, which the line budget does not allow. `account.price_note` remains in the structured data as the long-form explanation and may be surfaced as a tooltip, but it does not occupy a line.
+The price itself is rendered as the currency symbol immediately followed by the amount with two decimals, then a space, then `/` and the period token: `$20.00 /mo`. The full line for a Cursor Pro account reads exactly `Pro ≈ $20.00 /mo`.
+
+The `≈` sign is mandatory whenever a price is shown. It is the compact form of the price disclaimer: a plan's real cost varies by country, currency, tax, and promotional terms, and the product does not claim to know the exact amount charged. It replaces a separate disclaimer line, which the line budget does not allow — the disclaimer text is never printed on the card. `account.price_note` remains in the structured data as the long-form explanation and may be surfaced as a tooltip, but it does not occupy a line. The card never omits the `≈` on the grounds that the note is absent from the card.
+
+The amount and the currency are always shown together or not at all. A price whose currency the source did not state is not displayed as a bare number, and a plan's publicly known list price is never substituted for a price the source did not report; see [get-limits/structured-info-rules.md](../../get-limits/structured-info-rules.md).
 
 **Line 2 — renewal.** From `account.renewal_at`, rendered as `renews {date}` in the date-only form documented in [presentation/time-display.md](../../presentation/time-display.md). A renewal date is only ever shown when it is still in the future; see [get-limits/structured-info-rules.md](../../get-limits/structured-info-rules.md).
 
@@ -110,7 +114,11 @@ A known zero renders as a line. `Sessions 0` states that the source reports no s
 
 The remaining `usage` fields — the token breakdown, money, events, latest activity, and top model — stay in structured data and are not displayed. Keeping the set to four metrics is what makes cards comparable and keeps them short; a fifth line would be spent differently by each source and the vertical alignment between cards would be lost.
 
-A source that reports none of these four metrics shows no Usage section. This currently applies to `cursor_api2`, whose only consumption figure is monetary.
+A source that reports none of these four metrics shows no Usage section.
+
+Only Codex reports a `Files` count. Both Claude sources and `cursor_api2` leave `usage.activity.files_count` `null` as a confirmed source limit, so their Usage sections are three lines; a scanned-file or event count is never substituted for it.
+
+`cursor_api2` reports `Tokens`, `Sessions`, and `Turns`, and no `Files` line. Its `Turns` figure counts billable usage events rather than interface turns; the difference is recorded in [get-limits/providers/cursor-api2-usage.md](../../get-limits/providers/cursor-api2-usage.md) and does not change how the line is rendered.
 
 ---
 

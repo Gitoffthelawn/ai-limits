@@ -7,14 +7,15 @@ use std::io;
 
 use crate::types::SourceData;
 
+pub use fetch::CursorResponses;
 pub use project::build_source_data;
 
-use fetch::fetch_usage_response;
+use fetch::fetch_dashboard;
 use project::access_denied;
 
 pub fn collect_usage() -> io::Result<SourceData> {
-    match fetch_usage_response()? {
-        Ok(response) => Ok(build_source_data(&response)),
-        Err(denied) => Ok(access_denied(denied.message, denied.raw)),
+    match fetch_dashboard()? {
+        Ok(responses) => Ok(build_source_data(&responses)),
+        Err(denied) => Ok(access_denied(denied.message)),
     }
 }

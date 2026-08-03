@@ -14,9 +14,11 @@ Options:
 
 Technical source options:
   --codex-local       Query Codex from local session JSONL files
-  --codex-cli         Query Codex through the Codex CLI
-  --claude-cli        Query Claude through the Claude CLI
-  --claude-local      Query Claude from local transcript JSONL files
+  --codex-rpc         Query Codex through the Codex CLI app-server RPC
+  --codex-cli         Query Codex through the Codex CLI TUI (legacy)
+  --claude-rpc        Query Claude through the Claude CLI control request
+  --claude-cli        Query Claude through the Claude CLI TUI (legacy)
+  --claude-local      Query Claude from local transcripts and state files
   --cursor-api2       Query Cursor through api2.cursor.sh
 
 Examples:

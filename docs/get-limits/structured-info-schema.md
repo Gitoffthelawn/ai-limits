@@ -70,9 +70,9 @@ diagnostics:
 
 `available_limit_resets` is the count of manually redeemable resets of provider limits. It is separate from `limits[].resets_at`, which is the automatic reset time of a rate-limit window, and from `usage`, which records consumed tokens, money, and activity.
 
-For Codex CLI, the intended source is the interactive `/usage` view. `usage` is Codex's command and UI terminology; `available_limit_resets` is the ai-limits product field. The raw source is the rendered CLI TUI stream, not a documented local JSON object or array. Sources that do not expose a manual reset count must return `available_limit_resets: null`.
+For Codex, the source is `rateLimitResetCredits.availableCount` from the read-only `account/rateLimits/read` method of `codex_rpc` ([providers/codex-rpc-usage.md](providers/codex-rpc-usage.md)). `usage` is Codex's own command and UI terminology for the same records; `available_limit_resets` is the ai-limits product field. The legacy `codex_cli` path read the count from the rendered `/usage` TUI stream instead. Sources that do not expose a manual reset count must return `available_limit_resets: null`.
 
-The Rust structured model serializes `available_limit_resets`. Codex CLI populates it from the read-only `/usage` view.
+The Rust structured model serializes `available_limit_resets`. Reading the count never redeems a reset; the redeeming RPC method is forbidden.
 
 `account.subscription_started_at`, `account.renewal_at`, `account.price_amount`, `account.price_currency`, `account.price_period`, `account.price_note`, `account.plan_management_url`, and `account.billing_management_url` are the subscription fields that back the product's **Plan** output kind, defined in [product/output-kinds.md](../product/output-kinds.md). Population and disclaimer rules for these fields are documented in [structured-info-rules.md](structured-info-rules.md).
 

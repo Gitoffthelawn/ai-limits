@@ -4,6 +4,12 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+- Codex limits now come from the Codex CLI's app-server, which answers in seconds instead of driving the CLI's text interface. Codex reports exact reset times, the plan tier, the credit balance, the number of available limit resets, and the lifetime token total.
+- Claude limits read through the CLI now come from a direct usage request instead of driving the CLI's text interface: they arrive in about two seconds, without a terminal emulator, and without using up any of the account's quota. Claude now reports the plan tier, exact reset times, the extra usage allowance, and the spend for the current period.
+- Cursor now reports the plan name and price, the renewal date, the included spend allowance, the token breakdown and total, and the session, turn, and event counts for the current billing cycle, alongside the usage percentages it already showed.
+- Claude limits read without the CLI now come from the snapshot the Claude app saves when you open `/usage`, so the 5-hour and 7-day percentages and reset times are the ones Claude itself reports instead of a local estimate. The snapshot is shown with the time it was taken, because it only refreshes when `/usage` is opened. Claude also reports the plan, the subscription start date, and the usage credit spend, and falls back to Claude's own usage totals when no transcripts are left on the machine.
+- Codex now reports how many sessions and turns you have had and how many files were actually changed. The file count previously showed how many session files were read, which is a scan detail rather than anything about your work; Claude, which records no changed-file data, no longer shows a file count at all.
+- Paths shown in output, raw data, and the Help panel's command now start at `~` instead of spelling out your home directory.
 - Simplified the macOS menu bar: dropped the unused File and View menus, and replaced the app menu's Services item with a Settings… item that opens the desktop app's settings panel.
 - Added the app version to Help > About.
 - Fixed the macOS install disk image shipping without its styled window: the background and Applications-folder shortcut were silently missing since the first release with a disk image, because the step that arranged them needed a Finder permission unavailable in GitHub Actions.

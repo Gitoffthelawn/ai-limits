@@ -73,8 +73,14 @@ pub(super) fn parse_args(args: impl Iterator<Item = String>) -> io::Result<CliAr
             "--codex-local" => {
                 parsed.sources.push(Source::CodexLocal);
             }
+            "--codex-rpc" => {
+                parsed.sources.push(Source::CodexRpc);
+            }
             "--codex-cli" => {
                 parsed.sources.push(Source::CodexCli);
+            }
+            "--claude-rpc" => {
+                parsed.sources.push(Source::ClaudeRpc);
             }
             "--claude-cli" => {
                 parsed.sources.push(Source::ClaudeCli);
@@ -174,16 +180,30 @@ mod tests {
 
     #[test]
     fn explicit_source_flags_select_those_sources() {
-        let args = parse(&["--codex-cli", "--claude-local"]);
+        let args = parse(&["--codex-rpc", "--claude-rpc", "--claude-local"]);
         let selected = resolve_source_plan(args).expect("explicit source flags should resolve");
 
         assert_eq!(
             selected,
             vec![
-                SourcePlan::Single(Source::CodexCli),
+                SourcePlan::Single(Source::CodexRpc),
+                SourcePlan::Single(Source::ClaudeRpc),
                 SourcePlan::Single(Source::ClaudeLocal)
             ]
         );
+    }
+
+    #[test]
+    fn legacy_cli_flags_stay_available_as_diagnostic_selectors() {
+        let codex =
+            resolve_source_plan(parse(&["--codex-cli"])).expect("legacy flag should resolve");
+        let claude =
+            resolve_source_plan(parse(&["--claude-cli"])).expect("legacy flag should resolve");
+
+        assert_eq!(codex, vec![SourcePlan::Single(Source::CodexCli)]);
+        assert_eq!(claude, vec![SourcePlan::Single(Source::ClaudeCli)]);
+        assert!(!Source::ALL.contains(&Source::CodexCli));
+        assert!(!Source::ALL.contains(&Source::ClaudeCli));
     }
 
     #[test]

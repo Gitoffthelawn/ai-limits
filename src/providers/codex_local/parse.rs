@@ -4,14 +4,48 @@ use super::raw::{
     CodexLocalRateLimitWindow, CodexLocalRateLimits, CodexLocalTokenTotals, TokenEvent,
 };
 
-pub(super) fn parse_token_event(line: &str) -> Option<TokenEvent> {
-    let record = serde_json::from_str::<Value>(line).ok()?;
-    if !is_token_count_event(&record) {
-        return None;
-    }
+const TOKEN_COUNT: &str = "token_count";
+const SESSION_META: &str = "session_meta";
+const TASK_STARTED: &str = "task_started";
+const TASK_COMPLETE: &str = "task_complete";
+const PATCH_APPLY_END: &str = "patch_apply_end";
 
-    let usage = parse_token_usage(&record);
-    let rate_limits = parse_rate_limits(&record);
+/// One JSONL record that carries a business fact for this source.
+///
+/// `Session` and `Turn` hold identifiers and `Changes` holds absolute paths
+/// from the user's file system: the scan reduces all three to counts of
+/// distinct values and never keeps the values themselves.
+pub(super) enum CodexLocalRecord {
+    TokenCount(TokenEvent),
+    Session(String),
+    Turn(String),
+    Changes(Vec<String>),
+}
+
+pub(super) fn parse_record(line: &str) -> Option<CodexLocalRecord> {
+    let record = serde_json::from_str::<Value>(line).ok()?;
+
+    match event_type(&record)? {
+        TOKEN_COUNT => parse_token_event(&record).map(CodexLocalRecord::TokenCount),
+        SESSION_META => parse_session_id(&record).map(CodexLocalRecord::Session),
+        TASK_STARTED | TASK_COMPLETE => parse_turn_id(&record).map(CodexLocalRecord::Turn),
+        PATCH_APPLY_END => parse_changed_paths(&record).map(CodexLocalRecord::Changes),
+        _ => None,
+    }
+}
+
+/// Records arrive either wrapped in an `event_msg` envelope or flat, so the
+/// payload type wins and the record type is the fallback.
+fn event_type(record: &Value) -> Option<&str> {
+    record
+        .pointer("/payload/type")
+        .and_then(Value::as_str)
+        .or_else(|| record.get("type").and_then(Value::as_str))
+}
+
+fn parse_token_event(record: &Value) -> Option<TokenEvent> {
+    let usage = parse_token_usage(record);
+    let rate_limits = parse_rate_limits(record);
 
     if usage.is_none() && rate_limits.is_none() {
         return None;
@@ -27,6 +61,36 @@ pub(super) fn parse_token_event(line: &str) -> Option<TokenEvent> {
     })
 }
 
+fn parse_session_id(record: &Value) -> Option<String> {
+    string_field(record, "session_id")
+}
+
+fn parse_turn_id(record: &Value) -> Option<String> {
+    string_field(record, "turn_id")
+}
+
+fn parse_changed_paths(record: &Value) -> Option<Vec<String>> {
+    let changes = record
+        .pointer("/payload/changes")
+        .or_else(|| record.get("changes"))?
+        .as_object()?;
+
+    if changes.is_empty() {
+        return None;
+    }
+
+    Some(changes.keys().cloned().collect())
+}
+
+fn string_field(record: &Value, key: &str) -> Option<String> {
+    record
+        .pointer(&format!("/payload/{key}"))
+        .or_else(|| record.get(key))
+        .and_then(Value::as_str)
+        .filter(|value| !value.is_empty())
+        .map(ToString::to_string)
+}
+
 fn parse_token_usage(record: &Value) -> Option<CodexLocalTokenTotals> {
     let usage_value = record
         .get("last_token_usage")
@@ -35,16 +99,11 @@ fn parse_token_usage(record: &Value) -> Option<CodexLocalTokenTotals> {
     Some(CodexLocalTokenTotals {
         input_tokens: number_u64(usage_value, "input_tokens")?,
         cached_input_tokens: number_u64(usage_value, "cached_input_tokens").unwrap_or(0),
+        cache_write_input_tokens: number_u64(usage_value, "cache_write_input_tokens"),
         output_tokens: number_u64(usage_value, "output_tokens")?,
         reasoning_output_tokens: number_u64(usage_value, "reasoning_output_tokens").unwrap_or(0),
         total_tokens: number_u64(usage_value, "total_tokens")?,
     })
-}
-
-fn is_token_count_event(record: &Value) -> bool {
-    record.get("type").and_then(Value::as_str) == Some("token_count")
-        || (record.get("type").and_then(Value::as_str) == Some("event_msg")
-            && record.pointer("/payload/type").and_then(Value::as_str) == Some("token_count"))
 }
 
 fn parse_rate_limits(record: &Value) -> Option<CodexLocalRateLimits> {

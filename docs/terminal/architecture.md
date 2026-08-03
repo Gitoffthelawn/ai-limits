@@ -21,8 +21,8 @@ If multiple sources are waiting at the same time, multiple loader lines are disp
 Format:
 
 ```text
-⠋ waiting codex-cli
-⠙ waiting claude-cli
+⠋ waiting codex-rpc
+⠙ waiting claude-rpc
 ```
 
 When a source finishes, its loader is cleared and the result is printed as soon as it is ready.

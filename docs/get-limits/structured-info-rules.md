@@ -52,6 +52,10 @@ Collecting more than this set is expected and encouraged. Structured data is the
 
 `account.price_note` must be filled with a short, user-readable disclaimer whenever the source does not guarantee that `price_amount`/`price_currency` is the price every user on that plan pays, for example because price can vary by country, region, currency, or active promotion. When the source-reported price is unconditional for the account being read, `price_note` may stay `null`.
 
+Filling `price_note` is a rule about structured data, not about any surface. Structured data is the complete record of what a source exposes; each interface selects the subset it displays. A surface that has no room for a disclaimer line may carry the same meaning in a compact form on the price itself — the desktop card uses a `≈` sign, documented in [desktop/ui/provider-block-content.md](../desktop/ui/provider-block-content.md). What a surface may not do is show a conditional price with no disclaimer in any form, or drop `price_note` from the structured data because the card does not print it.
+
+Price values come only from what the source reports for the account being read. A provider's public list price must never be hardcoded to fill `price_amount` or `price_currency`, on any surface, even when the plan name is known.
+
 `account.plan_management_url` and `account.billing_management_url` are optional deep links into the provider's own plan-change and billing-management pages. They must be `null` when the source does not expose a reliable link for the authenticated account; they must never be guessed or constructed from a generic provider marketing URL.
 
 ## Empty and unavailable values

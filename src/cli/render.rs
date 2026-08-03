@@ -33,8 +33,8 @@ pub(super) fn print_source_report(
 
 pub(super) fn failed_source_block(label: &str, error: &str) -> ProviderBlock {
     let provider = match label {
-        "codex" | "codex-local" | "codex-cli" => "CODEX",
-        "claude" | "claude-cli" | "claude-local" => "CLAUDE",
+        "codex" | "codex-local" | "codex-rpc" | "codex-cli" => "CODEX",
+        "claude" | "claude-rpc" | "claude-cli" | "claude-local" => "CLAUDE",
         "cursor" | "cursor-api2" => "CURSOR",
         _ => "AI LIMITS",
     };

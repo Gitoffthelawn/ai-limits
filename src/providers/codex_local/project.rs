@@ -11,6 +11,8 @@ use super::raw::{CodexLocalRateLimitWindow, CodexLocalRateLimits, CodexLocalRaw}
 const PROVIDER: &str = "codex";
 const SOURCE: &str = "codex_local";
 const SOURCE_LINK: &str = "docs/get-limits";
+const CACHED_PLAN_NOTE: &str =
+    "plan name came from the cached local auth token, not from a limits snapshot";
 
 pub fn decode_raw(raw: Option<&str>) -> Option<CodexLocalRaw> {
     raw.and_then(|value| serde_json::from_str(value).ok())
@@ -53,8 +55,14 @@ pub(super) fn build_structured(
     }
 
     let account = account_from_rate_limits(raw.latest_rate_limits.as_ref(), subscription);
+    if account.plan.is_some() && plan_from_rate_limits(raw.latest_rate_limits.as_ref()).is_none() {
+        diagnostics.push(CACHED_PLAN_NOTE.to_string());
+    }
     diagnostics.extend(subscription.diagnostics.iter().cloned());
     let usage = usage_from_raw(raw);
+    if data_available && raw.totals.cache_write_input_tokens.is_none() {
+        diagnostics.push("cache write tokens: not reported by the scanned records".to_string());
+    }
     let data_as_of = raw
         .latest_rate_limits_timestamp
         .clone()
@@ -84,12 +92,18 @@ pub(super) fn build_structured(
     }
 }
 
+/// The local limits snapshot is the plan source; the cached auth token only
+/// fills in when no snapshot states a plan.
+fn plan_from_rate_limits(rate_limits: Option<&CodexLocalRateLimits>) -> Option<String> {
+    rate_limits.and_then(|limits| limits.plan_type.clone())
+}
+
 fn account_from_rate_limits(
     rate_limits: Option<&CodexLocalRateLimits>,
     subscription: &CodexLocalSubscription,
 ) -> AccountInfo {
     AccountInfo {
-        plan: rate_limits.and_then(|limits| limits.plan_type.clone()),
+        plan: plan_from_rate_limits(rate_limits).or_else(|| subscription.plan.clone()),
         credits_remaining: rate_limits.and_then(|limits| {
             if limits.credits_unlimited {
                 None
@@ -113,7 +127,7 @@ fn usage_from_raw(raw: &CodexLocalRaw) -> UsageInfo {
                 output: Some(raw.totals.output_tokens),
                 reasoning_output: Some(raw.totals.reasoning_output_tokens),
                 cache_read: None,
-                cache_write: None,
+                cache_write: raw.totals.cache_write_input_tokens,
                 total: Some(raw.totals.total_tokens),
             }
         } else {
@@ -121,9 +135,9 @@ fn usage_from_raw(raw: &CodexLocalRaw) -> UsageInfo {
         },
         activity: ActivityUsage {
             events_count: Some(raw.token_events),
-            files_count: Some(raw.files_scanned),
-            sessions_count: None,
-            turns_count: None,
+            files_count: Some(raw.changed_files_count),
+            sessions_count: Some(raw.sessions_count),
+            turns_count: Some(raw.turns_count),
             latest_activity_at: raw
                 .latest_rate_limits_timestamp
                 .clone()

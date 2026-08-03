@@ -94,16 +94,18 @@ reset Jul 6, 00:20              reset 20:48
 7d | 84.0% left                 Available credits: 344.2
 ▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇▇░░░░
                                 ───── SUBSCRIPTION ─────
-──────── USAGE ─────────        Plus
-Tokens 711.2M                   renews Sep 3, 2026
-Sessions 92
-Turns 6,394                     ──────── USAGE ─────────
-Files 223                       Tokens 1.5B
+───── SUBSCRIPTION ─────        Plus
+Pro                             renews Sep 3, 2026
+
+──────── USAGE ─────────        ──────── USAGE ─────────
+Tokens 711.2M                   Tokens 1.5B
+Sessions 92                     Sessions 148
+Turns 6,394                     Turns 2,910
                                 Files 921
-CLI, as of Jul 5, 19:29
-                                Local files, as of Jul 5, 19:28
+
+CLI, as of Jul 5, 19:29         Local files, as of Jul 5, 19:28
 ```
 
-Claude has no subscription data, so that section and its heading are absent entirely. Codex reports a plan name but no price and no management links, so its subscription section is two lines instead of three, and it reports no session or turn counts, so its usage section is two lines instead of four.
+Claude reports a plan name but no renewal date, no price, and no management links, so its subscription section is one line. It also reports no changed-file count, so the `Files` line is absent from its Usage section. Codex reports a plan name and a renewal date but no price and no management links, so its subscription section is two lines instead of three.
 
 Section content rules are documented in [provider-block-content.md](provider-block-content.md); accent and divider colors in [provider-block-colors.md](provider-block-colors.md).

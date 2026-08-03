@@ -4,7 +4,9 @@ const MONTH_NAMES = [
 
 const SOURCE_DISPLAY_LABELS = {
   "codex-local": "Local files",
+  "codex-rpc": "CLI",
   "codex-cli": "CLI",
+  "claude-rpc": "CLI",
   "claude-cli": "CLI",
   "claude-local": "Local files",
   "cursor-api2": "API2",

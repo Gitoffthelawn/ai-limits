@@ -31,9 +31,11 @@ Options:
 
 Technical source options:
   --codex-local       Query Codex from local session JSONL files
-  --codex-cli         Query Codex through the Codex CLI
-  --claude-cli        Query Claude through the Claude CLI
-  --claude-local      Query Claude from local transcript JSONL files
+  --codex-rpc         Query Codex through the Codex CLI app-server RPC
+  --codex-cli         Query Codex through the Codex CLI TUI (legacy)
+  --claude-rpc        Query Claude through the Claude CLI control request
+  --claude-cli        Query Claude through the Claude CLI TUI (legacy)
+  --claude-local      Query Claude from local transcripts and state files
   --cursor-api2       Query Cursor through api2.cursor.sh
 
 Examples:
@@ -50,6 +52,10 @@ Examples:
 Default output is the user-facing limits presentation. `--usage` is the user-facing usage presentation. `--raw` returns captured source data, and `--structured` returns normalized source data as formatted JSON. These technical modes support automation, development, testing, diagnostics, and provider contract checks.
 
 Without explicit source flags, default limits output uses the built-in `fast_free` source chain from [get-limits/source-chains.md](../get-limits/source-chains.md).
+
+`--codex-cli` is a legacy diagnostic flag: the TUI source it queries is not part of any source chain and is not queried by `--all`. The Codex CLI-backed source used by the chains is `codex_rpc` ([get-limits/providers/codex-rpc-usage.md](../get-limits/providers/codex-rpc-usage.md)).
+
+`--claude-cli` is a legacy diagnostic flag on the same terms: the TUI source it queries is not part of any source chain and is not queried by `--all`. The Claude CLI-backed source used by the chains is `claude_rpc` ([get-limits/providers/claude-rpc-usage.md](../get-limits/providers/claude-rpc-usage.md)).
 
 The terminal interface has no configuration file and does not read desktop settings. Runtime behavior is determined only by built-in defaults and explicit command-line arguments.
 

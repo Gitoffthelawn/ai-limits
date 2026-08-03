@@ -1,17 +1,21 @@
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Source {
     CodexLocal,
+    CodexRpc,
     CodexCli,
+    ClaudeRpc,
     ClaudeCli,
     ClaudeLocal,
     CursorApi2,
 }
 
 impl Source {
+    /// Every source `--all` queries. The legacy `codex_cli` and `claude_cli`
+    /// TUI sources are diagnostic flags only and are deliberately absent.
     pub const ALL: [Self; 5] = [
         Self::CodexLocal,
-        Self::CodexCli,
-        Self::ClaudeCli,
+        Self::CodexRpc,
+        Self::ClaudeRpc,
         Self::ClaudeLocal,
         Self::CursorApi2,
     ];
@@ -21,12 +25,14 @@ impl Source {
     pub fn parse(value: &str) -> Result<Self, String> {
         match value {
             "codex_local" => Ok(Self::CodexLocal),
+            "codex_rpc" => Ok(Self::CodexRpc),
             "codex_cli" => Ok(Self::CodexCli),
+            "claude_rpc" => Ok(Self::ClaudeRpc),
             "claude_cli" => Ok(Self::ClaudeCli),
             "claude_local" => Ok(Self::ClaudeLocal),
             "cursor_api2" => Ok(Self::CursorApi2),
             _ => Err(format!(
-                "unknown source `{value}`; expected one of: codex_local, codex_cli, claude_cli, claude_local, cursor_api2"
+                "unknown source `{value}`; expected one of: codex_local, codex_rpc, codex_cli, claude_rpc, claude_cli, claude_local, cursor_api2"
             )),
         }
     }
@@ -34,7 +40,9 @@ impl Source {
     pub fn label(self) -> &'static str {
         match self {
             Self::CodexLocal => "codex-local",
+            Self::CodexRpc => "codex-rpc",
             Self::CodexCli => "codex-cli",
+            Self::ClaudeRpc => "claude-rpc",
             Self::ClaudeCli => "claude-cli",
             Self::ClaudeLocal => "claude-local",
             Self::CursorApi2 => "cursor-api2",
@@ -44,7 +52,9 @@ impl Source {
     pub fn heading(self) -> &'static str {
         match self {
             Self::CodexLocal => "CODEX-LOCAL",
+            Self::CodexRpc => "CODEX-RPC",
             Self::CodexCli => "CODEX-CLI",
+            Self::ClaudeRpc => "CLAUDE-RPC",
             Self::ClaudeCli => "CLAUDE-CLI",
             Self::ClaudeLocal => "CLAUDE-LOCAL",
             Self::CursorApi2 => "CURSOR-API2",

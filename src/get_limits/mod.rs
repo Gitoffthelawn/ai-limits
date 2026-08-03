@@ -6,7 +6,9 @@ use std::io;
 
 use chrono::Utc;
 
-use crate::providers::{claude_cli, claude_local, codex_cli, codex_local, cursor_api2};
+use crate::providers::{
+    claude_cli, claude_local, claude_rpc, codex_cli, codex_local, codex_rpc, cursor_api2,
+};
 use crate::types::{Source, SourceReport};
 
 pub use plan::{
@@ -28,7 +30,9 @@ pub fn get_source_plan_limits(plan: SourcePlan) -> io::Result<SourceReport> {
 pub fn get_source_limits(source: Source) -> io::Result<SourceReport> {
     let data = match source {
         Source::CodexLocal => codex_local::get_usage()?,
+        Source::CodexRpc => codex_rpc::collect_usage()?,
         Source::CodexCli => codex_cli::collect_usage()?,
+        Source::ClaudeRpc => claude_rpc::collect_usage()?,
         Source::ClaudeCli => claude_cli::collect_usage()?,
         Source::ClaudeLocal => claude_local::collect()?,
         Source::CursorApi2 => cursor_api2::collect_usage()?,

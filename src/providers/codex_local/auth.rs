@@ -9,20 +9,27 @@ const AUTH_FILE: &str = "auth.json";
 const CLAIMS_KEY: &str = "https://api.openai.com/auth";
 const START_CLAIM: &str = "chatgpt_subscription_active_start";
 const UNTIL_CLAIM: &str = "chatgpt_subscription_active_until";
+const PLAN_CLAIM: &str = "chatgpt_plan_type";
+const LAST_CHECKED_CLAIM: &str = "chatgpt_subscription_last_checked";
+const PLAN_NAME_MAX_CHARS: usize = 32;
+const UNUSABLE_PLAN_NOTE: &str = "plan name: the auth token claim is not a usable plan name";
 const RENEWAL_EXPIRY_GRACE_MINUTES: i64 = 2;
 const RENEWAL_NOTE: &str =
     "renewal date is the subscription active-until date; for a cancelled subscription it is the end of access, not a renewal";
 const EXPIRED_RENEWAL_NOTE: &str =
     "renewal date rejected because the local auth token's subscription window has already ended and could not be confirmed as current";
 
-/// Subscription dates read from the local Codex auth token.
+/// Subscription facts read from the local Codex auth token.
 ///
-/// Only the two subscription timestamps ever leave this module; no token,
-/// claim value, or file content is carried into `diagnostics`.
+/// Only the subscription timestamps and the plan name ever leave this module;
+/// no token, identifier, other claim value, or file content is carried into
+/// `diagnostics`.
 #[derive(Clone, Debug, Default, PartialEq)]
 pub(super) struct CodexLocalSubscription {
     pub(super) started_at: Option<String>,
     pub(super) renewal_at: Option<String>,
+    /// Offline fallback for `account.plan`; a limits snapshot wins over it.
+    pub(super) plan: Option<String>,
     pub(super) diagnostics: Vec<String>,
 }
 
@@ -48,11 +55,65 @@ pub(super) fn read_subscription(root: &Path, now: DateTime<Utc>) -> CodexLocalSu
     );
     let renewal_at = claim_datetime(&claims, UNTIL_CLAIM, "renewal date", &mut diagnostics)
         .and_then(|renewal| confirm_future_renewal(renewal, now, &mut diagnostics));
+    let plan = plan_name(&claims, &mut diagnostics);
+    note_subscription_age(&claims, now, &mut diagnostics);
 
     CodexLocalSubscription {
         started_at: started_at.map(format_utc),
         renewal_at: renewal_at.map(format_utc),
+        plan,
         diagnostics,
+    }
+}
+
+/// The plan name is the only claim value that leaves this module, so it is
+/// accepted only in the short token-like shape a plan name actually has.
+fn plan_name(claims: &Value, diagnostics: &mut Vec<String>) -> Option<String> {
+    let value = claims.get(PLAN_CLAIM).and_then(Value::as_str)?;
+    let usable = !value.is_empty()
+        && value.chars().count() <= PLAN_NAME_MAX_CHARS
+        && value
+            .chars()
+            .all(|item| item.is_ascii_alphanumeric() || item == '-' || item == '_');
+
+    if !usable {
+        diagnostics.push(UNUSABLE_PLAN_NOTE.to_string());
+        return None;
+    }
+
+    Some(value.to_string())
+}
+
+/// `chatgpt_subscription_last_checked` marks how fresh the subscription claims
+/// are, not when this run collected them, so it is reported as an age and
+/// never becomes `collected_at` or `data_as_of`.
+fn note_subscription_age(claims: &Value, now: DateTime<Utc>, diagnostics: &mut Vec<String>) {
+    let Some(value) = claims.get(LAST_CHECKED_CLAIM).and_then(Value::as_str) else {
+        return;
+    };
+
+    let Ok(last_checked) = DateTime::parse_from_rfc3339(value) else {
+        diagnostics.push("subscription data age: timestamp could not be parsed".to_string());
+        return;
+    };
+
+    let age = now - last_checked.with_timezone(&Utc);
+    diagnostics.push(format!(
+        "subscription data from the local auth token was last checked {}",
+        format_age(age)
+    ));
+}
+
+fn format_age(age: Duration) -> String {
+    if age < Duration::zero() {
+        return "in the future".to_string();
+    }
+
+    match (age.num_days(), age.num_hours(), age.num_minutes()) {
+        (days, _, _) if days > 0 => format!("{days}d ago"),
+        (_, hours, _) if hours > 0 => format!("{hours}h ago"),
+        (_, _, minutes) if minutes > 0 => format!("{minutes}m ago"),
+        _ => "less than a minute ago".to_string(),
     }
 }
 
@@ -236,6 +297,74 @@ mod tests {
             Some("2026-08-02T11:47:15Z")
         );
         assert_eq!(subscription.diagnostics, vec![RENEWAL_NOTE.to_string()]);
+
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn reads_the_plan_claim_and_reports_the_subscription_age() {
+        let root = temp_root("plan");
+        write_auth(
+            &root,
+            &id_token(serde_json::json!({
+                CLAIMS_KEY: {
+                    PLAN_CLAIM: "plus",
+                    LAST_CHECKED_CLAIM: "2026-06-27T00:00:00+00:00"
+                }
+            })),
+        );
+
+        let subscription = read_subscription(&root, now());
+
+        assert_eq!(subscription.plan.as_deref(), Some("plus"));
+        assert!(subscription.diagnostics.contains(
+            &"subscription data from the local auth token was last checked 4d ago".to_string()
+        ));
+
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn unusable_plan_claim_degrades_to_null() {
+        let root = temp_root("bad-plan");
+        write_auth(
+            &root,
+            &id_token(serde_json::json!({
+                CLAIMS_KEY: { PLAN_CLAIM: format!("plus {SECRET}") }
+            })),
+        );
+
+        let subscription = read_subscription(&root, now());
+
+        assert_eq!(subscription.plan, None);
+        assert!(subscription
+            .diagnostics
+            .contains(&UNUSABLE_PLAN_NOTE.to_string()));
+        for entry in &subscription.diagnostics {
+            assert!(!entry.contains(SECRET));
+        }
+
+        let _ = fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn unparseable_last_checked_claim_degrades_to_a_generic_note() {
+        let root = temp_root("bad-last-checked");
+        write_auth(
+            &root,
+            &id_token(serde_json::json!({
+                CLAIMS_KEY: { LAST_CHECKED_CLAIM: format!("{SECRET}-not-a-date") }
+            })),
+        );
+
+        let subscription = read_subscription(&root, now());
+
+        assert!(subscription
+            .diagnostics
+            .contains(&"subscription data age: timestamp could not be parsed".to_string()));
+        for entry in &subscription.diagnostics {
+            assert!(!entry.contains(SECRET));
+        }
 
         let _ = fs::remove_dir_all(&root);
     }

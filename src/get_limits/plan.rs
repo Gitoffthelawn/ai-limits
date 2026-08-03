@@ -22,12 +22,12 @@ const FAST_CODEX_CHAIN: &[Source] = &[Source::CodexLocal];
 const FAST_CLAUDE_CHAIN: &[Source] = &[Source::ClaudeLocal];
 const FAST_CURSOR_CHAIN: &[Source] = &[Source::CursorApi2];
 
-const CLI_FALLBACK_CODEX_CHAIN: &[Source] = &[Source::CodexLocal, Source::CodexCli];
-const CLI_FALLBACK_CLAUDE_CHAIN: &[Source] = &[Source::ClaudeLocal, Source::ClaudeCli];
+const CLI_FALLBACK_CODEX_CHAIN: &[Source] = &[Source::CodexLocal, Source::CodexRpc];
+const CLI_FALLBACK_CLAUDE_CHAIN: &[Source] = &[Source::ClaudeLocal, Source::ClaudeRpc];
 const CLI_FALLBACK_CURSOR_CHAIN: &[Source] = &[Source::CursorApi2];
 
-const CLI_FIRST_CODEX_CHAIN: &[Source] = &[Source::CodexCli, Source::CodexLocal];
-const CLI_FIRST_CLAUDE_CHAIN: &[Source] = &[Source::ClaudeCli, Source::ClaudeLocal];
+const CLI_FIRST_CODEX_CHAIN: &[Source] = &[Source::CodexRpc, Source::CodexLocal];
+const CLI_FIRST_CLAUDE_CHAIN: &[Source] = &[Source::ClaudeRpc, Source::ClaudeLocal];
 const CLI_FIRST_CURSOR_CHAIN: &[Source] = &[Source::CursorApi2];
 
 pub fn default_source_plan() -> Vec<SourcePlan> {

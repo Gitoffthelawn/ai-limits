@@ -7,8 +7,8 @@ The loader shows active work for a source and does not show a progress percentag
 Format:
 
 ```text
-⠋ waiting codex-cli
-⠙ waiting claude-cli
+⠋ waiting codex-rpc
+⠙ waiting claude-rpc
 ```
 
 Unicode spinner frames:
