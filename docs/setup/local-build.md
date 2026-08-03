@@ -29,6 +29,20 @@ Distribution meaning:
 - the published macOS distributable is the signed and notarized disk image built by GitHub Actions, not this bundle;
 - local macOS builds do not replace GitHub signing or notarization.
 
+## Local Disk Image Preview
+
+Command:
+
+```text
+scripts/build-macos-dmg.sh "target/debug/bundle/macos/AI Limits.app" /tmp/preview.dmg
+```
+
+Purpose:
+
+- preview the disk image window (background, icon layout) on a developer machine, unsigned;
+- this is the same script GitHub Actions runs, so a local preview matches what a release will look like;
+- avoids Tauri's own dmg bundler, whose Finder-styling step needs the Automation permission and is unreliable outside a fresh grant — see [macOS signing](../devops/macos-signing.md).
+
 Related documents:
 
 - [Dev run](dev-run.md)

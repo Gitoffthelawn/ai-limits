@@ -192,12 +192,12 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
-      - name: Build macOS app and disk image
+      - name: Build macOS app
         run: |
           set -euo pipefail
           unset APPLE_SIGNING_IDENTITY
 
-          BUILD_ARGS=(--bundles app,dmg --target universal-apple-darwin)
+          BUILD_ARGS=(--bundles app --target universal-apple-darwin)
           if [[ "${{ inputs.macos_notarization }}" == "submit-only" ]]; then
             BUILD_ARGS+=(--skip-stapling)
           fi
@@ -211,15 +211,27 @@ jobs:
             --notarization "${{ inputs.macos_notarization }}" \
             "target/universal-apple-darwin/release/bundle/macos/AI Limits.app"
 
-      - name: Locate macOS disk image
+      - name: Build macOS disk image
         run: |
           set -euo pipefail
 
-          dmg_path="$(find target/universal-apple-darwin/release/bundle/dmg -maxdepth 1 -name '*.dmg' -print -quit)"
-          if [[ -z "$dmg_path" ]]; then
-            echo "No .dmg produced by the bundler." >&2
+          # Tauri's own dmg bundler styles the window via a Finder AppleScript
+          # step that needs the Automation permission. GitHub Actions runners
+          # do not have it, so that step fails silently and ships an
+          # unstyled disk image. scripts/build-macos-dmg.sh writes the same
+          # window layout directly and needs no such permission.
+          dmg_path="target/universal-apple-darwin/release/bundle/dmg/AI Limits.dmg"
+          scripts/build-macos-dmg.sh \
+            "target/universal-apple-darwin/release/bundle/macos/AI Limits.app" \
+            "$dmg_path"
+
+          identity="$(security find-identity -v -p codesigning build.keychain \
+            | grep "Developer ID Application" | head -n1 | sed -E 's/.*"(.+)"/\1/')"
+          if [[ -z "$identity" ]]; then
+            echo "No Developer ID Application identity found in the keychain." >&2
             exit 1
           fi
+          codesign --sign "$identity" --timestamp "$dmg_path"
 
           echo "DMG_PATH=$dmg_path" >> "$GITHUB_ENV"
 

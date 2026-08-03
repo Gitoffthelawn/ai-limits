@@ -4,6 +4,8 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+- Fixed the macOS install disk image shipping without its styled window: the background and Applications-folder shortcut were silently missing since the first release with a disk image, because the step that arranged them needed a Finder permission unavailable in GitHub Actions.
+
 ## [v0.2.0](https://github.com/md2it/ai-limits/releases/tag/v0.2.0) — 2026-08-03
 
 - macOS installations now update themselves: the app checks for a new release at startup and every 12 hours, downloads it in the background, and offers a restart once it is ready. Automatic updates can be turned off in Settings.
