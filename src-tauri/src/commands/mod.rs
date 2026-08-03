@@ -17,6 +17,11 @@ pub use provider_limits::{ProviderLimits, ProviderLimitsQuery};
 use collect::collect_single_provider_limits;
 
 #[tauri::command]
+pub fn get_app_version() -> &'static str {
+    env!("CARGO_PKG_VERSION")
+}
+
+#[tauri::command]
 pub async fn get_single_provider_limits(
     provider_id: String,
     query: ProviderLimitsQuery,

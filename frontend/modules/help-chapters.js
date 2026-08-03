@@ -40,6 +40,7 @@ export const HELP_CHAPTERS = [
             <dd>All data comes from your own setup or account.</dd>
           </div>
         </dl>
+        <p class="app-version" data-app-version></p>
       `;
     },
   },

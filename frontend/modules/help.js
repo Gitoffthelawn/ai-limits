@@ -61,6 +61,10 @@ function selectHelpChapter(chapterId) {
   if (cliCommand) {
     loadCliCommand(cliCommand);
   }
+  const appVersion = helpContent.querySelector("[data-app-version]");
+  if (appVersion) {
+    loadAppVersion(appVersion);
+  }
   helpContent.querySelector("[data-copy-cli-command]")?.addEventListener("click", (event) => {
     copyHelpText(event.currentTarget);
   });
@@ -89,6 +93,22 @@ async function loadCliCommand(commandElement) {
     runButton.disabled = false;
   } catch {
     commandElement.textContent = "Command unavailable";
+  }
+}
+
+async function loadAppVersion(versionElement) {
+  const invoke = window.__TAURI__?.core?.invoke;
+  if (!invoke) {
+    return;
+  }
+  try {
+    const version = await invoke("get_app_version");
+    if (!versionElement.isConnected) {
+      return;
+    }
+    versionElement.textContent = `Version ${version}`;
+  } catch {
+    // Leave the element empty if the version can't be read.
   }
 }
 
