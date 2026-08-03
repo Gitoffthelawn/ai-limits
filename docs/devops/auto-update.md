@@ -63,7 +63,10 @@ by the macOS build, and the `Unreleased` changelog section, then commits it in
 the same commit as the finalized changelog. It is never edited by hand.
 
 All three macOS platform keys point at the same universal archive. Windows and
-Linux keys are absent, so clients on those platforms find no update.
+Linux keys are absent, so clients on those platforms find no update. Because
+`createUpdaterArtifacts` applies to every platform, those two builds turn it off
+through [updater-disabled.conf.json](../../src-tauri/updater-disabled.conf.json);
+otherwise they would demand the signing key to produce artifacts nothing reads.
 
 The release tag and the `version` in `tauri.conf.json` must match; the workflow
 refuses to release when they diverge, because clients compare their built-in

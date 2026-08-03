@@ -328,8 +328,10 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
+      # Windows is not part of the update channel, so it produces no updater
+      # artifacts and needs no updater signing key.
       - name: Build unsigned Windows bundles
-        run: npm exec tauri -- build --bundles nsis,msi
+        run: npm exec tauri -- build --bundles nsis,msi --config src-tauri/updater-disabled.conf.json
 
       - name: Upload Windows unsigned artifacts
         uses: actions/upload-artifact@v4
@@ -372,8 +374,10 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
+      # Linux is not part of the update channel, so it produces no updater
+      # artifacts and needs no updater signing key.
       - name: Build unsigned Linux bundles
-        run: npm exec tauri -- build --bundles deb,appimage
+        run: npm exec tauri -- build --bundles deb,appimage --config src-tauri/updater-disabled.conf.json
 
       - name: Upload Linux unsigned artifacts
         uses: actions/upload-artifact@v4
