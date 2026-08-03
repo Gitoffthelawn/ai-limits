@@ -6,53 +6,44 @@ use super::super::time::{format_user_date, TimeContext};
 pub fn plan_display_lines(account: &AccountInfo, time_context: &TimeContext) -> Vec<String> {
     let mut lines = Vec::new();
 
-    if let Some(plan) = account.plan.as_deref() {
-        if let Some(name) = plan_name_for_display(plan) {
-            lines.push(format!("Plan: {name}"));
-        }
-    }
-    if let Some(line) = subscription_dates_line(account, time_context) {
+    if let Some(line) = plan_and_price_line(account) {
         lines.push(line);
     }
-    if let Some(line) = price_line(account) {
-        lines.push(line);
+    if let Some(renewal) = account.renewal_at.as_deref() {
+        lines.push(format!(
+            "renews {}",
+            format_user_date(renewal, time_context)
+        ));
     }
 
     lines
 }
 
+fn plan_and_price_line(account: &AccountInfo) -> Option<String> {
+    let plan = account.plan.as_deref().and_then(plan_name_for_display);
+    let price = price_for_display(account);
+
+    match (plan, price) {
+        (Some(plan), Some(price)) => Some(format!("{plan} \u{2248} {price}")),
+        (Some(plan), None) => Some(plan),
+        (None, Some(price)) => Some(format!("\u{2248} {price}")),
+        (None, None) => None,
+    }
+}
+
 fn plan_name_for_display(plan: &str) -> Option<String> {
-    let trimmed = plan.trim();
-    let mut characters = trimmed.chars();
+    let mut characters = plan.trim().chars();
     let first = characters.next()?;
 
     Some(first.to_uppercase().chain(characters).collect())
 }
 
-fn subscription_dates_line(account: &AccountInfo, time_context: &TimeContext) -> Option<String> {
-    let started = account
-        .subscription_started_at
-        .as_deref()
-        .map(|value| format_user_date(value, time_context));
-    let renews = account
-        .renewal_at
-        .as_deref()
-        .map(|value| format_user_date(value, time_context));
-
-    match (started, renews) {
-        (Some(started), Some(renews)) => Some(format!("Started {started} \u{b7} renews {renews}")),
-        (Some(started), None) => Some(format!("Started {started}")),
-        (None, Some(renews)) => Some(format!("Renews {renews}")),
-        (None, None) => None,
-    }
-}
-
-fn price_line(account: &AccountInfo) -> Option<String> {
+fn price_for_display(account: &AccountInfo) -> Option<String> {
     let amount = account.price_amount?;
     let price = format_money(amount, account.price_currency.as_deref());
 
-    match account.price_note.as_deref().map(str::trim) {
-        Some(note) if !note.is_empty() => Some(format!("{price} ({note})")),
+    match account.price_period.as_deref().map(str::trim) {
+        Some(period) if !period.is_empty() => Some(format!("{price} /{period}")),
         _ => Some(price),
     }
 }
@@ -109,7 +100,23 @@ mod tests {
     }
 
     #[test]
-    fn plan_name_is_capitalized_for_display() {
+    fn plan_and_price_share_the_first_line() {
+        let account = AccountInfo {
+            plan: Some("pro".to_string()),
+            price_amount: Some(20.0),
+            price_currency: Some("USD".to_string()),
+            price_period: Some("mo".to_string()),
+            ..Default::default()
+        };
+
+        assert_eq!(
+            plan_display_lines(&account, &time_context()),
+            vec!["Pro \u{2248} $20.00 /mo".to_string()]
+        );
+    }
+
+    #[test]
+    fn plan_without_price_renders_the_plan_name_alone() {
         let account = AccountInfo {
             plan: Some("plus".to_string()),
             ..Default::default()
@@ -117,7 +124,64 @@ mod tests {
 
         assert_eq!(
             plan_display_lines(&account, &time_context()),
-            vec!["Plan: Plus".to_string()]
+            vec!["Plus".to_string()]
+        );
+    }
+
+    #[test]
+    fn price_without_plan_keeps_the_approximation_sign() {
+        let account = AccountInfo {
+            price_amount: Some(20.0),
+            price_currency: Some("USD".to_string()),
+            price_period: Some("mo".to_string()),
+            ..Default::default()
+        };
+
+        assert_eq!(
+            plan_display_lines(&account, &time_context()),
+            vec!["\u{2248} $20.00 /mo".to_string()]
+        );
+    }
+
+    #[test]
+    fn neither_plan_nor_price_produces_no_first_line() {
+        let account = AccountInfo {
+            price_currency: Some("USD".to_string()),
+            price_period: Some("mo".to_string()),
+            price_note: Some("may vary by country/currency".to_string()),
+            ..Default::default()
+        };
+
+        assert!(plan_display_lines(&account, &time_context()).is_empty());
+    }
+
+    #[test]
+    fn price_without_period_renders_as_a_bare_amount() {
+        let account = AccountInfo {
+            plan: Some("pro".to_string()),
+            price_amount: Some(20.0),
+            price_currency: Some("USD".to_string()),
+            ..Default::default()
+        };
+
+        assert_eq!(
+            plan_display_lines(&account, &time_context()),
+            vec!["Pro \u{2248} $20.00".to_string()]
+        );
+    }
+
+    #[test]
+    fn blank_period_is_treated_as_absent() {
+        let account = AccountInfo {
+            price_amount: Some(20.0),
+            price_currency: Some("USD".to_string()),
+            price_period: Some("  ".to_string()),
+            ..Default::default()
+        };
+
+        assert_eq!(
+            plan_display_lines(&account, &time_context()),
+            vec!["\u{2248} $20.00".to_string()]
         );
     }
 
@@ -132,46 +196,39 @@ mod tests {
     }
 
     #[test]
-    fn both_dates_share_one_line() {
+    fn non_usd_price_keeps_its_currency_code() {
         let account = AccountInfo {
-            subscription_started_at: Some("Jan 12, 2026".to_string()),
-            renewal_at: Some("Aug 28, 2026".to_string()),
+            price_amount: Some(18.5),
+            price_currency: Some("EUR".to_string()),
+            price_period: Some("mo".to_string()),
             ..Default::default()
         };
-        let lines = plan_display_lines(&account, &time_context());
 
-        assert_eq!(lines.len(), 1);
-        assert!(lines[0].starts_with("Started "));
-        assert!(lines[0].contains(" \u{b7} renews "));
+        assert_eq!(
+            plan_display_lines(&account, &time_context()),
+            vec!["\u{2248} 18.50 EUR /mo".to_string()]
+        );
     }
 
     #[test]
-    fn started_alone_renders_its_own_line() {
+    fn price_note_produces_no_line_of_its_own() {
         let account = AccountInfo {
-            subscription_started_at: Some("Jan 12, 2026".to_string()),
+            plan: Some("pro".to_string()),
+            price_amount: Some(20.0),
+            price_currency: Some("USD".to_string()),
+            price_period: Some("mo".to_string()),
+            price_note: Some("may vary by country/currency".to_string()),
             ..Default::default()
         };
-        let lines = plan_display_lines(&account, &time_context());
 
-        assert_eq!(lines.len(), 1);
-        assert!(lines[0].starts_with("Started "));
-        assert!(!lines[0].contains("renews"));
+        assert_eq!(
+            plan_display_lines(&account, &time_context()),
+            vec!["Pro \u{2248} $20.00 /mo".to_string()]
+        );
     }
 
     #[test]
-    fn renewal_alone_renders_its_own_line() {
-        let account = AccountInfo {
-            renewal_at: Some("Aug 28, 2026".to_string()),
-            ..Default::default()
-        };
-        let lines = plan_display_lines(&account, &time_context());
-
-        assert_eq!(lines.len(), 1);
-        assert!(lines[0].starts_with("Renews "));
-    }
-
-    #[test]
-    fn iso_dates_render_as_dates_without_a_time_component() {
+    fn renewal_renders_a_lowercase_date_only_line() {
         let context = time_context();
         let account = AccountInfo {
             renewal_at: Some("2026-08-28T12:00:00Z".to_string()),
@@ -182,78 +239,18 @@ mod tests {
         assert_eq!(
             lines,
             vec![format!(
-                "Renews {}",
+                "renews {}",
                 format_user_date("2026-08-28T12:00:00Z", &context)
             )]
         );
-        assert!(!lines[0].contains("2026-08-28T"));
+        assert!(lines[0].contains("2026"));
         assert!(!lines[0].contains(':'));
     }
 
     #[test]
-    fn subscription_dates_always_carry_their_year() {
-        let context = time_context();
+    fn subscription_start_produces_no_line() {
         let account = AccountInfo {
             subscription_started_at: Some("2024-01-12T12:00:00Z".to_string()),
-            renewal_at: Some("2027-01-12T12:00:00Z".to_string()),
-            ..Default::default()
-        };
-        let lines = plan_display_lines(&account, &context);
-
-        assert_eq!(lines.len(), 1);
-        assert!(lines[0].contains("2024"));
-        assert!(lines[0].contains("2027"));
-        assert!(!lines[0].contains(':'));
-    }
-
-    #[test]
-    fn price_note_is_appended_in_parentheses() {
-        let account = AccountInfo {
-            price_amount: Some(20.0),
-            price_currency: Some("USD".to_string()),
-            price_note: Some("may vary by country/currency".to_string()),
-            ..Default::default()
-        };
-
-        assert_eq!(
-            plan_display_lines(&account, &time_context()),
-            vec!["$20.00 (may vary by country/currency)".to_string()]
-        );
-    }
-
-    #[test]
-    fn price_without_note_renders_alone() {
-        let account = AccountInfo {
-            price_amount: Some(20.0),
-            price_currency: Some("USD".to_string()),
-            ..Default::default()
-        };
-
-        assert_eq!(
-            plan_display_lines(&account, &time_context()),
-            vec!["$20.00".to_string()]
-        );
-    }
-
-    #[test]
-    fn non_usd_price_keeps_its_currency_code() {
-        let account = AccountInfo {
-            price_amount: Some(18.5),
-            price_currency: Some("EUR".to_string()),
-            ..Default::default()
-        };
-
-        assert_eq!(
-            plan_display_lines(&account, &time_context()),
-            vec!["18.50 EUR".to_string()]
-        );
-    }
-
-    #[test]
-    fn price_note_without_amount_produces_no_line() {
-        let account = AccountInfo {
-            price_note: Some("may vary by country/currency".to_string()),
-            price_currency: Some("USD".to_string()),
             ..Default::default()
         };
 
@@ -272,21 +269,29 @@ mod tests {
     }
 
     #[test]
-    fn full_account_renders_every_line_in_order() {
+    fn full_account_renders_two_lines_in_order() {
+        let context = time_context();
         let account = AccountInfo {
             plan: Some("pro".to_string()),
-            subscription_started_at: Some("Jan 12, 2026".to_string()),
-            renewal_at: Some("Aug 28, 2026".to_string()),
+            subscription_started_at: Some("2024-01-12T12:00:00Z".to_string()),
+            renewal_at: Some("2026-09-03T12:00:00Z".to_string()),
             price_amount: Some(20.0),
             price_currency: Some("usd".to_string()),
+            price_period: Some("mo".to_string()),
             price_note: Some("may vary by country/currency".to_string()),
+            plan_management_url: Some("https://example.test/plan".to_string()),
             ..Default::default()
         };
-        let lines = plan_display_lines(&account, &time_context());
 
-        assert_eq!(lines.len(), 3);
-        assert_eq!(lines[0], "Plan: Pro");
-        assert!(lines[1].starts_with("Started "));
-        assert_eq!(lines[2], "$20.00 (may vary by country/currency)");
+        assert_eq!(
+            plan_display_lines(&account, &context),
+            vec![
+                "Pro \u{2248} $20.00 /mo".to_string(),
+                format!(
+                    "renews {}",
+                    format_user_date("2026-09-03T12:00:00Z", &context)
+                ),
+            ]
+        );
     }
 }

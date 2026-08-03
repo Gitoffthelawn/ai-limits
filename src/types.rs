@@ -136,6 +136,7 @@ pub struct AccountInfo {
     pub renewal_at: Option<String>,
     pub price_amount: Option<f64>,
     pub price_currency: Option<String>,
+    pub price_period: Option<String>,
     pub price_note: Option<String>,
     pub plan_management_url: Option<String>,
     pub billing_management_url: Option<String>,

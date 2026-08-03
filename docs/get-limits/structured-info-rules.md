@@ -26,6 +26,20 @@ The default terminal output uses `source` and `data_as_of` for the `Source {sour
 
 `usage.activity.latest_activity_at` is a separate business fact about user activity. It must not be treated as the default `Source {source}` timestamp unless it is also the best known timestamp for the source data itself.
 
+## Target field set
+
+Every provider and every source aims to populate the same core set of fields, so that user-facing surfaces can present one standard view regardless of where the data came from:
+
+| Purpose | Fields |
+| --- | --- |
+| Limits | `limits[].remaining_percent`, `limits[].resets_at` |
+| Subscription | `account.plan`, `account.price_amount`, `account.price_currency`, `account.price_period`, `account.renewal_at`, `account.plan_management_url`, `account.billing_management_url` |
+| Usage | `usage.tokens.total`, `usage.activity.sessions_count`, `usage.activity.turns_count`, `usage.activity.files_count` |
+
+This is a target, not a validation rule. A source that cannot obtain a field leaves it `null`, and user-facing surfaces omit it rather than showing an empty value. When a source could plausibly expose a field but the collection method does not yet read it, that gap belongs in the source's own document under [providers](providers/) so it stays visible as future work.
+
+Collecting more than this set is expected and encouraged. Structured data is the complete record of what a source exposes; each interface selects the subset it displays. A field being absent from a card is not a reason to stop collecting it.
+
 ## Subscription fields
 
 `account.subscription_started_at` is when the user's current plan/subscription began. It is not the account creation date if the account existed on a different plan before.
@@ -33,6 +47,8 @@ The default terminal output uses `source` and `data_as_of` for the `Source {sour
 `account.renewal_at` is the next billing/renewal date for the subscription itself. It is a separate business fact from `limits[].resets_at`, which is the automatic reset time of a rate-limit window, and from `available_limit_resets`, which is a manually redeemable reset count.
 
 `account.price_amount` and `account.price_currency` carry the price as reported by the source, in the source's own currency. They must not be converted to another currency by the collection layer.
+
+`account.price_period` carries the billing period the price applies to, as a short lowercase token such as `mo` or `yr`. Populate it only when the source states the period explicitly. Inferring a period from the price alone, from the plan name, or from the gap between two dates is a weak assumption and is not allowed; leave it `null` instead. A price without a period is still useful and is displayed as a bare amount.
 
 `account.price_note` must be filled with a short, user-readable disclaimer whenever the source does not guarantee that `price_amount`/`price_currency` is the price every user on that plan pays, for example because price can vary by country, region, currency, or active promotion. When the source-reported price is unconditional for the account being read, `price_note` may stay `null`.
 

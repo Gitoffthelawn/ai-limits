@@ -1,5 +1,17 @@
+/* Cards in a row stretch to the height of the tallest card so the row looks
+   orderly (see docs/desktop/ui/provider-blocks.md "Line Budget"). The stretch
+   is done by the grid; the extra height is absorbed by the flex column inside
+   the card, which keeps the controls block pinned to the bottom without any
+   padding lines or placeholders in the content.
+
+   The cards carry no min-height: this stretch is what keeps a row orderly, and
+   a floor would only ever bind when every card in the row is short, which is
+   exactly when there is nothing to fill it with. The display toggles can now
+   empty a card deliberately, and such a card must collapse to its natural
+   height rather than hold open blank space. */
 .providers {
   display: grid;
+  align-items: stretch;
   width: min(100%, var(--content-width));
   margin: var(--space-0) auto var(--space-16);
   gap: var(--space-14);
@@ -20,7 +32,6 @@
   --provider-text-muted: color-mix(in srgb, var(--provider-brand) var(--mix-provider-text), var(--text-muted));
   position: relative;
   display: flex;
-  min-height: var(--provider-block-min-height);
   flex-direction: column;
   border: var(--border-width) solid var(--provider-border-color);
   border-radius: var(--radius-md);
@@ -73,6 +84,8 @@
 .provider-block .limit-reset,
 .provider-block .credits-info,
 .provider-block .source-info,
+.provider-block .section-heading-label,
+.provider-block .plan-links-separator,
 .provider-block .no-fresh-data,
 .provider-block .provider-status {
   color: var(--provider-text-muted);
@@ -176,12 +189,16 @@
   }
 }
 
+/* Sections carry their own leading heading, so the spacing between them is
+   the grid gap rather than a margin on a separator element. Empty sections
+   render nothing at all and therefore take up no gap. */
 .provider-sections {
-  display: block;
+  display: grid;
+  gap: var(--space-16);
 }
 
-.provider-section--plan,
-.provider-section--usage {
+.provider-section--plan .provider-section-body,
+.provider-section--usage .provider-section-body {
   display: grid;
   gap: var(--space-6);
 }
@@ -193,16 +210,54 @@
   line-height: var(--line-height-normal);
 }
 
-/* Separates the Limits, Plan, and Usage sections from each other using the
-   same provider border token stack as the card border and the metadata/
-   controls divider below, so it stays visible in both themes (see
-   docs/desktop/ui/provider-block-colors.md). Only rendered between two
-   sections that are both actually visible. */
-.section-divider {
-  border: 0;
-  border-top: var(--border-width) solid var(--provider-border-color);
-  box-shadow: inset 0 1px 0 var(--provider-border-overlay-color);
-  margin: var(--space-16) var(--space-0);
+/* Opens each section with the section name centered in a horizontal rule
+   (see docs/desktop/ui/provider-blocks.md "Section Headings"). The rules are
+   pseudo-elements, so they are decoration the accessibility tree never
+   exposes, while the label stays real text. */
+.section-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  margin: var(--space-0) var(--space-0) var(--space-10);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+}
+
+/* The rule uses the same provider border token stack as the card border and
+   the metadata/controls divider below, so it stays visible in both themes
+   and never drifts from them (see docs/desktop/ui/provider-block-colors.md). */
+.section-heading::before,
+.section-heading::after {
+  content: "";
+  flex: 1 1 auto;
+  height: var(--border-width);
+  min-width: var(--space-8);
+  background: var(--provider-border-color);
+  box-shadow: inset 0 0 0 var(--border-width) var(--provider-border-overlay-color);
+}
+
+/* Deliberately identical across providers and never provider-accented: the
+   headings exist so the eye can compare the same metric across cards. */
+.section-heading-label {
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+}
+
+/* Management links share one line, separated by a middot. */
+.plan-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-6);
+  margin: 0;
+}
+
+.plan-links-separator {
+  color: var(--text-muted);
+  font-size: var(--font-size-xs);
 }
 
 .limits {
@@ -389,10 +444,4 @@ select {
 
 .provider-link:hover {
   text-decoration: underline;
-}
-
-@media (max-width: 525px) {
-  .provider-block {
-    min-height: auto;
-  }
 }

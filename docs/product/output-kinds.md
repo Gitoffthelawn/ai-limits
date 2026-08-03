@@ -28,33 +28,35 @@ The Tauri desktop app is the first interface implementing all three output kinds
 
 The goal of the Plan output is to give the user a compact, at-a-glance way to keep subscriptions under control, without needing to open the provider's own billing page.
 
-When available for a source, Plan output shows:
+Plan output answers three questions, in this order of usefulness: what am I on, when am I next charged, and where do I change it.
 
-- the tariff/plan name
-- when the current subscription started
+- the tariff/plan name and what it costs
 - when it next renews
-- what it costs
+- where to manage the plan and the billing
 
-Price is shown with the understanding that it can vary by currency, country, region, or promotional terms; a source that cannot guarantee one universal price value carries a disclaimer alongside the price rather than presenting it as an unconditional fact. See `account.price_note` in [get-limits/structured-info-schema.md](../get-limits/structured-info-schema.md).
+Price is always presented as approximate. A plan's real cost varies by country, currency, tax, and promotional terms, and the product reads what a source reports rather than what a given user is actually billed. Interfaces signal this on the price itself — the desktop card uses a `≈` sign — instead of claiming an exact figure. `account.price_note` in [get-limits/structured-info-schema.md](../get-limits/structured-info-schema.md) carries the long-form explanation for surfaces that have room for it.
 
-Direct links into the provider's own plan-change or billing-management pages are an optional addition to the Plan output, not a required part of it.
-
-### Current source coverage
-
-Plan output degrades per source, and partial coverage is the normal case rather than an error state:
-
-| Source | Plan name | Started | Renews | Price | Management links |
-| --- | --- | --- | --- | --- | --- |
-| `codex_local` | yes | yes | yes | no | no |
-| `codex_cli` | no | no | no | no | no |
-| `claude_cli` | no | no | no | no | no |
-| `claude_local` | no | no | no | no | no |
-| `cursor_api2` | no | no | yes | no | no |
-
-No current source exposes price or management links. Those fields are specified so an interface knows how to render them and so a future source can populate them, but they are `null` everywhere today and no interface displays them.
+When the current subscription started is collected but is not part of the standard displayed set. It is the least actionable of the subscription facts for day-to-day cost control, and interfaces with a tight space budget omit it.
 
 A renewal date is only shown when it is still in the future. Sources that read a cached local credential can carry a subscription window that has already elapsed; per the "no weak assumptions" rule in [get-limits/structured-info-rules.md](../get-limits/structured-info-rules.md), an elapsed renewal date is reported as unknown with a diagnostic rather than presented as an upcoming charge.
 
 ## Usage output: goal and content
 
-Usage shape differs sharply between providers: one provider reports tokens, another reports money, another reports session/turn counts, another reports a model mix. The Usage output does not force these into one fixed layout. An interface renders whichever `usage.*` fields are non-null for a given source, in human-readable form, and omits the rest. There is no expectation that two providers' Usage output look alike.
+Sources report consumption in different shapes, but the user's question is the same everywhere: how much have I done through this provider. Usage output answers it with one standard set of metrics, in a fixed order, so the same figure sits in the same place on every provider's card and can be compared at a glance:
+
+- total tokens
+- sessions
+- turns
+- files
+
+Every provider and source aims to supply these; see the target field set in [get-limits/structured-info-rules.md](../get-limits/structured-info-rules.md). Whatever a source cannot supply is simply absent, not padded or substituted.
+
+Sources expose far more than this — token breakdowns, cached-input ratios, monetary spend, event counts, model mixes, per-project attribution. All of it is collected into structured data. The standard set is what interfaces display by default; the rest is available for surfaces that have room, and for future features.
+
+Monetary spend is deliberately not part of the standard set. For sources whose plan allowance is monetary, the Limits section already conveys how much of the allowance is gone, and the standard set is kept to four metrics so that cards stay comparable and short. The consequence is accepted knowingly: a source that reports only money and none of the four standard metrics shows no Usage section at all.
+
+## Coverage is uneven by design
+
+Each source exposes a different subset, and partial coverage is the normal case rather than an error state. A value that is absent produces no line, no placeholder, and no dash — an interface shows what is known and stays silent about the rest.
+
+This is why the output kinds are defined as categories rather than as fixed layouts: a card showing three subscription lines for one provider and none for another is behaving correctly, and an interface must look deliberate in both cases.

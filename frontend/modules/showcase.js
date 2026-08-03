@@ -19,12 +19,14 @@ export const SHOWCASE_PROVIDERS = {
     ],
     creditsRemaining: 39,
     availableLimitResets: 1,
+    // Codex reports a plan name but no price and no management links, so the
+    // subscription section is two lines and carries no link line.
     plan: {
-      lines: ["Plan: Plus", "Started Jan 12, 2026 · renews Aug 8, 2026"],
+      lines: ["Plus", "renews Sep 3, 2026"],
       links: [],
     },
     usage: {
-      lines: ["Tokens: 1.5B total (1.4B cached)", "Events: 22,545 · Files touched: 921"],
+      lines: ["Tokens 1.5B", "Files 921"],
     },
     errorMessage: null,
     noFreshData: false,
@@ -42,12 +44,14 @@ export const SHOWCASE_PROVIDERS = {
     ],
     creditsRemaining: null,
     availableLimitResets: null,
+    // Claude exposes no subscription data at all, so the card shows no
+    // SUBSCRIPTION heading and no rule where one would have been.
     plan: {
       lines: [],
       links: [],
     },
     usage: {
-      lines: ["Tokens: 711.2M total", "Sessions: 92 · Turns: 6,394", "Top model: claude-sonnet-5"],
+      lines: ["Tokens 711.2M", "Sessions 92", "Turns 6,394", "Files 223"],
     },
     errorMessage: null,
     noFreshData: false,
@@ -66,12 +70,17 @@ export const SHOWCASE_PROVIDERS = {
     ],
     creditsRemaining: null,
     availableLimitResets: null,
+    // The Cursor source carries no tier name and no price, so the
+    // subscription section is the renewal line alone, with no links.
     plan: {
-      lines: ["Renews Jul 28, 2026"],
+      lines: ["renews Jul 28, 2026"],
       links: [],
     },
+    // cursor_api2 reports only usage.money, which the card deliberately does
+    // not display (see docs/desktop/ui/provider-block-content.md), so the
+    // card has no usage section and no USAGE heading at all.
     usage: {
-      lines: ["Spend this period: $20.00 USD"],
+      lines: [],
     },
     errorMessage: null,
     noFreshData: false,

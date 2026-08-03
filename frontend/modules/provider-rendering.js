@@ -116,11 +116,39 @@ function buildLimitRowsHtml(provider) {
 
 // Limits, Plan, and Usage are the desktop rendering of the product's three
 // output kinds (see docs/product/output-kinds.md). Each is shown only when
-// it has content and only when its display toggle is on; they are separated
-// from each other by a divider that appears only between two visible
-// sections, never leading, trailing, or next to a hidden one.
+// it has content and only when its display toggle is on.
+//
+// Every visible section opens with a labelled divider carrying the section
+// name (see docs/desktop/ui/provider-blocks.md "Section Headings"). The
+// heading belongs to its section rather than sitting between two sections,
+// so the first visible section carries one too. A section whose body is
+// empty returns an empty string and therefore contributes neither heading
+// nor rule: a card never shows a heading over nothing, and there is never a
+// leading, trailing, or duplicated rule.
 
-function buildLimitsSectionHtml(provider) {
+const SECTION_HEADINGS = {
+  limits: "LIMITS",
+  plan: "SUBSCRIPTION",
+  usage: "USAGE",
+};
+
+// The rules on either side of the label are drawn by CSS pseudo-elements on
+// .section-heading, so they are decoration the accessibility tree never sees,
+// while the label itself stays a real heading element.
+function buildProviderSectionHtml(kind, bodyHtml) {
+  if (!bodyHtml) {
+    return "";
+  }
+
+  return `
+    <div class="provider-section provider-section--${kind}">
+      <h3 class="section-heading"><span class="section-heading-label">${escapeHtml(SECTION_HEADINGS[kind])}</span></h3>
+      <div class="provider-section-body">${bodyHtml}</div>
+    </div>
+  `;
+}
+
+function buildLimitsBodyHtml(provider) {
   const limitRowsHtml = buildLimitRowsHtml(provider);
   const creditsLine = formatCreditsLine(provider);
   const limitResetsHtml = buildLimitResetsHtml(provider);
@@ -130,11 +158,9 @@ function buildLimitsSectionHtml(provider) {
   }
 
   return `
-    <div class="provider-section provider-section--limits">
-      <div class="limits">${limitRowsHtml}</div>
-      <p class="credits-info" ${creditsLine ? "" : "hidden"}>${escapeHtml(creditsLine)}</p>
-      <div class="limit-resets-slot">${limitResetsHtml}</div>
-    </div>
+    <div class="limits">${limitRowsHtml}</div>
+    <p class="credits-info" ${creditsLine ? "" : "hidden"}>${escapeHtml(creditsLine)}</p>
+    <div class="limit-resets-slot">${limitResetsHtml}</div>
   `;
 }
 
@@ -142,43 +168,37 @@ function buildPlanLinesHtml(plan) {
   return (plan?.lines ?? []).map((line) => `<p class="section-line">${escapeHtml(line)}</p>`).join("");
 }
 
+// The management links share one line, joined by a middot, per
+// docs/desktop/ui/provider-block-content.md. A single link is rendered
+// without a separator. Each link stays a button so the click keeps going
+// through openExternalUrl rather than navigating the app window.
 function buildPlanLinksHtml(plan) {
-  return (plan?.links ?? []).map((link) => `
-    <button type="button" class="provider-link provider-link--external" data-plan-link-url="${escapeHtml(link.url)}">
-      ${escapeHtml(link.label)}
-    </button>
-  `).join("");
-}
+  const links = (plan?.links ?? []).filter((link) => link?.url && link?.label);
 
-function buildPlanSectionHtml(provider) {
-  const linesHtml = buildPlanLinesHtml(provider.plan);
-  const linksHtml = buildPlanLinksHtml(provider.plan);
-
-  if (!linesHtml && !linksHtml) {
+  if (!links.length) {
     return "";
   }
 
-  return `<div class="provider-section provider-section--plan">${linesHtml}${linksHtml}</div>`;
+  const linksHtml = links.map((link) => `<button type="button" class="provider-link provider-link--external" data-plan-link-url="${escapeHtml(link.url)}">${escapeHtml(link.label)}</button>`)
+    .join(`<span class="plan-links-separator" aria-hidden="true">·</span>`);
+
+  return `<p class="plan-links">${linksHtml}</p>`;
 }
 
-function buildUsageSectionHtml(provider) {
-  const linesHtml = (provider.usage?.lines ?? []).map((line) => `<p class="section-line">${escapeHtml(line)}</p>`).join("");
+function buildPlanBodyHtml(provider) {
+  return `${buildPlanLinesHtml(provider.plan)}${buildPlanLinksHtml(provider.plan)}`;
+}
 
-  if (!linesHtml) {
-    return "";
-  }
-
-  return `<div class="provider-section provider-section--usage">${linesHtml}</div>`;
+function buildUsageBodyHtml(provider) {
+  return (provider.usage?.lines ?? []).map((line) => `<p class="section-line">${escapeHtml(line)}</p>`).join("");
 }
 
 function buildProviderSectionsHtml(provider) {
-  const sections = [
-    isShowLimitsEnabled() ? buildLimitsSectionHtml(provider) : "",
-    isShowPlanEnabled() ? buildPlanSectionHtml(provider) : "",
-    isShowUsageEnabled() ? buildUsageSectionHtml(provider) : "",
-  ].filter(Boolean);
-
-  return sections.join(`<hr class="section-divider" aria-hidden="true">`);
+  return [
+    isShowLimitsEnabled() ? buildProviderSectionHtml("limits", buildLimitsBodyHtml(provider)) : "",
+    isShowPlanEnabled() ? buildProviderSectionHtml("plan", buildPlanBodyHtml(provider)) : "",
+    isShowUsageEnabled() ? buildProviderSectionHtml("usage", buildUsageBodyHtml(provider)) : "",
+  ].join("");
 }
 
 export function renderProvider(provider, selectedUpdateFrequency) {

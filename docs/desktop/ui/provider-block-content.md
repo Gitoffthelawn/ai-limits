@@ -1,6 +1,14 @@
 # Tauri UI Provider Block Content
 
-## Limit Rows
+Every section opens with a labelled divider, as documented in [provider-blocks.md](provider-blocks.md). A value that is absent contributes no line; a section with no values at all is omitted together with its heading. Nothing is ever rendered as an empty value, a dash, or a placeholder.
+
+---
+
+## Limits Section
+
+Heading: `LIMITS`.
+
+### Limit Rows
 
 Each limit row is rendered as a vertical group:
 
@@ -27,7 +35,7 @@ The filled segment color is calculated from remaining percentage:
 
 The bar must not use a left-to-right rainbow gradient inside the filled segment. For example, if `10%` remains, the filled 10% segment is a near-red color and the spent 90% segment stays light.
 
-## Available Credits Line
+### Available Credits Line
 
 When the provider has remaining credits, show one text line directly below the limit rows:
 
@@ -37,11 +45,9 @@ Available credits: 344.2
 
 The line is hidden when credits are unavailable.
 
----
+### Manual Limit Resets
 
-## Manual Limit Resets
-
-When `availableLimitResets` is greater than zero, show an informational line after credits and before the source line. It uses the same visual style as the available credits line:
+When `availableLimitResets` is greater than zero, show an informational line after credits. It uses the same visual style as the available credits line:
 
 ```text
 Available resets: 1
@@ -51,50 +57,66 @@ This line shows availability only; it must not contain a control that redeems a 
 
 ---
 
-## Plan Section
+## Subscription Section
 
-The Plan section shows the source's `account` subscription fields, defined in [get-limits/structured-info-schema.md](../../get-limits/structured-info-schema.md). It is the desktop rendering of the **Plan** output kind from [product/output-kinds.md](../../product/output-kinds.md).
-
-When present, shown as plain text lines, one fact per line or combined onto one line where it reads naturally:
+Heading: `SUBSCRIPTION`. At most three lines, in this order.
 
 ```text
-Plan: Plus
-Started Jan 12, 2026 · renews Aug 8, 2026
+Pro ≈ $20.00 /mo
+renews Sep 3, 2026
+Manage · Billing
 ```
 
-- `plan` renders as `Plan: {plan}`.
-- `subscription_started_at` and `renewal_at` render together as `Started {date} · renews {date}` when both are present; either one alone still renders on its own line.
-- Subscription dates render in the date-only form documented in [presentation/time-display.md](../../presentation/time-display.md). They always carry the year and never a time of day: a subscription can have started years ago, and an annual plan can renew up to a year out.
-- `price_amount` and `price_currency` render as a formatted price line. When `price_note` is present, it is appended in parentheses on the same line, for example `$20.00 (may vary by country/currency)`. No billing period is appended, because no schema field carries one.
-- `plan_management_url` and `billing_management_url`, when present, render as external-style links (see [styleguide.md](styleguide.md)) below the price line, using generic labels such as "Manage plan" and "Manage billing".
-- Any field that is `null` contributes no line; the section is omitted entirely when every subscription field is `null`.
+**Line 1 — plan and price.** Composed from `account.plan`, `account.price_amount`, `account.price_currency`, and `account.price_period`:
 
-Source coverage is uneven and the section is built to degrade. No source currently exposes `price_amount`, `price_currency`, `price_note`, `plan_management_url`, or `billing_management_url`, so the price line and the management links are specified but not rendered for any provider today. Of the sources that do report subscription data, `codex_local` supplies plan name plus both dates, and `cursor_api2` supplies a renewal date only.
+- all present: `{plan} ≈ {price} /{period}`
+- plan only: `{plan}`
+- price only: `≈ {price} /{period}`
+- neither: the line is omitted
+
+The `≈` sign is mandatory whenever a price is shown. It is the compact form of the price disclaimer: a plan's real cost varies by country, currency, tax, and promotional terms, and the product does not claim to know the exact amount charged. It replaces a separate disclaimer line, which the line budget does not allow. `account.price_note` remains in the structured data as the long-form explanation and may be surfaced as a tooltip, but it does not occupy a line.
+
+**Line 2 — renewal.** From `account.renewal_at`, rendered as `renews {date}` in the date-only form documented in [presentation/time-display.md](../../presentation/time-display.md). A renewal date is only ever shown when it is still in the future; see [get-limits/structured-info-rules.md](../../get-limits/structured-info-rules.md).
+
+**Line 3 — management links.** From `account.plan_management_url` and `account.billing_management_url`, rendered as `Manage · Billing` where each word is an external-style link (see [styleguide.md](styleguide.md)). When only one URL is present, only that link is shown. When neither is present, the line is omitted.
+
+`account.subscription_started_at` is collected into structured data but is not displayed. It does not fit the line budget and is the least actionable of the subscription facts for day-to-day cost control.
+
+---
 
 ## Usage Section
 
-The Usage section shows the source's `usage` fields, defined in [get-limits/structured-info-schema.md](../../get-limits/structured-info-schema.md). It is the desktop rendering of the **Usage** output kind from [product/output-kinds.md](../../product/output-kinds.md).
-
-Usage shape varies sharply between sources: one reports tokens, another reports money, another reports session/turn counts and a top model. The section does not use a fixed layout. It renders one short human-readable line per non-null `usage.*` group that has at least one non-null field, and omits groups that are entirely `null`:
+Heading: `USAGE`. At most four lines, one metric per line, always in this order:
 
 ```text
-Tokens: 711.2M total
-Sessions: 92 · Turns: 6,394
-Top model: claude-sonnet-5
+Tokens 711.2M
+Sessions 92
+Turns 6,394
+Files 223
 ```
 
-- `usage.tokens` renders as a token summary line, leading with `total` when available, otherwise composing from whichever of `input`/`output`/`cached_input`/`cache_read`/`cache_write`/`reasoning_output` are present.
-- `usage.money` renders as a spend line, for example `Spend this period: {used_amount} {currency}`, falling back to `total_amount` when `used_amount` is absent.
-- `usage.activity` renders as one line combining whichever of `events_count`, `files_count`, `sessions_count`, `turns_count` are present; `latest_activity_at` is not repeated here since it already backs the source timestamp when applicable (see [structured-info-rules.md](../../get-limits/structured-info-rules.md)).
-- `usage.models` renders as `Top model: {top_model}`.
-- Large integer counters are formatted with a compact human suffix (`1.5B`, `22,545`) consistent with the rest of the provider block; exact formatting follows the shared number-formatting conventions used elsewhere in the frontend.
-- The section is omitted entirely when every `usage.*` group is entirely `null`.
+| Line | Structured source |
+| --- | --- |
+| `Tokens {total}` | `usage.tokens.total` |
+| `Sessions {count}` | `usage.activity.sessions_count` |
+| `Turns {count}` | `usage.activity.turns_count` |
+| `Files {count}` | `usage.activity.files_count` |
+
+This is the standard set for every provider and every source. The order is fixed so that the same metric sits on the same line across cards and the eye can compare providers vertically.
+
+Counts use thousands separators (`6,394`). Token totals use a compact suffix (`711.2M`, `1.5B`) because they routinely reach nine and ten digits and would otherwise dominate the card.
+
+A known zero renders as a line. `Sessions 0` states that the source reports no sessions yet; omitting the line would instead state that the source does not report sessions at all, which is a different fact.
+
+The remaining `usage` fields — the token breakdown, money, events, latest activity, and top model — stay in structured data and are not displayed. Keeping the set to four metrics is what makes cards comparable and keeps them short; a fifth line would be spent differently by each source and the vertical alignment between cards would be lost.
+
+A source that reports none of these four metrics shows no Usage section. This currently applies to `cursor_api2`, whose only consumption figure is monetary.
 
 ---
 
 ## Source Line
 
-Provider source information is shown on one line by default:
+Provider source information is shown on one line, after all sections:
 
 ```text
 Local files, as of Jul 5, 22:12

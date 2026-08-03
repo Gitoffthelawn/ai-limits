@@ -52,7 +52,6 @@
   --settings-dropdown-min-width: 220px;
   --settings-dropdown-max-width-offset: 56px;
   --settings-dropdown-max-height-offset: 80px;
-  --provider-block-min-height: 320px;
   /* Longest source line: "Local files, as of Sep 30, 00:00" at 13px (~188px text) + padding/border + tolerance */
   --provider-card-min-width: 230px;
   --provider-status-z-index: 2;

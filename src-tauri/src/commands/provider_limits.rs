@@ -164,8 +164,8 @@ pub(super) fn provider_error(id: &str, message: String) -> ProviderLimits {
 
 fn plan_links(account: &AccountInfo) -> Vec<ProviderLink> {
     [
-        (account.plan_management_url.as_deref(), "Manage plan"),
-        (account.billing_management_url.as_deref(), "Manage billing"),
+        (account.plan_management_url.as_deref(), "Manage"),
+        (account.billing_management_url.as_deref(), "Billing"),
     ]
     .into_iter()
     .filter_map(|(url, label)| {
@@ -339,14 +339,11 @@ mod tests {
     fn projects_codex_local_plan_and_usage() {
         let response = provider_limits_from_structured("codex", &codex_local());
 
-        assert_eq!(response.plan.lines, vec!["Plan: Plus".to_string()]);
+        assert_eq!(response.plan.lines, vec!["Plus".to_string()]);
         assert!(response.plan.links.is_empty());
         assert_eq!(
             response.usage.lines,
-            vec![
-                "Tokens: 1.5B total".to_string(),
-                "Files: 921 \u{b7} Events: 22,545".to_string(),
-            ]
+            vec!["Tokens 1.5B".to_string(), "Files 921".to_string()]
         );
     }
 
@@ -394,6 +391,10 @@ mod tests {
                     cache_write: Some(0),
                     total: Some(0),
                 },
+                activity: ActivityUsage {
+                    sessions_count: Some(0),
+                    ..Default::default()
+                },
                 money: MoneyUsage {
                     used_amount: Some(0.0),
                     total_amount: Some(0.0),
@@ -408,10 +409,7 @@ mod tests {
         assert!(response.plan.lines.is_empty());
         assert_eq!(
             response.usage.lines,
-            vec![
-                "Tokens: 0 total".to_string(),
-                "Spend this period: $0.00".to_string(),
-            ]
+            vec!["Tokens 0".to_string(), "Sessions 0".to_string()]
         );
     }
 
@@ -447,15 +445,16 @@ mod tests {
         assert_eq!(
             response.usage.lines,
             vec![
-                "Tokens: 711.2M total".to_string(),
-                "Sessions: 92 \u{b7} Turns: 6,394 \u{b7} Files: 223".to_string(),
-                "Top model: claude-sonnet-5".to_string(),
+                "Tokens 711.2M".to_string(),
+                "Sessions 92".to_string(),
+                "Turns 6,394".to_string(),
+                "Files 223".to_string(),
             ]
         );
     }
 
     #[test]
-    fn projects_cursor_api2_money_only_usage() {
+    fn projects_cursor_api2_money_only_usage_as_no_lines() {
         let info = structured_source(
             "cursor",
             "cursor_api2",
@@ -471,10 +470,7 @@ mod tests {
         );
         let response = provider_limits_from_structured("cursor", &info);
 
-        assert_eq!(
-            response.usage.lines,
-            vec!["Spend this period: $20.00".to_string()]
-        );
+        assert!(response.usage.lines.is_empty());
     }
 
     #[test]
@@ -495,8 +491,8 @@ mod tests {
         assert_eq!(
             json["plan"]["links"],
             serde_json::json!([
-                { "label": "Manage plan", "url": "https://example.test/plan" },
-                { "label": "Manage billing", "url": "https://example.test/billing" },
+                { "label": "Manage", "url": "https://example.test/plan" },
+                { "label": "Billing", "url": "https://example.test/billing" },
             ])
         );
     }
@@ -515,7 +511,7 @@ mod tests {
         let response = provider_limits_from_structured("codex", &info);
 
         assert_eq!(response.plan.links.len(), 1);
-        assert_eq!(response.plan.links[0].label, "Manage billing");
+        assert_eq!(response.plan.links[0].label, "Billing");
     }
 
     #[test]
@@ -544,7 +540,7 @@ mod tests {
     }
 
     #[test]
-    fn serializes_plan_dates_and_price_as_display_lines() {
+    fn serializes_plan_price_and_renewal_as_two_display_lines() {
         let info = structured_source(
             "codex",
             "codex_local",
@@ -554,6 +550,7 @@ mod tests {
                 renewal_at: Some("2026-08-28T12:00:00Z".to_string()),
                 price_amount: Some(20.0),
                 price_currency: Some("USD".to_string()),
+                price_period: Some("mo".to_string()),
                 price_note: Some("may vary by country/currency".to_string()),
                 ..Default::default()
             },
@@ -561,16 +558,11 @@ mod tests {
         );
         let response = provider_limits_from_structured("codex", &info);
 
-        assert_eq!(response.plan.lines.len(), 3);
-        assert_eq!(response.plan.lines[0], "Plan: Plus");
-        assert!(response.plan.lines[1].starts_with("Started "));
-        assert!(response.plan.lines[1].contains(" \u{b7} renews "));
-        assert!(response.plan.lines[1].contains("2024"));
+        assert_eq!(response.plan.lines.len(), 2);
+        assert_eq!(response.plan.lines[0], "Plus \u{2248} $20.00 /mo");
+        assert!(response.plan.lines[1].starts_with("renews "));
         assert!(response.plan.lines[1].contains("2026"));
+        assert!(!response.plan.lines[1].contains("2024"));
         assert!(!response.plan.lines[1].contains(':'));
-        assert_eq!(
-            response.plan.lines[2],
-            "$20.00 (may vary by country/currency)"
-        );
     }
 }
