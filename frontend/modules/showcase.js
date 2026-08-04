@@ -12,17 +12,17 @@ export const SHOWCASE_PROVIDERS = {
     id: "codex",
     label: "Codex",
     sourceId: "codex-rpc",
-    dataTimestamp: "20:03",
+    dataTimestamp: "16:34",
     selectedUpdateFrequency: "5 min",
     limits: [
-      { label: "7d", remainingPercentage: 67.0, resetTime: "Aug 2, 00:18" },
+      { label: "7d", remainingPercentage: 23.2, resetTime: "Aug 8, 16:44" },
     ],
-    creditsRemaining: 39,
+    creditsRemaining: 23.8,
     availableLimitResets: 1,
     // Codex reports a plan name but no price and no management links, so the
-    // subscription section is two lines and carries no link line.
+    // subscription section is a single line and carries no link line.
     plan: {
-      lines: ["Plus", "renews Sep 3, 2026"],
+      lines: ["Plus"],
       links: [],
     },
     errorMessage: null,
@@ -33,18 +33,18 @@ export const SHOWCASE_PROVIDERS = {
     id: "claude",
     label: "Claude",
     sourceId: "claude-rpc",
-    dataTimestamp: "20:03",
+    dataTimestamp: "16:41",
     selectedUpdateFrequency: "5 min",
     limits: [
-      { label: "5h", remainingPercentage: 77.0, resetTime: "20:39" },
-      { label: "7d", remainingPercentage: 40.0, resetTime: "Jul 28, 15:00" },
+      { label: "5h", remainingPercentage: 4.0, resetTime: "21:40" },
+      { label: "7d", remainingPercentage: 79.0, resetTime: "Aug 11, 15:00" },
     ],
     creditsRemaining: null,
     availableLimitResets: null,
-    // Claude exposes no plan data at all, so the card shows no
-    // PLAN heading and no rule where one would have been.
+    // Claude reports a plan name but no price and no management links, so the
+    // subscription section is a single line and carries no link line.
     plan: {
-      lines: [],
+      lines: ["Pro"],
       links: [],
     },
     errorMessage: null,
@@ -55,18 +55,18 @@ export const SHOWCASE_PROVIDERS = {
     id: "cursor",
     label: "Cursor",
     sourceId: "cursor-api2",
-    dataTimestamp: "20:02",
+    dataTimestamp: "16:34",
     selectedUpdateFrequency: "5 min",
     limits: [
-      { label: "Cursor Models", remainingPercentage: 53.9, resetTime: null },
-      { label: "Other Models", remainingPercentage: 0.0, resetTime: null },
+      { label: "Cursor Models", remainingPercentage: 82.7, resetTime: "Aug 28, 05:54" },
+      { label: "Other Models", remainingPercentage: 74.8, resetTime: "Aug 28, 05:54" },
     ],
     creditsRemaining: null,
     availableLimitResets: null,
-    // The Cursor source carries no tier name and no price, so the
-    // subscription section is the renewal line alone, with no links.
+    // The Cursor source carries a tier name with an approximate price, plus
+    // a renewal line, and no management links.
     plan: {
-      lines: ["renews Jul 28, 2026"],
+      lines: ["Pro ≈ $20.00 /mo", "renews Aug 28, 2026"],
       links: [],
     },
     errorMessage: null,

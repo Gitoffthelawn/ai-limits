@@ -54,7 +54,23 @@ async function main() {
       const page = await context.newPage();
       await page.addInitScript(({ themeValue }) => {
         localStorage.setItem("ai-limits-theme", JSON.stringify({ mode: "manual", value: themeValue }));
-        localStorage.removeItem("ai-limits-settings");
+        // Screenshots show only the limits section: plan, source, and update
+        // time are display-toggle noise that would distract from the bars
+        // (see docs/product/showcase.md "Screenshot Requirements").
+        localStorage.setItem(
+          "ai-limits-settings",
+          JSON.stringify({
+            notifications: true,
+            autoUpdate: true,
+            cursor: true,
+            cloud: true,
+            codex: true,
+            showLimits: true,
+            showPlan: false,
+            showSource: false,
+            showUpdateTime: false,
+          }),
+        );
         localStorage.removeItem("ai-limits-provider-intervals");
       }, { themeValue: shot.theme });
       await page.goto(`${baseUrl}/?showcase=${shot.platform}`, { waitUntil: "networkidle" });

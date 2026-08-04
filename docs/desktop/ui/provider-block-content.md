@@ -30,9 +30,9 @@ The remaining bar shows:
 
 The filled segment color is calculated from remaining percentage:
 
-- `100%` is green
+- `90%` or more is green
 - `50%` is yellow
-- `1%` is red
+- `10%` or less is red
 - intermediate values are interpolated between these anchors
 
 The bar must not use a left-to-right rainbow gradient inside the filled segment. For example, if `10%` remains, the filled 10% segment is a near-red color and the spent 90% segment stays light.

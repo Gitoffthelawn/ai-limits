@@ -1,5 +1,5 @@
 import { updateFrequencyOptions } from "./constants.js";
-import { escapeHtml, formatDecimal, formatSourceStatusLine, formatTimestampForDisplay, formatUpdateTimeLine } from "./provider-formatters.js";
+import { colorForRemaining, escapeHtml, formatDecimal, formatSourceStatusLine, formatTimestampForDisplay, formatUpdateTimeLine } from "./provider-formatters.js";
 import { isShowLimitsEnabled, isShowPlanEnabled, isShowSourceEnabled, isShowUpdateTimeEnabled } from "./settings.js";
 
 const FREQUENCY_ICON_BADGES = {
@@ -118,18 +118,27 @@ function buildLimitRowsHtml(provider) {
     const remaining = Number(limit.remainingPercentage) || 0;
     const percent = remaining.toFixed(1);
     const width = Math.max(0, Math.min(100, remaining));
-    const meterTone = width <= 1 ? "danger" : width <= 50 ? "warning" : "success";
     const formattedResetTime = formatTimestampForDisplay(limit.resetTime);
     const resetText = formattedResetTime ? `reset ${escapeHtml(formattedResetTime)}` : "";
 
     return `
       <div class="limit-row">
         <div class="limit-top">${escapeHtml(limit.label)} | ${percent}% left</div>
-        <progress class="meter meter--${meterTone}" value="${width}" max="100" aria-label="${escapeHtml(provider.label)} ${escapeHtml(limit.label)} ${percent}% left"></progress>
+        <progress class="meter" data-remaining="${width}" value="${width}" max="100" aria-label="${escapeHtml(provider.label)} ${escapeHtml(limit.label)} ${percent}% left"></progress>
         ${resetText ? `<div class="limit-reset">${resetText}</div>` : ""}
       </div>
     `;
   }).join("");
+}
+
+// CSP forbids `style="..."` attributes (no `unsafe-inline`), so the
+// interpolated fill color can't be written into the HTML string above.
+// Setting individual CSSOM properties via `style.setProperty` is not an
+// inline-style attribute and is unaffected by that restriction.
+function applyMeterFillColors(root) {
+  root.querySelectorAll(".meter[data-remaining]").forEach((meter) => {
+    meter.style.setProperty("--meter-fill", colorForRemaining(Number(meter.dataset.remaining)));
+  });
 }
 
 const SECTION_HEADINGS = {
@@ -276,12 +285,15 @@ export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt)
       ${buildSourceLineHtml(provider)}
     </div>
   `;
+  applyMeterFillColors(block);
 
   return block;
 }
 
 export function updateProviderBlockData(block, provider, nextRefreshAt) {
-  block.querySelector(".provider-sections").innerHTML = buildProviderSectionsHtml(provider);
+  const sections = block.querySelector(".provider-sections");
+  sections.innerHTML = buildProviderSectionsHtml(provider);
+  applyMeterFillColors(sections);
   block.querySelector(".source-line").outerHTML = buildSourceLineHtml(provider);
   block.querySelector(".update-time-line").outerHTML = buildUpdateTimeLineHtml(provider, nextRefreshAt);
 }

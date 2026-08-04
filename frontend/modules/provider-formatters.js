@@ -2,6 +2,30 @@ const MONTH_NAMES = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
+const METER_ACCENTS = {
+  danger: [255, 42, 34],
+  warning: [255, 207, 22],
+  success: [126, 217, 65],
+};
+
+// 90%+ is green, 50% is yellow, 10% or less is red; values between anchors
+// are linearly interpolated so the fill is never a flat step.
+export function colorForRemaining(remainingPercent) {
+  const clamped = Math.max(0, Math.min(100, remainingPercent));
+  if (clamped <= 10) return `rgb(${METER_ACCENTS.danger.join(", ")})`;
+  if (clamped >= 90) return `rgb(${METER_ACCENTS.success.join(", ")})`;
+  const stops = [
+    { pct: 10, rgb: METER_ACCENTS.danger },
+    { pct: 50, rgb: METER_ACCENTS.warning },
+    { pct: 90, rgb: METER_ACCENTS.success },
+  ];
+  const upperIndex = stops.findIndex((stop) => clamped <= stop.pct);
+  const upper = stops[upperIndex];
+  const lower = stops[Math.max(0, upperIndex - 1)];
+  const ratio = (clamped - lower.pct) / (upper.pct - lower.pct || 1);
+  return `rgb(${lower.rgb.map((channel, index) => Math.round(channel + (upper.rgb[index] - channel) * ratio)).join(", ")})`;
+}
+
 const SOURCE_DISPLAY_LABELS = {
   "codex-local": "Local files",
   "codex-rpc": "RPC",

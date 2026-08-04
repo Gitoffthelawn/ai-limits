@@ -250,6 +250,7 @@
   overflow: hidden;
   border-radius: var(--radius-pill);
   background: var(--meter-bg);
+  --meter-fill: rgb(126, 217, 65);
 }
 
 .meter::-webkit-progress-bar {
@@ -262,18 +263,6 @@
 
 .meter::-moz-progress-bar {
   background: var(--meter-fill);
-}
-
-.meter--danger {
-  --meter-fill: rgb(255, 42, 34);
-}
-
-.meter--warning {
-  --meter-fill: rgb(255, 207, 22);
-}
-
-.meter--success {
-  --meter-fill: rgb(126, 217, 65);
 }
 
 .limit-reset {
