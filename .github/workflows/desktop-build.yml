@@ -111,9 +111,18 @@ jobs:
         run: npm run quality
 
   build-macos:
-    name: Build macOS signed app
+    name: Build macOS signed app (${{ matrix.arch }})
     runs-on: macos-latest
     needs: quality
+    strategy:
+      matrix:
+        include:
+          - arch: arm64
+            target: aarch64-apple-darwin
+            platform_key: darwin-aarch64
+          - arch: intel
+            target: x86_64-apple-darwin
+            platform_key: darwin-x86_64
     env:
       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
       APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
@@ -136,7 +145,7 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: aarch64-apple-darwin,x86_64-apple-darwin
+          targets: ${{ matrix.target }}
 
       - name: Import code signing certificate
         run: |
@@ -197,7 +206,7 @@ jobs:
           set -euo pipefail
           unset APPLE_SIGNING_IDENTITY
 
-          BUILD_ARGS=(--bundles app --target universal-apple-darwin)
+          BUILD_ARGS=(--bundles app --target ${{ matrix.target }})
           if [[ "${{ inputs.macos_notarization }}" == "submit-only" ]]; then
             BUILD_ARGS+=(--skip-stapling)
           fi
@@ -209,7 +218,7 @@ jobs:
           set -euo pipefail
           scripts/verify-macos-app.sh \
             --notarization "${{ inputs.macos_notarization }}" \
-            "target/universal-apple-darwin/release/bundle/macos/AI Limits.app"
+            "target/${{ matrix.target }}/release/bundle/macos/AI Limits.app"
 
       - name: Build macOS disk image
         run: |
@@ -220,9 +229,9 @@ jobs:
           # do not have it, so that step fails silently and ships an
           # unstyled disk image. scripts/build-macos-dmg.sh writes the same
           # window layout directly and needs no such permission.
-          dmg_path="target/universal-apple-darwin/release/bundle/dmg/AI Limits.dmg"
+          dmg_path="target/${{ matrix.target }}/release/bundle/dmg/AI Limits.dmg"
           scripts/build-macos-dmg.sh \
-            "target/universal-apple-darwin/release/bundle/macos/AI Limits.app" \
+            "target/${{ matrix.target }}/release/bundle/macos/AI Limits.app" \
             "$dmg_path"
 
           identity="$(security find-identity -v -p codesigning build.keychain \
@@ -263,7 +272,7 @@ jobs:
       - name: Upload macOS disk image artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ai-limits-macos-dmg
+          name: ai-limits-macos-dmg-${{ matrix.arch }}
           path: ${{ env.DMG_PATH }}
           if-no-files-found: error
           retention-days: 14
@@ -272,7 +281,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          APP_PATH="target/universal-apple-darwin/release/bundle/macos/AI Limits.app"
+          APP_PATH="target/${{ matrix.target }}/release/bundle/macos/AI Limits.app"
           ZIP_PATH="target/release/bundle/macos/AI Limits.app.zip"
 
           mkdir -p "$(dirname "$ZIP_PATH")"
@@ -289,7 +298,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          bundle_dir="target/universal-apple-darwin/release/bundle/macos"
+          bundle_dir="target/${{ matrix.target }}/release/bundle/macos"
           archive="$(find "$bundle_dir" -maxdepth 1 -name '*.app.tar.gz' -print -quit)"
           signature="$(find "$bundle_dir" -maxdepth 1 -name '*.app.tar.gz.sig' -print -quit)"
 
@@ -305,7 +314,7 @@ jobs:
       - name: Upload macOS updater artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ai-limits-macos-updater
+          name: ai-limits-macos-updater-${{ matrix.arch }}
           path: updater-artifacts/*
           if-no-files-found: error
           retention-days: 14
@@ -314,7 +323,7 @@ jobs:
       - name: Upload macOS app bundle artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ai-limits-macos-app
+          name: ai-limits-macos-app-${{ matrix.arch }}
           path: target/release/bundle/macos/AI Limits.app.zip
           if-no-files-found: error
           retention-days: 14
@@ -428,8 +437,16 @@ jobs:
           tag="${{ inputs.version }}"
           mkdir -p release-assets/upload
 
-          macos_dmg="$(find release-assets/raw/ai-limits-macos-dmg -type f -name '*.dmg' | head -n 1)"
-          cp "$macos_dmg" "release-assets/upload/AI-Limits-${tag}-macos.dmg"
+          # macOS ships as two single-architecture builds instead of one
+          # universal binary, so each download is roughly half the size.
+          for arch in arm64 intel; do
+            macos_dmg="$(find "release-assets/raw/ai-limits-macos-dmg-${arch}" -type f -name '*.dmg' | head -n 1)"
+            cp "$macos_dmg" "release-assets/upload/AI-Limits-${tag}-macos-${arch}.dmg"
+
+            # The auto-updater downloads this archive, not the disk image.
+            updater_archive="release-assets/raw/ai-limits-macos-updater-${arch}/AI-Limits-macos.app.tar.gz"
+            cp "$updater_archive" "release-assets/upload/AI-Limits-${tag}-macos-${arch}.app.tar.gz"
+          done
 
           windows_exe="$(find release-assets/raw/ai-limits-windows-unsigned -type f -name '*.exe' | head -n 1)"
           windows_msi="$(find release-assets/raw/ai-limits-windows-unsigned -type f -name '*.msi' | head -n 1)"
@@ -440,10 +457,6 @@ jobs:
           cp "$windows_msi" "release-assets/upload/AI-Limits-${tag}-windows.msi"
           cp "$linux_deb" "release-assets/upload/AI-Limits-${tag}-linux.deb"
           cp "$linux_appimage" "release-assets/upload/AI-Limits-${tag}-linux.AppImage"
-
-          # The auto-updater downloads this archive, not the disk image.
-          updater_archive="release-assets/raw/ai-limits-macos-updater/AI-Limits-macos.app.tar.gz"
-          cp "$updater_archive" "release-assets/upload/AI-Limits-${tag}-macos.app.tar.gz"
 
           {
             echo "tag=${tag}"
@@ -497,13 +510,13 @@ jobs:
 
           case "$macos_notarization" in
             full)
-              macos_note="macOS: signed, notarized, and stapled."
+              macos_note="macOS (Apple Silicon and Intel builds): signed, notarized, and stapled."
               ;;
             submit-only)
-              macos_note="macOS: signed; notarization submitted without waiting (may still be In Progress at Apple)."
+              macos_note="macOS (Apple Silicon and Intel builds): signed; notarization submitted without waiting (may still be In Progress at Apple)."
               ;;
             *)
-              macos_note="macOS: signed only (not notarized)."
+              macos_note="macOS (Apple Silicon and Intel builds): signed only (not notarized)."
               ;;
           esac
 
@@ -523,31 +536,34 @@ jobs:
 
           tag = os.environ["RELEASE_TAG"]
           repository = os.environ["GITHUB_REPOSITORY"]
-          signature = Path(
-              "release-assets/raw/ai-limits-macos-updater/AI-Limits-macos.app.tar.gz.sig"
-          ).read_text().strip()
-          if not signature:
-              raise SystemExit("The macOS updater signature is empty.")
-
-          url = (
-              f"https://github.com/{repository}/releases/download/{tag}"
-              f"/AI-Limits-{tag}-macos.app.tar.gz"
-          )
           notes = Path("release-changes.md").read_text().strip()
 
-          # The macOS build is universal, so every macOS target key resolves to the
-          # same archive. Windows and Linux ship unsigned and are absent here, which
-          # makes their clients report no available update.
-          macos = {"signature": signature, "url": url}
+          # macOS ships as two single-architecture builds now, each with its own
+          # signature and archive. Installed universal-build clients built before
+          # this change have no matching key here and simply stop being offered
+          # updates; they are few enough, and auto-update recent enough, that a
+          # one-time manual reinstall for them is an acceptable tradeoff for
+          # roughly half the download size on both current platforms. Windows and
+          # Linux ship unsigned and are absent here, which makes their clients
+          # report no available update.
+          platforms = {}
+          for arch, platform_key in (("arm64", "darwin-aarch64"), ("intel", "darwin-x86_64")):
+              signature = Path(
+                  f"release-assets/raw/ai-limits-macos-updater-{arch}/AI-Limits-macos.app.tar.gz.sig"
+              ).read_text().strip()
+              if not signature:
+                  raise SystemExit(f"The macOS {arch} updater signature is empty.")
+              url = (
+                  f"https://github.com/{repository}/releases/download/{tag}"
+                  f"/AI-Limits-{tag}-macos-{arch}.app.tar.gz"
+              )
+              platforms[platform_key] = {"signature": signature, "url": url}
+
           manifest = {
               "version": tag.lstrip("v"),
               "notes": notes,
               "pub_date": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-              "platforms": {
-                  "darwin-universal": macos,
-                  "darwin-aarch64": macos,
-                  "darwin-x86_64": macos,
-              },
+              "platforms": platforms,
           }
 
           path = Path("updater/latest.json")

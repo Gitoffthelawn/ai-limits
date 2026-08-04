@@ -4,6 +4,10 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+- macOS now ships as two separate downloads, Apple Silicon and Intel, instead of one universal binary that carried both architectures in a single file. Each download is now about 6 MB instead of the previous ~32 MB, since it only contains code for one CPU architecture.
+- Release builds are now compiled with size-optimized settings (link-time optimization, stripped debug symbols, abort-on-panic instead of stack unwinding) rather than Rust's defaults, cutting the size of every platform's binary further on top of the architecture split.
+- The auto-update manifest now points the Apple Silicon and Intel builds at their own signed archives instead of sharing one universal archive. Installations from the previous universal build no longer match an entry in the manifest and will need a one-time manual reinstall from the download page.
+
 ## [v0.3.0](https://github.com/md2it/ai-limits/releases/tag/v0.3.0) — 2026-08-04
 
 - Removed the Fast/Full/Best source-priority setting: the app always queries providers over RPC first now, falling back to local data only when RPC isn't available. The setting existed to trade freshness for speed against the old CLI text-interface path, but RPC made that path fast enough that the tradeoff no longer bought anything.

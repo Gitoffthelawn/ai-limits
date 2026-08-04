@@ -62,11 +62,17 @@ The release workflow generates it from the release tag, the signature produced
 by the macOS build, and the `Unreleased` changelog section, then commits it in
 the same commit as the finalized changelog. It is never edited by hand.
 
-All three macOS platform keys point at the same universal archive. Windows and
-Linux keys are absent, so clients on those platforms find no update. Because
+macOS ships as two single-architecture builds, `darwin-aarch64` (Apple Silicon)
+and `darwin-x86_64` (Intel), each with its own archive and signature — there is
+no universal build and no `darwin-universal` key. Windows and Linux keys are
+absent, so clients on those platforms find no update. Because
 `createUpdaterArtifacts` applies to every platform, those two builds turn it off
 through [updater-disabled.conf.json](../../src-tauri/updater-disabled.conf.json);
 otherwise they would demand the signing key to produce artifacts nothing reads.
+
+Clients built before the architecture split were universal binaries reporting
+`darwin-universal`, which has no key in the manifest since that switch; those
+installs simply stop finding an update and need a one-time manual reinstall.
 
 The release tag and the `version` in `tauri.conf.json` must match; the workflow
 refuses to release when they diverge, because clients compare their built-in
