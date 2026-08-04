@@ -54,9 +54,18 @@ function applySectionSlotAlignment() {
   }
 
   const sectionsByKind = new Map(SECTION_SLOT_KINDS.map((kind) => [kind, []]));
+  const allSections = [];
 
+  // Measuring with the min-height transition still active can read a
+  // mid-flight value left over from the previous sync instead of the
+  // section's natural content height, producing a stray second jump.
+  // Disabling the transition for the reset-and-measure pass keeps the
+  // measurement accurate; it's re-enabled next frame so the resulting
+  // min-height change still animates normally.
   for (const section of providerList.querySelectorAll(".provider-section[data-section-slot]")) {
+    section.style.transition = "none";
     section.style.minHeight = "";
+    allSections.push(section);
     const sections = sectionsByKind.get(section.dataset.sectionSlot);
     if (sections) {
       sections.push(section);
@@ -77,6 +86,12 @@ function applySectionSlotAlignment() {
       section.style.minHeight = `${maxHeight}px`;
     }
   }
+
+  window.requestAnimationFrame(() => {
+    for (const section of allSections) {
+      section.style.transition = "";
+    }
+  });
 }
 
 export function scheduleSectionSlotAlignment() {

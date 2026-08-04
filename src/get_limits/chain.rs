@@ -1,6 +1,8 @@
+use std::collections::HashMap;
 use std::io;
+use std::sync::{Mutex, OnceLock};
 
-use crate::types::{Source, SourceReport};
+use crate::types::{AccountInfo, Source, SourceReport};
 
 use super::freshness::STALE_LOCAL_DATA_MESSAGE;
 use super::get_source_limits;
@@ -13,7 +15,11 @@ pub(super) fn get_fallback_chain_limits(sources: &[Source]) -> io::Result<Source
 
     for source in sources {
         match get_source_limits(*source) {
-            Ok(report) if has_usable_limit_data(&report) => return Ok(report),
+            Ok(report) if has_usable_limit_data(&report) => {
+                let mut report = report;
+                backfill_account_from_cache(&mut report);
+                return Ok(report);
+            }
             Ok(report) => {
                 if requires_cli_authorization(&report) {
                     cli_authorization_report = Some(report);
@@ -29,9 +35,10 @@ pub(super) fn get_fallback_chain_limits(sources: &[Source]) -> io::Result<Source
         }
     }
 
-    if let Some(report) =
+    if let Some(mut report) =
         preferred_unusable_report(cli_authorization_report, stale_local_report, last_report)
     {
+        backfill_account_from_cache(&mut report);
         return Ok(report);
     }
 
@@ -66,6 +73,63 @@ fn has_usable_limit_data(report: &SourceReport) -> bool {
     report.data.structured.status.access_available
         && report.data.structured.status.data_available
         && !report.data.structured.limits.is_empty()
+}
+
+#[derive(Clone, Default)]
+struct CachedAccountFields {
+    renewal_at: Option<String>,
+    price_amount: Option<f64>,
+    price_currency: Option<String>,
+    price_period: Option<String>,
+}
+
+fn account_field_cache() -> &'static Mutex<HashMap<String, CachedAccountFields>> {
+    static CACHE: OnceLock<Mutex<HashMap<String, CachedAccountFields>>> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+/// Sources within the same chain disagree on which subscription fields they
+/// populate (e.g. `codex_rpc` never reports `renewal_at`/`price_*`, while
+/// `codex_local` does). Since the fallback chain can pick a different source
+/// on every poll, this caused those fields to appear and disappear from the
+/// rendered subscription section between polls. Cache the last known values
+/// per provider and backfill gaps so the displayed fields stay stable.
+fn backfill_account_from_cache(report: &mut SourceReport) {
+    let Ok(mut cache) = account_field_cache().lock() else {
+        return;
+    };
+
+    let provider = report.data.structured.provider.clone();
+    let account = &mut report.data.structured.account;
+
+    if account.renewal_at.is_some() || account.price_amount.is_some() {
+        cache.insert(provider, cached_fields_from(account));
+        return;
+    }
+
+    if let Some(cached) = cache.get(&provider) {
+        apply_cached_fields(account, cached);
+    }
+}
+
+fn cached_fields_from(account: &AccountInfo) -> CachedAccountFields {
+    CachedAccountFields {
+        renewal_at: account.renewal_at.clone(),
+        price_amount: account.price_amount,
+        price_currency: account.price_currency.clone(),
+        price_period: account.price_period.clone(),
+    }
+}
+
+fn apply_cached_fields(account: &mut AccountInfo, cached: &CachedAccountFields) {
+    if account.renewal_at.is_none() {
+        account.renewal_at = cached.renewal_at.clone();
+    }
+    if account.price_amount.is_none() {
+        account.price_amount = cached.price_amount;
+        account.price_currency = cached.price_currency.clone();
+        account.price_period = cached.price_period.clone();
+    }
 }
 
 #[cfg(test)]
