@@ -41,8 +41,8 @@ export const SHOWCASE_PROVIDERS = {
     ],
     creditsRemaining: null,
     availableLimitResets: null,
-    // Claude exposes no subscription data at all, so the card shows no
-    // SUBSCRIPTION heading and no rule where one would have been.
+    // Claude exposes no plan data at all, so the card shows no
+    // PLAN heading and no rule where one would have been.
     plan: {
       lines: [],
       links: [],

@@ -134,7 +134,7 @@ export function handleSettingsChange() {
   onSettingsChanged?.({ newlyEnabled });
 }
 
-// Display toggles (Limits / Subscription / Source / Update time) never affect
+// Display toggles (Limits / Plan / Source / Update time) never affect
 // what is requested from the backend and never trigger a refresh. They only
 // change what the frontend renders from data it already holds, so this
 // handler saves the choice and asks the caller to re-render already-mounted

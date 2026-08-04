@@ -134,7 +134,7 @@ function buildLimitRowsHtml(provider) {
 
 const SECTION_HEADINGS = {
   limits: "LIMITS",
-  plan: "SUBSCRIPTION",
+  plan: "PLAN",
 };
 
 // A section slot is always rendered when its display toggle is on. Content
@@ -226,11 +226,12 @@ function buildFrequencyOptionsHtml(selectedUpdateFrequency) {
     .join("");
 }
 
-function buildSourceInfoHtml(provider, nextRefreshAt) {
-  return `
-    <p class="source-line" ${isShowSourceEnabled() ? "" : "hidden"}>${escapeHtml(formatSourceStatusLine(provider))}</p>
-    <p class="update-time-line" ${isShowUpdateTimeEnabled() ? "" : "hidden"}>${escapeHtml(formatUpdateTimeLine(provider, nextRefreshAt))}</p>
-  `;
+function buildSourceLineHtml(provider) {
+  return `<p class="source-line" ${isShowSourceEnabled() ? "" : "hidden"}>${escapeHtml(formatSourceStatusLine(provider))}</p>`;
+}
+
+function buildUpdateTimeLineHtml(provider, nextRefreshAt) {
+  return `<p class="update-time-line" ${isShowUpdateTimeEnabled() ? "" : "hidden"}>${escapeHtml(formatUpdateTimeLine(provider, nextRefreshAt))}</p>`;
 }
 
 export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt) {
@@ -245,31 +246,34 @@ export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt)
         <h2>${escapeHtml(provider.label)}</h2>
       </div>
       <div class="provider-sections">${buildProviderSectionsHtml(provider)}</div>
-      <div class="source-info">${buildSourceInfoHtml(provider, nextRefreshAt)}</div>
     </div>
-    <div class="provider-actions">
-      <button type="button" class="provider-manual-refresh" data-manual-refresh>
-        UPDATE NOW
-      </button>
-      <div class="provider-settings-menu" data-provider-settings-menu>
-        <button
-          type="button"
-          class="settings-button provider-settings-button"
-          data-provider-settings-button
-          aria-label="${escapeHtml(provider.label)} update settings"
-          aria-haspopup="true"
-          aria-expanded="false"
-          aria-controls="${settingsDropdownId}"
-        >${buildFrequencyIconSvg(selectedUpdateFrequency)}</button>
-        <div class="settings-dropdown provider-settings-dropdown" id="${settingsDropdownId}" data-provider-settings-dropdown hidden>
-          <div class="settings-section">
-            <p class="settings-section-label">UPDATE FREQUENCY</p>
-            <div class="frequency-options" role="group" aria-label="${escapeHtml(provider.label)} update frequency">
-              ${buildFrequencyOptionsHtml(selectedUpdateFrequency)}
+    <div class="provider-footer">
+      ${buildSourceLineHtml(provider)}
+      <div class="provider-actions">
+        <button type="button" class="provider-manual-refresh" data-manual-refresh>
+          UPDATE NOW
+        </button>
+        <div class="provider-settings-menu" data-provider-settings-menu>
+          <button
+            type="button"
+            class="settings-button provider-settings-button"
+            data-provider-settings-button
+            aria-label="${escapeHtml(provider.label)} update settings"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="${settingsDropdownId}"
+          >${buildFrequencyIconSvg(selectedUpdateFrequency)}</button>
+          <div class="settings-dropdown provider-settings-dropdown" id="${settingsDropdownId}" data-provider-settings-dropdown hidden>
+            <div class="settings-section">
+              <p class="settings-section-label">UPDATE FREQUENCY</p>
+              <div class="frequency-options" role="group" aria-label="${escapeHtml(provider.label)} update frequency">
+                ${buildFrequencyOptionsHtml(selectedUpdateFrequency)}
+              </div>
             </div>
           </div>
         </div>
       </div>
+      ${buildUpdateTimeLineHtml(provider, nextRefreshAt)}
     </div>
   `;
 
@@ -278,7 +282,8 @@ export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt)
 
 export function updateProviderBlockData(block, provider, nextRefreshAt) {
   block.querySelector(".provider-sections").innerHTML = buildProviderSectionsHtml(provider);
-  block.querySelector(".source-info").innerHTML = buildSourceInfoHtml(provider, nextRefreshAt);
+  block.querySelector(".source-line").outerHTML = buildSourceLineHtml(provider);
+  block.querySelector(".update-time-line").outerHTML = buildUpdateTimeLineHtml(provider, nextRefreshAt);
 }
 
 export function updateProviderUpdateTimeText(block, provider, nextRefreshAt) {
