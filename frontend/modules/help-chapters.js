@@ -53,11 +53,11 @@ export const HELP_CHAPTERS = [
         <dl class="info-terms">
           <div>
             <dt>Codex</dt>
-            <dd>Reads local Codex data, or the Codex CLI depending on source priority.</dd>
+            <dd>Reads local Codex data, or queries the Codex CLI over RPC, depending on source priority.</dd>
           </div>
           <div>
             <dt>Claude</dt>
-            <dd>Reads local Claude data, or the Claude CLI depending on source priority.</dd>
+            <dd>Reads local Claude data, or queries the Claude CLI over RPC, depending on source priority.</dd>
           </div>
           <div>
             <dt>Cursor</dt>
@@ -84,16 +84,16 @@ export const HELP_CHAPTERS = [
           </div>
           <div>
             <dt>Full</dt>
-            <dd>Quick sources first, CLI as fallback.</dd>
+            <dd>Quick sources first, RPC as fallback.</dd>
           </div>
           <div>
             <dt>Best</dt>
-            <dd>CLI first, quick sources as fallback.</dd>
+            <dd>RPC first, quick sources as fallback.</dd>
           </div>
         </dl>
         <p>Applies to <b>Codex</b> and <b>Claude</b> only. <b>Cursor</b> is not affected.</p>
         <p class="info-note">
-          CLI data is usually more accurate and current, but slower. Providers refresh
+          RPC data is usually more accurate and current, but slower. Providers refresh
           independently, so a slow one won't block the rest.
         </p>
         <div class="info-links info-links--two-up" aria-label="Setup guides">
@@ -120,11 +120,11 @@ export const HELP_CHAPTERS = [
         <dl class="info-terms">
           <div>
             <dt>No fresh limits' data</dt>
-            <dd>The selected source has no current limit data. Choose Full or Best to also check the provider CLI.</dd>
+            <dd>The selected source has no current limit data. Choose Full or Best to also query the provider over RPC.</dd>
           </div>
           <div>
-            <dt>CLI access</dt>
-            <dd>Full and Best can use Codex CLI or Claude CLI. Install the CLI and sign in when the app asks.</dd>
+            <dt>RPC access</dt>
+            <dd>Full and Best query the Codex or Claude CLI over RPC. Install the CLI and sign in when the app asks.</dd>
           </div>
           <div>
             <dt>Local data</dt>
@@ -249,8 +249,8 @@ export const HELP_CHAPTERS = [
             <dd>To download a new version when automatic updates are on.</dd>
           </div>
           <div>
-            <dt>CLI</dt>
-            <dd>Runs the <code>claude</code> or <code>codex</code> CLI, only in Full or Best mode.</dd>
+            <dt>RPC</dt>
+            <dd>Runs the <code>claude</code> or <code>codex</code> CLI over its RPC interface, only in Full or Best mode.</dd>
           </div>
         </dl>
         <p class="info-note">
@@ -313,7 +313,7 @@ export const HELP_CHAPTERS = [
             <dd>Some Codex and Claude local sources aren't available yet outside macOS.</dd>
           </div>
         </dl>
-        <p class="info-note">CLI-backed sources are the most reliable option across platforms today.</p>
+        <p class="info-note">RPC-backed sources are the most reliable option across platforms today.</p>
       `;
     },
   },
