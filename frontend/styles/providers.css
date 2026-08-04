@@ -73,10 +73,8 @@
 
 .provider-block h2,
 .provider-block .limit-top,
-.provider-block .frequency-row,
 .provider-block .segmented-control button,
-.provider-block .provider-manual-refresh,
-.provider-block select {
+.provider-block .provider-manual-refresh {
   color: var(--provider-text);
 }
 
@@ -272,36 +270,64 @@
 }
 
 .provider-actions {
-  display: grid;
+  display: flex;
+  align-items: stretch;
   flex-shrink: 0;
-  gap: var(--space-12);
+  gap: var(--space-10);
   border-top: var(--border-width) solid var(--provider-border-color);
   box-shadow: inset 0 1px 0 var(--provider-border-overlay-color);
   padding-top: var(--space-14);
 }
 
-.source-id,
-.source-timestamp {
+.source-status,
+.source-next-update {
   white-space: nowrap;
 }
 
-.frequency-row {
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
-}
-
 .provider-manual-refresh {
-  width: 100%;
+  flex: 1 1 auto;
 }
 
-select {
-  min-width: var(--select-min-width);
-  border: var(--border-control);
+.provider-settings-menu {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+/* Opens upward and left-aligned to the button's right edge so the dropdown
+   stays inside the card it configures, per docs/desktop/ui/controls.md. */
+.provider-settings-dropdown {
+  top: auto;
+  right: 0;
+  bottom: calc(100% + var(--space-8));
+  min-width: var(--provider-settings-dropdown-min-width);
+}
+
+.frequency-options {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.frequency-option {
+  border: var(--border-width) solid transparent;
   border-radius: var(--radius-sm);
-  background: var(--surface);
+  background: transparent;
   color: var(--text);
   font: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   padding: var(--space-6) var(--space-8);
+  text-align: left;
+  cursor: pointer;
+}
+
+.frequency-option:hover {
+  background: var(--surface-hover);
+}
+
+.frequency-option[aria-pressed="true"] {
+  border-color: var(--accent-success);
+  background: color-mix(in srgb, var(--accent-success) var(--mix-hover-success), var(--surface));
+  color: var(--text);
 }
 
 .provider-message {

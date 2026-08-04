@@ -3,6 +3,7 @@ import { isProviderEnabled } from "./settings.js";
 
 const providerRefreshIntervals = new Map();
 const providerRefreshTimers = new Map();
+const providerNextRefreshAt = new Map();
 
 function normalizeUpdateFrequency(frequency) {
   if (typeof frequency !== "string") {
@@ -70,6 +71,11 @@ export function getProviderInterval(providerId) {
   return providerRefreshIntervals.get(providerId) ?? DEFAULT_UPDATE_FREQUENCY;
 }
 
+// null means the next scheduled refresh is unknown or there is none (manual only).
+export function getProviderNextRefreshAt(providerId) {
+  return providerNextRefreshAt.get(providerId) ?? null;
+}
+
 export function ensureProviderInterval(providerId, fallbackFrequency) {
   if (!providerRefreshIntervals.has(providerId)) {
     providerRefreshIntervals.set(providerId, normalizeUpdateFrequency(fallbackFrequency));
@@ -90,15 +96,18 @@ export function restartProviderRefreshTimer(providerId, refreshProvider) {
   stopProviderRefreshTimer(providerId);
 
   if (!isProviderEnabled(providerId)) {
+    providerNextRefreshAt.set(providerId, null);
     return;
   }
 
   const intervalMs = frequencyToMs(getProviderInterval(providerId));
+  providerNextRefreshAt.set(providerId, intervalMs == null ? null : Date.now() + intervalMs);
   if (intervalMs == null) {
     return;
   }
 
   const timerId = setInterval(() => {
+    providerNextRefreshAt.set(providerId, Date.now() + intervalMs);
     refreshProvider(providerId);
   }, intervalMs);
   providerRefreshTimers.set(providerId, timerId);

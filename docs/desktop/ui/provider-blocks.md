@@ -8,9 +8,8 @@ Each provider square contains, top to bottom:
 - **Limits section**
 - **Subscription section**
 - **Usage section**
-- source line with data origin label and timestamp
-- update frequency dropdown near the bottom
-- provider-specific manual update button at the bottom
+- source line with data origin label, timestamp, and next scheduled update
+- provider-specific manual update button and a settings gear at the bottom, side by side
 
 The three sections are the desktop rendering of the product's three output kinds, defined independent of any interface in [product/output-kinds.md](../../product/output-kinds.md). Each can be hidden independently through the [display toggles](settings.md#display). A display toggle turns the matching section slot on or off for every provider card at once. Heading and lines appear only when that card has data for the section; when the toggle is on and the card has no data, the slot stays as reserved empty space (see [Section Slot Alignment](#section-slot-alignment)).
 
@@ -82,10 +81,9 @@ Sessions 92
 Turns 6,394
 Files 223
 
-API2, as of Jul 5, 19:28
+API2, as of Jul 5, 19:28. Next upd 19:33
 ───────────────────────
-Upd every [ 5 min ▾ ]
-[     UPDATE NOW     ]
+[     UPDATE NOW     ] [⚙]
 ```
 
 The UI does not use terminal-style ASCII rendering. The example defines the information that must be visible and its order.

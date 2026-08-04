@@ -47,11 +47,11 @@
   --toggle-knob-size: 16px;
   --toggle-knob-travel: 20px;
   --meter-height: 10px;
-  --select-min-width: 120px;
   --settings-dropdown-min-width: 220px;
   --settings-dropdown-max-width-offset: 56px;
   --settings-dropdown-max-height-offset: 80px;
-  /* Longest source line: "Local files, as of Sep 30, 00:00" at 13px (~188px text) + padding/border + tolerance */
+  --provider-settings-dropdown-min-width: 150px;
+  /* Longest single non-breaking source line unit: "Local files, as of Sep 30, 00:00." at 13px (~190px text) + padding/border + tolerance */
   --provider-card-min-width: 230px;
   --dropdown-z-index: 10;
 

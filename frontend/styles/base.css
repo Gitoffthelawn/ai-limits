@@ -87,7 +87,8 @@ body {
   background: color-mix(in srgb, var(--accent-success) var(--mix-hover-success), var(--surface));
 }
 
-.refresh-button:disabled {
+.refresh-button:disabled,
+.provider-manual-refresh:disabled {
   color: var(--text-muted);
   cursor: not-allowed;
 }
@@ -96,6 +97,7 @@ body {
 .help-back:focus-visible,
 .segmented-control button:focus-visible,
 .settings-toggle input[type="checkbox"]:focus-visible,
+.frequency-option:focus-visible,
 .help-menu-item:focus-visible {
   outline: var(--border-width-focus) solid var(--focus);
   outline-offset: var(--space-2);

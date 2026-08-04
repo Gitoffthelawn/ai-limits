@@ -40,6 +40,17 @@ export function formatSourceTimestampLine(provider) {
   return `as of ${formatTimestampForDisplay(provider.dataTimestamp) || "unknown"}`;
 }
 
+export function formatSourceStatusLine(provider) {
+  if (provider.pending) return "—";
+  return `${formatSourceIdLine(provider)} ${formatSourceTimestampLine(provider)}.`;
+}
+
+export function formatNextUpdateLine(nextRefreshAt) {
+  if (nextRefreshAt == null) return "Manual upd only";
+  const formatted = formatTimestampForDisplay(nextRefreshAt);
+  return formatted ? `Next upd ${formatted}` : "Manual upd only";
+}
+
 export function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")

@@ -1,6 +1,13 @@
 import { updateFrequencyOptions } from "./constants.js";
-import { escapeHtml, formatDecimal, formatSourceIdLine, formatSourceTimestampLine, formatTimestampForDisplay } from "./provider-formatters.js";
+import { escapeHtml, formatDecimal, formatNextUpdateLine, formatSourceStatusLine, formatTimestampForDisplay } from "./provider-formatters.js";
 import { buildSourcePriorityControlHtml, isShowLimitsEnabled, isShowPlanEnabled, isShowUsageEnabled } from "./settings.js";
+
+const GEAR_ICON_SVG = `
+  <svg class="settings-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+`;
 
 function providerLabel(providerId) {
   return providerId.charAt(0).toUpperCase() + providerId.slice(1);
@@ -184,11 +191,24 @@ function buildProviderSectionsHtml(provider) {
   ].join("");
 }
 
-export function renderProvider(provider, selectedUpdateFrequency) {
+function buildFrequencyOptionsHtml(selectedUpdateFrequency) {
+  return updateFrequencyOptions
+    .map((option) => `<button type="button" class="frequency-option" data-frequency-option="${escapeHtml(option)}" aria-pressed="${option === selectedUpdateFrequency}">${escapeHtml(option)}</button>`)
+    .join("");
+}
+
+function buildSourceInfoHtml(provider, nextRefreshAt) {
+  return `
+    <span class="source-status">${escapeHtml(formatSourceStatusLine(provider))}</span>
+    <span class="source-next-update">${escapeHtml(formatNextUpdateLine(nextRefreshAt))}</span>
+  `;
+}
+
+export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt) {
   const block = document.createElement("article");
   block.className = "provider-block";
   block.dataset.providerId = provider.id;
-  const frequencyOptions = updateFrequencyOptions.map((option) => `<option ${option === selectedUpdateFrequency ? "selected" : ""}>${option}</option>`).join("");
+  const settingsDropdownId = `provider-settings-dropdown-${provider.id}`;
 
   block.innerHTML = `
     <div class="provider-content">
@@ -196,27 +216,51 @@ export function renderProvider(provider, selectedUpdateFrequency) {
         <h2>${escapeHtml(provider.label)}</h2>
       </div>
       <div class="provider-sections">${buildProviderSectionsHtml(provider)}</div>
-      <p class="source-info">
-        <span class="source-id">${escapeHtml(formatSourceIdLine(provider))}</span>
-        <span class="source-timestamp">${escapeHtml(formatSourceTimestampLine(provider))}</span>
-      </p>
+      <p class="source-info">${buildSourceInfoHtml(provider, nextRefreshAt)}</p>
     </div>
     <div class="provider-actions">
-      <label class="frequency-row">
-        <span>Upd&nbsp;every</span>
-        <select aria-label="${escapeHtml(provider.label)} update interval">${frequencyOptions}</select>
-      </label>
       <button type="button" class="provider-manual-refresh" data-manual-refresh>
         UPDATE NOW
       </button>
+      <div class="provider-settings-menu" data-provider-settings-menu>
+        <button
+          type="button"
+          class="settings-button provider-settings-button"
+          data-provider-settings-button
+          aria-label="${escapeHtml(provider.label)} update settings"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-controls="${settingsDropdownId}"
+        >${GEAR_ICON_SVG}</button>
+        <div class="settings-dropdown provider-settings-dropdown" id="${settingsDropdownId}" data-provider-settings-dropdown hidden>
+          <div class="settings-section">
+            <p class="settings-section-label">UPDATE FREQUENCY</p>
+            <div class="frequency-options" role="group" aria-label="${escapeHtml(provider.label)} update frequency">
+              ${buildFrequencyOptionsHtml(selectedUpdateFrequency)}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   `;
 
   return block;
 }
 
-export function updateProviderBlockData(block, provider) {
+export function updateProviderBlockData(block, provider, nextRefreshAt) {
   block.querySelector(".provider-sections").innerHTML = buildProviderSectionsHtml(provider);
-  block.querySelector(".source-id").textContent = formatSourceIdLine(provider);
-  block.querySelector(".source-timestamp").textContent = formatSourceTimestampLine(provider);
+  block.querySelector(".source-info").innerHTML = buildSourceInfoHtml(provider, nextRefreshAt);
+}
+
+export function updateProviderNextUpdateText(block, nextRefreshAt) {
+  const el = block.querySelector(".source-next-update");
+  if (el) {
+    el.textContent = formatNextUpdateLine(nextRefreshAt);
+  }
+}
+
+export function syncFrequencyOptions(block, selectedUpdateFrequency) {
+  for (const option of block.querySelectorAll("[data-frequency-option]")) {
+    option.setAttribute("aria-pressed", String(option.dataset.frequencyOption === selectedUpdateFrequency));
+  }
 }

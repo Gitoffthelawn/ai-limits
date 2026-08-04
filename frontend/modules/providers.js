@@ -10,8 +10,8 @@ import {
 import { openHelp } from "./help.js";
 import { openExternalUrl } from "./links.js";
 import { isScreenshotShowcase, SHOWCASE_PROVIDERS } from "./showcase.js";
-import { ensureProviderInterval, getProviderInterval, restartProviderRefreshTimer, setProviderInterval, stopProviderRefreshTimer } from "./provider-refresh-intervals.js";
-import { createEmptyProvider, renderProvider, updateProviderBlockData } from "./provider-rendering.js";
+import { ensureProviderInterval, getProviderInterval, getProviderNextRefreshAt, restartProviderRefreshTimer, setProviderInterval, stopProviderRefreshTimer } from "./provider-refresh-intervals.js";
+import { createEmptyProvider, renderProvider, syncFrequencyOptions, updateProviderBlockData, updateProviderNextUpdateText } from "./provider-rendering.js";
 
 export { initProviderIntervals } from "./provider-refresh-intervals.js";
 
@@ -26,6 +26,25 @@ let sectionSlotAlignmentFrame = 0;
 export function initProviders(elements) {
   providerList = elements.providerList;
   statusLine = elements.statusLine;
+  document.addEventListener("click", closeAllProviderSettingsMenus);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeAllProviderSettingsMenus();
+    }
+  });
+}
+
+function closeAllProviderSettingsMenus() {
+  if (!providerList) {
+    return;
+  }
+
+  for (const dropdown of providerList.querySelectorAll("[data-provider-settings-dropdown]")) {
+    dropdown.hidden = true;
+  }
+  for (const button of providerList.querySelectorAll("[data-provider-settings-button]")) {
+    button.setAttribute("aria-expanded", "false");
+  }
 }
 
 function getProviderBlock(providerId) {
@@ -74,11 +93,29 @@ export function scheduleSectionSlotAlignment() {
 }
 
 function attachProviderBlockHandlers(block, providerId) {
-  const select = block.querySelector("select");
-  select.value = getProviderInterval(providerId);
-  select.addEventListener("change", (event) => {
-    setProviderInterval(providerId, event.target.value, refreshSingleProvider);
+  const settingsButton = block.querySelector("[data-provider-settings-button]");
+  const settingsDropdown = block.querySelector("[data-provider-settings-dropdown]");
+
+  settingsButton.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const shouldOpen = settingsDropdown.hidden;
+    closeAllProviderSettingsMenus();
+    settingsDropdown.hidden = !shouldOpen;
+    settingsButton.setAttribute("aria-expanded", String(shouldOpen));
   });
+
+  settingsDropdown.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
+
+  for (const option of block.querySelectorAll("[data-frequency-option]")) {
+    option.addEventListener("click", () => {
+      setProviderInterval(providerId, option.dataset.frequencyOption, refreshSingleProvider);
+      syncFrequencyOptions(block, option.dataset.frequencyOption);
+      updateProviderNextUpdateText(block, getProviderNextRefreshAt(providerId));
+    });
+  }
+
   block.querySelector("[data-manual-refresh]")?.addEventListener("click", () => {
     refreshSingleProvider(providerId);
   });
@@ -143,7 +180,7 @@ export function refreshProviderSectionsFromCache() {
       continue;
     }
 
-    updateProviderBlockData(block, provider);
+    updateProviderBlockData(block, provider, getProviderNextRefreshAt(provider.id));
     attachSectionHandlers(block);
   }
 
@@ -169,9 +206,9 @@ async function startProviderCliLogin(provider) {
 
 function mountProviderBlock(provider) {
   ensureProviderInterval(provider.id, provider.selectedUpdateFrequency);
-  const block = renderProvider(provider, getProviderInterval(provider.id));
-  attachProviderBlockHandlers(block, provider.id);
   restartProviderRefreshTimer(provider.id, refreshSingleProvider);
+  const block = renderProvider(provider, getProviderInterval(provider.id), getProviderNextRefreshAt(provider.id));
+  attachProviderBlockHandlers(block, provider.id);
   return block;
 }
 
@@ -270,12 +307,27 @@ async function fetchSingleProviderLimits(providerId) {
   });
 }
 
+// A failed fetch previously rejected silently: providerRefreshInFlight was
+// still cleared in `finally`, but nothing told the user the click did
+// anything. Manual and scheduled refreshes share this function, so surfacing
+// the error here covers both.
+function setManualRefreshLoading(providerId, isLoading) {
+  const button = getProviderBlock(providerId)?.querySelector("[data-manual-refresh]");
+  if (!button) {
+    return;
+  }
+
+  button.disabled = isLoading;
+  button.textContent = isLoading ? "UPDATING…" : "UPDATE NOW";
+}
+
 async function refreshSingleProvider(providerId) {
   if (!isProviderEnabled(providerId) || providerRefreshInFlight.has(providerId)) {
     return;
   }
 
   providerRefreshInFlight.add(providerId);
+  setManualRefreshLoading(providerId, true);
 
   try {
     const provider = await fetchSingleProviderLimits(providerId);
@@ -291,10 +343,13 @@ async function refreshSingleProvider(providerId) {
       block = mountProviderBlock(provider);
       insertProviderBlockInOrder(block, providerId);
     } else {
-      updateProviderBlockData(block, provider);
+      updateProviderBlockData(block, provider, getProviderNextRefreshAt(providerId));
       attachSectionHandlers(block);
     }
+  } catch (error) {
+    setErrorState(error?.message || String(error) || `Could not refresh ${providerId}.`);
   } finally {
+    setManualRefreshLoading(providerId, false);
     scheduleSectionSlotAlignment();
     providerRefreshInFlight.delete(providerId);
   }

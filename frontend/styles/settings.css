@@ -81,7 +81,6 @@
   color: var(--text-muted);
 }
 
-.frequency-row,
 .settings-toggle {
   display: flex;
   align-items: center;

@@ -4,6 +4,7 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+- Moved each provider card's update-frequency picker into its own gear-button dropdown next to `UPDATE NOW`, opening upward within the card instead of a permanent `Upd every` row; the source line now also shows the next scheduled update time, or `Manual upd only`.
 - Removed the transient provider refresh status overlay from the desktop cards, and kept the Limits, Plan, and Usage slots aligned across the currently visible cards with top-packed content and reserved blank space for empty sections.
 - Added a "100% again" notification: alerts when a provider's remaining limit returns to exactly 100% after having been lower, in addition to the existing low-remaining alerts. A first reading or a partial rise (for example 40% to 97%) does not notify.
 - Codex limits now come from the Codex CLI's app-server, which answers in seconds instead of driving the CLI's text interface. Codex reports exact reset times, the plan tier, the credit balance, available limit resets, and the lifetime token total.

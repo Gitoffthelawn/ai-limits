@@ -129,14 +129,14 @@ Only Codex reports a `Files` count. Both Claude sources and `cursor_api2` leave 
 Provider source information is shown on one line, after all sections:
 
 ```text
-Local files, as of Jul 5, 22:12
+API2, as of Jul 5, 22:12. Next upd 22:17
 ```
 
 The line has two parts:
 
-- origin label, for example `Local files`, `CLI`, or `API2`
-- timestamp from `dataTimestamp`, rendered as `as of {timestamp}`
+- source status: origin label, timestamp from `dataTimestamp`, rendered as `{origin label}, as of {timestamp}.`
+- next update: `Next upd {time}`, the next time this provider's own update-frequency timer (see [controls.md](controls.md#update-frequency)) will fire, or `Manual upd only` when that provider's frequency is set to `Manual only`
 
 Possible origin labels: `Local files`, `CLI`, `API2`, `Unknown`.
 
-Each part is a non-breaking unit: `{origin label},` and `as of {timestamp}` must not wrap in the middle. If the provider block is too narrow for the full line, the line may break only between these two units.
+Each part is a non-breaking unit: `{origin label}, as of {timestamp}.` and `Next upd {time}` (or `Manual upd only`) must not wrap in the middle. If the provider block is too narrow for the full line, the line may break only between these two units.
