@@ -4,6 +4,8 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
+## [v0.3.0](https://github.com/md2it/ai-limits/releases/tag/v0.3.0) — 2026-08-04
+
 - Removed the Fast/Full/Best source-priority setting: the app always queries providers over RPC first now, falling back to local data only when RPC isn't available. The setting existed to trade freshness for speed against the old CLI text-interface path, but RPC made that path fast enough that the tradeoff no longer bought anything.
 - Split each provider card's source line into two: a `Source` line (for example `RPC, as of 10:10.`) and an update-time line (`Last upd hh:mm, next hh:mm`, or `Manual only` when a provider has no scheduled refresh). Both are new Display settings — `Source` is off by default, `Update time` is on by default.
 - Renamed the Display settings `Show limits` and `Show plan` to `Limits` and `Subscription`.
