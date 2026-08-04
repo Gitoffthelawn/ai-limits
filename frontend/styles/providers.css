@@ -120,6 +120,18 @@
   align-content: start;
   gap: var(--space-10);
   min-height: 0;
+  /* Section slot heights are synced across cards in JS (applySectionSlotAlignment)
+     whenever a provider's data resolves. Animating the change keeps that
+     resync from reading as a sudden jump — the goal is to smooth the effect,
+     not draw the eye to it, so this stays a plain, short ease. */
+  transition: min-height 180ms ease;
+}
+
+/* Reserves roughly the space real content will occupy so a pending card's
+   section doesn't collapse to just its heading before the first fetch
+   resolves (see buildProviderSectionHtml in provider-rendering.js). */
+.provider-section-body--placeholder {
+  min-height: 3.5rem;
 }
 
 .provider-sections {

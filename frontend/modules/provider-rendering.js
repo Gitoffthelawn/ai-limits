@@ -127,12 +127,32 @@ const SECTION_HEADINGS = {
 
 // A section slot is always rendered when its display toggle is on. Content
 // adds the divider heading and body; an empty slot stays blank and is later
-// sized to match the tallest visible slot of the same kind.
-function buildProviderSectionHtml(kind, bodyHtml) {
+// sized to match the tallest visible slot of the same kind. While the
+// provider is still pending (cold start / not yet fetched), the heading is
+// known from the toggle alone, so it renders immediately with a placeholder
+// body reserving roughly the space real content will need — this is what
+// keeps the card from collapsing to nothing before the first fetch resolves.
+function buildProviderSectionHtml(kind, bodyHtml, pending) {
+  const heading = `<h3 class="section-heading"><span class="section-heading-label">${escapeHtml(SECTION_HEADINGS[kind])}</span></h3>`;
+
+  if (bodyHtml) {
+    return `
+      <div class="provider-section provider-section--${kind}" data-section-slot="${kind}">
+        ${heading}<div class="provider-section-body">${bodyHtml}</div>
+      </div>
+    `;
+  }
+
+  if (pending) {
+    return `
+      <div class="provider-section provider-section--${kind}" data-section-slot="${kind}">
+        ${heading}<div class="provider-section-body provider-section-body--placeholder" aria-hidden="true"></div>
+      </div>
+    `;
+  }
+
   return `
-    <div class="provider-section provider-section--${kind}" data-section-slot="${kind}">
-      ${bodyHtml ? `<h3 class="section-heading"><span class="section-heading-label">${escapeHtml(SECTION_HEADINGS[kind])}</span></h3><div class="provider-section-body">${bodyHtml}</div>` : ""}
-    </div>
+    <div class="provider-section provider-section--${kind}" data-section-slot="${kind}"></div>
   `;
 }
 
@@ -179,8 +199,8 @@ function buildPlanBodyHtml(provider) {
 
 function buildProviderSectionsHtml(provider) {
   return [
-    isShowLimitsEnabled() ? buildProviderSectionHtml("limits", buildLimitsBodyHtml(provider)) : "",
-    isShowPlanEnabled() ? buildProviderSectionHtml("plan", buildPlanBodyHtml(provider)) : "",
+    isShowLimitsEnabled() ? buildProviderSectionHtml("limits", buildLimitsBodyHtml(provider), provider.pending) : "",
+    isShowPlanEnabled() ? buildProviderSectionHtml("plan", buildPlanBodyHtml(provider), provider.pending) : "",
   ].join("");
 }
 
