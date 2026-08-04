@@ -45,10 +45,18 @@ export function formatSourceStatusLine(provider) {
   return `${formatSourceIdLine(provider)} ${formatSourceTimestampLine(provider)}.`;
 }
 
-export function formatNextUpdateLine(nextRefreshAt) {
-  if (nextRefreshAt == null) return "Manual upd only";
-  const formatted = formatTimestampForDisplay(nextRefreshAt);
-  return formatted ? `Next upd ${formatted}` : "Manual upd only";
+function formatTimeOnly(value) {
+  if (value == null || value === "") return null;
+  const date = toDate(value);
+  if (!date) return null;
+  return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+}
+
+export function formatUpdateTimeLine(provider, nextRefreshAt) {
+  if (provider.pending) return "—";
+  const last = formatTimeOnly(provider.dataTimestamp) ?? "unknown";
+  const next = formatTimeOnly(nextRefreshAt) ?? "Manual only";
+  return `Last upd ${last}, next ${next}`;
 }
 
 export function escapeHtml(value) {

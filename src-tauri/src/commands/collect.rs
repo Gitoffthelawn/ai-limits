@@ -57,7 +57,6 @@ fn source_plan_options(query: &ProviderLimitsQuery) -> UiSourcePlanOptions {
         enabled_codex: query.enabled_codex,
         enabled_claude: query.enabled_claude,
         enabled_cursor: query.enabled_cursor,
-        source_priority: query.source_priority,
     }
 }
 

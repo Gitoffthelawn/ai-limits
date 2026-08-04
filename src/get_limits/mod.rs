@@ -13,8 +13,7 @@ use crate::types::{Source, SourceReport};
 
 pub use plan::{
     best_source_plan, cli_fallback_source_plan, cli_first_source_plan, default_source_plan,
-    fast_free_source_plan, source_list_plan, ui_source_plan, SourcePlan, SourcePriority,
-    UiSourcePlanOptions,
+    fast_free_source_plan, source_list_plan, ui_source_plan, SourcePlan, UiSourcePlanOptions,
 };
 
 use chain::get_fallback_chain_limits;

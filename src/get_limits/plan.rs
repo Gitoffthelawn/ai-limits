@@ -89,21 +89,11 @@ pub fn cli_first_source_plan() -> Vec<SourcePlan> {
     ]
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Default, serde::Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum SourcePriority {
-    Fast,
-    #[default]
-    Full,
-    Best,
-}
-
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct UiSourcePlanOptions {
     pub enabled_codex: bool,
     pub enabled_claude: bool,
     pub enabled_cursor: bool,
-    pub source_priority: SourcePriority,
 }
 
 impl Default for UiSourcePlanOptions {
@@ -112,19 +102,16 @@ impl Default for UiSourcePlanOptions {
             enabled_codex: true,
             enabled_claude: true,
             enabled_cursor: true,
-            source_priority: SourcePriority::Full,
         }
     }
 }
 
+// The desktop app always queries the CLI-first (Best) chain: it used to let
+// users trade freshness for speed via a Fast/Full/Best setting, but RPC made
+// the CLI-backed sources fast enough that the tradeoff no longer bought
+// anything, so the choice was removed and this always resolves to Best.
 pub fn ui_source_plan(options: UiSourcePlanOptions) -> Vec<SourcePlan> {
-    let plans = match options.source_priority {
-        SourcePriority::Fast => fast_free_source_plan(),
-        SourcePriority::Full => cli_fallback_source_plan(),
-        SourcePriority::Best => cli_first_source_plan(),
-    };
-
-    plans
+    cli_first_source_plan()
         .into_iter()
         .filter(|plan| match plan.label() {
             "codex" => options.enabled_codex,
@@ -207,14 +194,10 @@ mod tests {
     }
 
     #[test]
-    fn ui_source_plan_defaults_to_full_priority() {
-        assert_eq!(
-            UiSourcePlanOptions::default().source_priority,
-            SourcePriority::Full
-        );
+    fn ui_source_plan_defaults_to_cli_first_chains() {
         assert_eq!(
             ui_source_plan(UiSourcePlanOptions::default()),
-            cli_fallback_source_plan()
+            cli_first_source_plan()
         );
     }
 
@@ -225,51 +208,6 @@ mod tests {
                 enabled_codex: true,
                 enabled_claude: false,
                 enabled_cursor: true,
-                source_priority: SourcePriority::Fast,
-            }),
-            vec![
-                SourcePlan::Chain {
-                    label: "codex",
-                    sources: FAST_CODEX_CHAIN
-                },
-                SourcePlan::Chain {
-                    label: "cursor",
-                    sources: FAST_CURSOR_CHAIN
-                },
-            ]
-        );
-    }
-
-    #[test]
-    fn ui_source_plan_uses_cli_fallback_chains_for_full_priority() {
-        assert_eq!(
-            ui_source_plan(UiSourcePlanOptions {
-                enabled_codex: true,
-                enabled_claude: true,
-                enabled_cursor: false,
-                source_priority: SourcePriority::Full,
-            }),
-            vec![
-                SourcePlan::Chain {
-                    label: "codex",
-                    sources: CLI_FALLBACK_CODEX_CHAIN
-                },
-                SourcePlan::Chain {
-                    label: "claude",
-                    sources: CLI_FALLBACK_CLAUDE_CHAIN
-                },
-            ]
-        );
-    }
-
-    #[test]
-    fn ui_source_plan_uses_cli_first_chains_for_best_priority() {
-        assert_eq!(
-            ui_source_plan(UiSourcePlanOptions {
-                enabled_codex: true,
-                enabled_claude: true,
-                enabled_cursor: false,
-                source_priority: SourcePriority::Best,
             }),
             vec![
                 SourcePlan::Chain {
@@ -277,8 +215,8 @@ mod tests {
                     sources: CLI_FIRST_CODEX_CHAIN
                 },
                 SourcePlan::Chain {
-                    label: "claude",
-                    sources: CLI_FIRST_CLAUDE_CHAIN
+                    label: "cursor",
+                    sources: CLI_FIRST_CURSOR_CHAIN
                 },
             ]
         );

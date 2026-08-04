@@ -9,10 +9,9 @@ body {
   background: var(--app-bg);
 }
 
-/* Shared square icon controls (settings, help, source-priority, help back). */
+/* Shared square icon controls (settings, help, help back). */
 .settings-button,
 .help-button,
-.source-priority-info,
 .help-back {
   display: inline-flex;
   width: var(--settings-button-size);
@@ -34,19 +33,13 @@ body {
 
 .settings-button:hover,
 .help-button:hover,
-.source-priority-info:hover,
 .help-back:hover {
   background: var(--surface-hover);
-}
-
-.source-priority-info:hover {
-  color: var(--text);
 }
 
 /* Neutral controls warm to yellow in dark theme. See docs/desktop/ui/styleguide.md. */
 :root[data-theme="dark"] .settings-button:hover,
 :root[data-theme="dark"] .help-button:hover,
-:root[data-theme="dark"] .source-priority-info:hover,
 :root[data-theme="dark"] .help-back:hover,
 :root[data-theme="dark"] .help-menu-item:hover,
 :root[data-theme="dark"] .info-link:hover {
@@ -93,9 +86,7 @@ body {
   cursor: not-allowed;
 }
 
-.source-priority-info:focus-visible,
 .help-back:focus-visible,
-.segmented-control button:focus-visible,
 .settings-toggle input[type="checkbox"]:focus-visible,
 .frequency-option:focus-visible,
 .help-menu-item:focus-visible {

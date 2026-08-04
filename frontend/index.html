@@ -70,40 +70,6 @@
             </button>
             <div class="settings-dropdown" id="settings-dropdown" hidden>
               <div class="settings-section">
-                <p class="settings-section-label">Behavior</p>
-                <div class="source-priority-row">
-                  <div
-                    class="segmented-control"
-                    id="setting-source-priority"
-                    role="group"
-                    aria-label="Source priority"
-                  ></div>
-                  <button
-                    type="button"
-                    class="source-priority-info"
-                    id="setting-source-priority-info"
-                    aria-label="Source priority details"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                    >
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M12 16v-4" />
-                      <path d="M12 8h.01" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              <div class="settings-section">
                 <p class="settings-section-label">Providers</p>
                 <label class="settings-toggle">
                   <span>Cursor</span>
@@ -121,12 +87,20 @@
               <div class="settings-section">
                 <p class="settings-section-label">Display</p>
                 <label class="settings-toggle">
-                  <span>Show limits</span>
+                  <span>Limits</span>
                   <input type="checkbox" id="setting-show-limits" checked />
                 </label>
                 <label class="settings-toggle">
-                  <span>Show plan</span>
+                  <span>Subscription</span>
                   <input type="checkbox" id="setting-show-plan" checked />
+                </label>
+                <label class="settings-toggle">
+                  <span>Source</span>
+                  <input type="checkbox" id="setting-show-source" />
+                </label>
+                <label class="settings-toggle">
+                  <span>Update time</span>
+                  <input type="checkbox" id="setting-show-update-time" checked />
                 </label>
               </div>
               <div class="settings-section">

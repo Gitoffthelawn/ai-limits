@@ -73,7 +73,6 @@
 
 .provider-block h2,
 .provider-block .limit-top,
-.provider-block .segmented-control button,
 .provider-block .provider-manual-refresh,
 .provider-block .provider-settings-button {
   color: var(--provider-text);
@@ -310,9 +309,15 @@
   padding-top: var(--space-14);
 }
 
-.source-status,
-.source-next-update {
+.source-line,
+.update-time-line {
+  margin: 0;
   white-space: nowrap;
+}
+
+.source-line[hidden],
+.update-time-line[hidden] {
+  display: none;
 }
 
 .provider-manual-refresh {
@@ -438,25 +443,6 @@
   font-size: inherit;
 }
 
-.provider-block .segmented-control {
-  border-color: var(--provider-brand);
-  background: color-mix(
-    in srgb,
-    var(--provider-brand) 18%,
-    var(--segmented-track)
-  );
-}
-
-.provider-block .segmented-control button {
-  color: var(--provider-text);
-}
-
-.provider-block .segmented-control button[aria-pressed="true"] {
-  border-color: var(--provider-brand);
-  background: var(--segmented-selected-bg);
-  color: var(--provider-text);
-  box-shadow: var(--shadow-control);
-}
 
 .provider-link {
   width: fit-content;

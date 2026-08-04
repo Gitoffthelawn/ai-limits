@@ -15,7 +15,7 @@ use tauri::Manager;
 const HELP_CHAPTERS: &[(&str, &str)] = &[
     ("about", "About"),
     ("providers", "Providers"),
-    ("source-priority", "Source priority"),
+    ("source", "Source"),
     ("data-errors", "Data availability"),
     ("notifications", "Notifications"),
     ("updates", "Updates"),

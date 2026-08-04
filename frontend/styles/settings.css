@@ -41,46 +41,6 @@
   text-transform: uppercase;
 }
 
-.source-priority-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
-}
-
-.segmented-control {
-  display: inline-flex;
-  flex: 1 1 auto;
-  gap: var(--space-2);
-  border: var(--border-width) solid var(--segmented-track-border);
-  border-radius: var(--radius-sm);
-  background: var(--segmented-track);
-  padding: var(--space-2);
-}
-
-.segmented-control button {
-  flex: 1 1 0;
-  border: var(--border-width) solid transparent;
-  border-radius: calc(var(--radius-sm) - 2px);
-  background: transparent;
-  color: var(--segmented-unselected-text);
-  font: inherit;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  padding: var(--space-6) var(--space-8);
-  cursor: pointer;
-}
-
-.segmented-control button[aria-pressed="true"] {
-  border-color: var(--accent-success);
-  background: color-mix(in srgb, var(--accent-success) var(--mix-hover-success), var(--surface));
-  color: var(--text);
-  box-shadow: var(--shadow-control);
-}
-
-.source-priority-info {
-  color: var(--text-muted);
-}
-
 .settings-toggle {
   display: flex;
   align-items: center;

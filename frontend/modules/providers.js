@@ -1,17 +1,12 @@
 import {
   PROVIDER_IDS,
 } from "./constants.js";
-import {
-  attachSourcePriorityControls,
-  isProviderEnabled,
-  settingsToQuery,
-  syncSourcePriorityControls,
-} from "./settings.js";
+import { isProviderEnabled, settingsToQuery } from "./settings.js";
 import { openHelp } from "./help.js";
 import { openExternalUrl } from "./links.js";
 import { isScreenshotShowcase, SHOWCASE_PROVIDERS } from "./showcase.js";
 import { ensureProviderInterval, getProviderInterval, getProviderNextRefreshAt, restartProviderRefreshTimer, setProviderInterval, stopProviderRefreshTimer } from "./provider-refresh-intervals.js";
-import { createEmptyProvider, renderProvider, syncFrequencyOptions, updateProviderBlockData, updateProviderNextUpdateText } from "./provider-rendering.js";
+import { createEmptyProvider, renderProvider, syncFrequencyOptions, updateProviderBlockData, updateProviderUpdateTimeText } from "./provider-rendering.js";
 
 export { initProviderIntervals } from "./provider-refresh-intervals.js";
 
@@ -112,7 +107,11 @@ function attachProviderBlockHandlers(block, providerId) {
     option.addEventListener("click", () => {
       setProviderInterval(providerId, option.dataset.frequencyOption, refreshSingleProvider);
       syncFrequencyOptions(block, option.dataset.frequencyOption);
-      updateProviderNextUpdateText(block, getProviderNextRefreshAt(providerId));
+      updateProviderUpdateTimeText(
+        block,
+        providerDataCache.get(providerId) ?? { pending: true },
+        getProviderNextRefreshAt(providerId),
+      );
     });
   }
 
@@ -122,20 +121,7 @@ function attachProviderBlockHandlers(block, providerId) {
   attachSectionHandlers(block);
 }
 
-function attachSourcePriorityBlockHandlers(block) {
-  const control = block.querySelector("[data-source-priority-control]");
-  if (control) {
-    attachSourcePriorityControls(control);
-    syncSourcePriorityControls();
-  }
-
-  const detailsButton = block.querySelector("[data-open-source-priority]");
-  if (detailsButton) {
-    detailsButton.addEventListener("click", () => {
-      openHelp("source-priority");
-    });
-  }
-
+function attachDataErrorsBlockHandlers(block) {
   const dataErrorsButton = block.querySelector("[data-open-data-errors]");
   if (dataErrorsButton) {
     dataErrorsButton.addEventListener("click", () => {
@@ -164,7 +150,7 @@ function attachPlanLinkHandlers(block) {
 }
 
 function attachSectionHandlers(block) {
-  attachSourcePriorityBlockHandlers(block);
+  attachDataErrorsBlockHandlers(block);
   attachCliAuthorizationHandlers(block);
   attachPlanLinkHandlers(block);
 }

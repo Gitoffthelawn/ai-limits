@@ -37,8 +37,8 @@ const settingInputs = {
   codex: document.querySelector("#setting-codex"),
   showLimits: document.querySelector("#setting-show-limits"),
   showPlan: document.querySelector("#setting-show-plan"),
-  sourcePriority: document.querySelector("#setting-source-priority"),
-  sourcePriorityInfo: document.querySelector("#setting-source-priority-info"),
+  showSource: document.querySelector("#setting-show-source"),
+  showUpdateTime: document.querySelector("#setting-show-update-time"),
   autoUpdate: document.querySelector("#setting-auto-update"),
   darkTheme: document.querySelector("#setting-dark-theme"),
 };
@@ -83,11 +83,6 @@ settingsDropdown.addEventListener("click", (event) => {
   event.stopPropagation();
 });
 
-settingInputs.sourcePriorityInfo.addEventListener("click", (event) => {
-  event.stopPropagation();
-  openHelp("source-priority");
-});
-
 helpButton.addEventListener("click", (event) => {
   event.stopPropagation();
   openHelp();
@@ -107,13 +102,14 @@ window.__openSettingsFromNative = () => {
   setSettingsMenuOpen(true, menuEls);
 };
 
-const displaySettingInputs = [settingInputs.showLimits, settingInputs.showPlan];
+const displaySettingInputs = [
+  settingInputs.showLimits,
+  settingInputs.showPlan,
+  settingInputs.showSource,
+  settingInputs.showUpdateTime,
+];
 
 for (const input of Object.values(settingInputs)) {
-  if (input === settingInputs.sourcePriority || input === settingInputs.sourcePriorityInfo) {
-    continue;
-  }
-
   if (input === settingInputs.darkTheme) {
     input.addEventListener("change", (event) => {
       setManualTheme(event.target.checked);

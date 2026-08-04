@@ -2,8 +2,6 @@ import {
   DEFAULT_APP_SETTINGS,
   PROVIDER_IDS,
   SETTINGS_STORAGE_KEY,
-  SOURCE_PRIORITY_LABELS,
-  SOURCE_PRIORITY_OPTIONS,
 } from "./constants.js";
 import { getAppTheme } from "./theme.js";
 
@@ -17,22 +15,6 @@ export function initSettings(inputs, { onChanged, onDisplayChanged } = {}) {
   onSettingsChanged = onChanged ?? null;
   onDisplaySettingsChanged = onDisplayChanged ?? null;
   appSettings = loadAppSettings();
-}
-
-function normalizeSourcePriority(value) {
-  return SOURCE_PRIORITY_OPTIONS.includes(value) ? value : DEFAULT_APP_SETTINGS.sourcePriority;
-}
-
-function migrateSourcePriority(parsed) {
-  if (SOURCE_PRIORITY_OPTIONS.includes(parsed.sourcePriority)) {
-    return parsed.sourcePriority;
-  }
-
-  if (parsed.useCliFallback === true) {
-    return "full";
-  }
-
-  return DEFAULT_APP_SETTINGS.sourcePriority;
 }
 
 function loadAppSettings() {
@@ -55,9 +37,13 @@ function loadAppSettings() {
       cursor: typeof parsed.cursor === "boolean" ? parsed.cursor : DEFAULT_APP_SETTINGS.cursor,
       cloud: typeof parsed.cloud === "boolean" ? parsed.cloud : DEFAULT_APP_SETTINGS.cloud,
       codex: typeof parsed.codex === "boolean" ? parsed.codex : DEFAULT_APP_SETTINGS.codex,
-      sourcePriority: migrateSourcePriority(parsed),
       showLimits: typeof parsed.showLimits === "boolean" ? parsed.showLimits : DEFAULT_APP_SETTINGS.showLimits,
       showPlan: typeof parsed.showPlan === "boolean" ? parsed.showPlan : DEFAULT_APP_SETTINGS.showPlan,
+      showSource: typeof parsed.showSource === "boolean" ? parsed.showSource : DEFAULT_APP_SETTINGS.showSource,
+      showUpdateTime:
+        typeof parsed.showUpdateTime === "boolean"
+          ? parsed.showUpdateTime
+          : DEFAULT_APP_SETTINGS.showUpdateTime,
     };
   } catch {
     return { ...DEFAULT_APP_SETTINGS };
@@ -68,47 +54,6 @@ function saveAppSettings() {
   localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(appSettings));
 }
 
-export function buildSourcePriorityControlHtml() {
-  return SOURCE_PRIORITY_OPTIONS.map((priority) => {
-    const selected = priority === appSettings.sourcePriority;
-    return `<button type="button" data-source-priority="${priority}" aria-pressed="${selected}">${SOURCE_PRIORITY_LABELS[priority]}</button>`;
-  }).join("");
-}
-
-export function syncSourcePriorityControls() {
-  for (const control of document.querySelectorAll("[data-source-priority-control]")) {
-    for (const button of control.querySelectorAll("[data-source-priority]")) {
-      const selected = button.dataset.sourcePriority === appSettings.sourcePriority;
-      button.setAttribute("aria-pressed", String(selected));
-    }
-  }
-}
-
-export function setSourcePriority(priority) {
-  const normalized = normalizeSourcePriority(priority);
-  if (appSettings.sourcePriority === normalized) {
-    return;
-  }
-
-  appSettings.sourcePriority = normalized;
-  saveAppSettings();
-  syncSourcePriorityControls();
-}
-
-export function attachSourcePriorityControls(container) {
-  container.dataset.sourcePriorityControl = "";
-  for (const button of container.querySelectorAll("[data-source-priority]")) {
-    button.addEventListener("click", () => {
-      setSourcePriority(button.dataset.sourcePriority);
-    });
-  }
-}
-
-function renderSettingsSourcePriorityControl() {
-  settingInputs.sourcePriority.innerHTML = buildSourcePriorityControlHtml();
-  attachSourcePriorityControls(settingInputs.sourcePriority);
-}
-
 export function syncSettingsInputs() {
   settingInputs.notifications.checked = appSettings.notifications;
   settingInputs.autoUpdate.checked = appSettings.autoUpdate;
@@ -117,9 +62,9 @@ export function syncSettingsInputs() {
   settingInputs.codex.checked = appSettings.codex;
   settingInputs.showLimits.checked = appSettings.showLimits;
   settingInputs.showPlan.checked = appSettings.showPlan;
+  settingInputs.showSource.checked = appSettings.showSource;
+  settingInputs.showUpdateTime.checked = appSettings.showUpdateTime;
   settingInputs.darkTheme.checked = getAppTheme().value === "dark";
-  renderSettingsSourcePriorityControl();
-  syncSourcePriorityControls();
 }
 
 export function isShowLimitsEnabled() {
@@ -130,12 +75,19 @@ export function isShowPlanEnabled() {
   return appSettings.showPlan;
 }
 
+export function isShowSourceEnabled() {
+  return appSettings.showSource;
+}
+
+export function isShowUpdateTimeEnabled() {
+  return appSettings.showUpdateTime;
+}
+
 export function settingsToQuery() {
   return {
     enabledCodex: appSettings.codex,
     enabledClaude: appSettings.cloud,
     enabledCursor: appSettings.cursor,
-    sourcePriority: appSettings.sourcePriority,
     notificationsEnabled: appSettings.notifications,
   };
 }
@@ -179,20 +131,21 @@ export function handleSettingsChange() {
     (providerId) => isProviderEnabled(providerId) && !previouslyEnabled.includes(providerId),
   );
 
-  syncSourcePriorityControls();
   onSettingsChanged?.({ newlyEnabled });
 }
 
-// Display toggles (Show limits / Show plan) never affect what is
-// requested from the backend and never trigger a refresh. They only change
-// what the frontend renders from data it already holds, so this handler saves
-// the choice and asks the caller to re-render already-mounted provider blocks
-// in place, unlike handleSettingsChange above.
+// Display toggles (Limits / Subscription / Source / Update time) never affect
+// what is requested from the backend and never trigger a refresh. They only
+// change what the frontend renders from data it already holds, so this
+// handler saves the choice and asks the caller to re-render already-mounted
+// provider blocks in place, unlike handleSettingsChange above.
 export function handleDisplaySettingsChange() {
   appSettings = {
     ...appSettings,
     showLimits: settingInputs.showLimits.checked,
     showPlan: settingInputs.showPlan.checked,
+    showSource: settingInputs.showSource.checked,
+    showUpdateTime: settingInputs.showUpdateTime.checked,
   };
   saveAppSettings();
   onDisplaySettingsChanged?.();

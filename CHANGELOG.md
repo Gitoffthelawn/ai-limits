@@ -4,7 +4,10 @@ This file records user-visible changes. Its version sections are used automatica
 
 ## Unreleased
 
-- Moved each provider card's update-frequency picker into its own gear-button dropdown next to `UPDATE NOW`, opening upward within the card instead of a permanent `Upd every` row; the source line now also shows the next scheduled update time, or `Manual upd only`.
+- Removed the Fast/Full/Best source-priority setting: the app always queries providers over RPC first now, falling back to local data only when RPC isn't available. The setting existed to trade freshness for speed against the old CLI text-interface path, but RPC made that path fast enough that the tradeoff no longer bought anything.
+- Split each provider card's source line into two: a `Source` line (for example `RPC, as of 10:10.`) and an update-time line (`Last upd hh:mm, next hh:mm`, or `Manual only` when a provider has no scheduled refresh). Both are new Display settings — `Source` is off by default, `Update time` is on by default.
+- Renamed the Display settings `Show limits` and `Show plan` to `Limits` and `Subscription`.
+- Moved each provider card's update-frequency picker into its own gear-button dropdown next to `UPDATE NOW`, opening upward within the card instead of a permanent `Upd every` row.
 - Removed the transient provider refresh status overlay from the desktop cards, and kept the Limits and Plan slots aligned across the currently visible cards with top-packed content and reserved blank space for empty sections.
 - Added a "100% again" notification: alerts when a provider's remaining limit returns to exactly 100% after having been lower, in addition to the existing low-remaining alerts. A first reading or a partial rise (for example 40% to 97%) does not notify.
 - Codex limits now come from the Codex CLI's app-server, which answers in seconds instead of driving the CLI's text interface. Codex reports exact reset times, the plan tier, the credit balance, available limit resets, and the lifetime token total.

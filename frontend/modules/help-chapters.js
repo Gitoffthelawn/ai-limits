@@ -53,11 +53,11 @@ export const HELP_CHAPTERS = [
         <dl class="info-terms">
           <div>
             <dt>Codex</dt>
-            <dd>Reads local Codex data, or queries the Codex CLI over RPC, depending on source priority.</dd>
+            <dd>Queries the Codex CLI over RPC, falling back to local Codex data if that isn't available.</dd>
           </div>
           <div>
             <dt>Claude</dt>
-            <dd>Reads local Claude data, or queries the Claude CLI over RPC, depending on source priority.</dd>
+            <dd>Queries the Claude CLI over RPC, falling back to local Claude data if that isn't available.</dd>
           </div>
           <div>
             <dt>Cursor</dt>
@@ -72,29 +72,19 @@ export const HELP_CHAPTERS = [
     },
   },
   {
-    id: "source-priority",
-    label: "Source priority",
-    title: "Source priority",
+    id: "source",
+    label: "Source",
+    title: "Source",
     render() {
       return `
-        <dl class="info-terms">
-          <div>
-            <dt>Fast</dt>
-            <dd>Quick sources only.</dd>
-          </div>
-          <div>
-            <dt>Full</dt>
-            <dd>Quick sources first, RPC as fallback.</dd>
-          </div>
-          <div>
-            <dt>Best</dt>
-            <dd>RPC first, quick sources as fallback.</dd>
-          </div>
-        </dl>
-        <p>Applies to <b>Codex</b> and <b>Claude</b> only. <b>Cursor</b> is not affected.</p>
-        <p class="info-note">
-          RPC data is usually more accurate and current, but slower. Providers refresh
-          independently, so a slow one won't block the rest.
+        <p>
+          The <b>Source</b> toggle in Display settings adds a line under each
+          provider's card showing exactly where its data came from, for
+          example <code>RPC, as of 10:10.</code> or <code>Local files, as of Aug 3, 10:10.</code>
+        </p>
+        <p>
+          It's off by default; turn it on when you want to see, at a glance,
+          whether a provider answered over RPC or fell back to local data.
         </p>
         <div class="info-links info-links--two-up" aria-label="Setup guides">
           <button type="button" class="info-link info-link--external" data-open-external="claude">
@@ -120,25 +110,25 @@ export const HELP_CHAPTERS = [
         <dl class="info-terms">
           <div>
             <dt>No fresh limits' data</dt>
-            <dd>The selected source has no current limit data. Choose Full or Best to also query the provider over RPC.</dd>
+            <dd>Neither RPC nor local data had a current reading for this provider.</dd>
           </div>
           <div>
             <dt>RPC access</dt>
-            <dd>Full and Best query the Codex or Claude CLI over RPC. Install the CLI and sign in when the app asks.</dd>
+            <dd>Codex and Claude are queried over RPC first. Install the CLI and sign in when the app asks.</dd>
           </div>
           <div>
             <dt>Local data</dt>
-            <dd>Fast uses data already available on your computer. It may be missing or out of date.</dd>
+            <dd>Used when RPC isn't available. It may be missing or out of date.</dd>
           </div>
           <div>
             <dt>Cursor</dt>
             <dd>Cursor needs a valid local access token. Sign in to Cursor again if its token is missing or rejected.</dd>
           </div>
         </dl>
-        <p class="info-note">Try a manual refresh after fixing access or changing the source mode.</p>
+        <p class="info-note">Try a manual refresh after fixing access.</p>
         <div class="info-links">
-          <button type="button" class="info-link info-link--internal" data-open-help="source-priority">
-            Source&nbsp;priority
+          <button type="button" class="info-link info-link--internal" data-open-help="source">
+            Source
           </button>
         </div>
       `;
@@ -250,7 +240,7 @@ export const HELP_CHAPTERS = [
           </div>
           <div>
             <dt>RPC</dt>
-            <dd>Runs the <code>claude</code> or <code>codex</code> CLI over its RPC interface, only in Full or Best mode.</dd>
+            <dd>Runs the <code>claude</code> or <code>codex</code> CLI over its RPC interface.</dd>
           </div>
         </dl>
         <p class="info-note">

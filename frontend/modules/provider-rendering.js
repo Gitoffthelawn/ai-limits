@@ -1,6 +1,6 @@
 import { updateFrequencyOptions } from "./constants.js";
-import { escapeHtml, formatDecimal, formatNextUpdateLine, formatSourceStatusLine, formatTimestampForDisplay } from "./provider-formatters.js";
-import { buildSourcePriorityControlHtml, isShowLimitsEnabled, isShowPlanEnabled } from "./settings.js";
+import { escapeHtml, formatDecimal, formatSourceStatusLine, formatTimestampForDisplay, formatUpdateTimeLine } from "./provider-formatters.js";
+import { isShowLimitsEnabled, isShowPlanEnabled, isShowSourceEnabled, isShowUpdateTimeEnabled } from "./settings.js";
 
 const GEAR_ICON_SVG = `
   <svg class="settings-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -72,11 +72,8 @@ function buildCliAuthorizationHtml(providerKey) {
 function buildNoFreshDataHtml() {
   return `
     <div class="no-fresh-data">
-      <p>No fresh limits' data. Try another source mode:</p>
-      <div class="segmented-control" data-source-priority-control role="group" aria-label="Source priority">
-        ${buildSourcePriorityControlHtml()}
-      </div>
-      <button type="button" class="provider-link" data-open-source-priority>
+      <p>No fresh limits' data.</p>
+      <button type="button" class="provider-link" data-open-data-errors>
         More details
       </button>
     </div>
@@ -212,8 +209,8 @@ function buildFrequencyOptionsHtml(selectedUpdateFrequency) {
 
 function buildSourceInfoHtml(provider, nextRefreshAt) {
   return `
-    <span class="source-status">${escapeHtml(formatSourceStatusLine(provider))}</span>
-    <span class="source-next-update">${escapeHtml(formatNextUpdateLine(nextRefreshAt))}</span>
+    <p class="source-line" ${isShowSourceEnabled() ? "" : "hidden"}>${escapeHtml(formatSourceStatusLine(provider))}</p>
+    <p class="update-time-line" ${isShowUpdateTimeEnabled() ? "" : "hidden"}>${escapeHtml(formatUpdateTimeLine(provider, nextRefreshAt))}</p>
   `;
 }
 
@@ -229,7 +226,7 @@ export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt)
         <h2>${escapeHtml(provider.label)}</h2>
       </div>
       <div class="provider-sections">${buildProviderSectionsHtml(provider)}</div>
-      <p class="source-info">${buildSourceInfoHtml(provider, nextRefreshAt)}</p>
+      <div class="source-info">${buildSourceInfoHtml(provider, nextRefreshAt)}</div>
     </div>
     <div class="provider-actions">
       <button type="button" class="provider-manual-refresh" data-manual-refresh>
@@ -265,10 +262,10 @@ export function updateProviderBlockData(block, provider, nextRefreshAt) {
   block.querySelector(".source-info").innerHTML = buildSourceInfoHtml(provider, nextRefreshAt);
 }
 
-export function updateProviderNextUpdateText(block, nextRefreshAt) {
-  const el = block.querySelector(".source-next-update");
+export function updateProviderUpdateTimeText(block, provider, nextRefreshAt) {
+  const el = block.querySelector(".update-time-line");
   if (el) {
-    el.textContent = formatNextUpdateLine(nextRefreshAt);
+    el.textContent = formatUpdateTimeLine(provider, nextRefreshAt);
   }
 }
 

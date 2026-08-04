@@ -20,22 +20,16 @@ export const EXTERNAL_LINKS = {
   license: "https://github.com/md2it/ai-limits/blob/main/LICENSE",
 };
 
-export const SOURCE_PRIORITY_OPTIONS = ["fast", "full", "best"];
-export const SOURCE_PRIORITY_LABELS = {
-  fast: "Fast",
-  full: "Full",
-  best: "Best",
-};
-
 export const DEFAULT_APP_SETTINGS = {
   notifications: true,
   autoUpdate: true,
   cursor: true,
   cloud: true,
   codex: true,
-  sourcePriority: "full",
   showLimits: true,
   showPlan: true,
+  showSource: false,
+  showUpdateTime: true,
 };
 
 /// How long the app waits between automatic update checks while it stays open.

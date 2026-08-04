@@ -1,4 +1,4 @@
-use ai_limits::get_limits::{SourcePriority, UiSourcePlanOptions};
+use ai_limits::get_limits::UiSourcePlanOptions;
 use ai_limits::presentation::{
     format_user_timestamp, is_limit_shown_to_user, normalize_percent, plan_display_lines,
     remaining_percent_for_display, source_label_for_display, window_label_for_desktop, TimeContext,
@@ -11,7 +11,6 @@ pub struct ProviderLimitsQuery {
     pub enabled_codex: bool,
     pub enabled_claude: bool,
     pub enabled_cursor: bool,
-    pub source_priority: SourcePriority,
     pub notifications_enabled: bool,
 }
 
@@ -22,7 +21,6 @@ impl Default for ProviderLimitsQuery {
             enabled_codex: defaults.enabled_codex,
             enabled_claude: defaults.enabled_claude,
             enabled_cursor: defaults.enabled_cursor,
-            source_priority: defaults.source_priority,
             notifications_enabled: true,
         }
     }
