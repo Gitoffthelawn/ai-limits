@@ -5,7 +5,7 @@ import { isProviderEnabled, settingsToQuery } from "./settings.js";
 import { openHelp } from "./help.js";
 import { openExternalUrl } from "./links.js";
 import { isScreenshotShowcase, SHOWCASE_PROVIDERS } from "./showcase.js";
-import { ensureProviderInterval, getProviderInterval, getProviderNextRefreshAt, restartProviderRefreshTimer, setProviderInterval, stopProviderRefreshTimer } from "./provider-refresh-intervals.js";
+import { ensureProviderInterval, getProviderInterval, getProviderNextRefreshAt, recordProviderUpdateNow, restartProviderRefreshTimer, setProviderInterval, stopProviderRefreshTimer } from "./provider-refresh-intervals.js";
 import { createEmptyProvider, renderProvider, syncFrequencyOptions, updateProviderBlockData, updateProviderUpdateTimeText } from "./provider-rendering.js";
 
 export { initProviderIntervals } from "./provider-refresh-intervals.js";
@@ -334,6 +334,7 @@ async function refreshSingleProvider(providerId) {
     const provider = await fetchSingleProviderLimits(providerId);
     provider.pending = false;
     cacheProviderData(provider);
+    recordProviderUpdateNow(providerId);
 
     if (!isProviderEnabled(providerId)) {
       return;
@@ -344,11 +345,18 @@ async function refreshSingleProvider(providerId) {
       block = mountProviderBlock(provider);
       insertProviderBlockInOrder(block, providerId);
     } else {
+      restartProviderRefreshTimer(providerId, refreshSingleProvider);
       updateProviderBlockData(block, provider, getProviderNextRefreshAt(providerId));
       attachSectionHandlers(block);
     }
   } catch (error) {
     setErrorState(error?.message || String(error) || `Could not refresh ${providerId}.`);
+    // The fetch attempt itself is what just happened "now" — anchor the
+    // retry to this moment so it's a full interval out, rather than treating
+    // it as an unknown last update, which would trigger another immediate
+    // retry and hammer a persistently failing source.
+    recordProviderUpdateNow(providerId);
+    restartProviderRefreshTimer(providerId, refreshSingleProvider);
   } finally {
     setManualRefreshLoading(providerId, false);
     scheduleSectionSlotAlignment();

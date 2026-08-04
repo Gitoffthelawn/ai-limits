@@ -4,6 +4,11 @@ import { isProviderEnabled } from "./settings.js";
 const providerRefreshIntervals = new Map();
 const providerRefreshTimers = new Map();
 const providerNextRefreshAt = new Map();
+// Epoch ms of this provider's last successful fetch, as observed by this
+// frontend session — not parsed from the backend's `dataTimestamp`, which
+// arrives already formatted for display (e.g. "20:03") and isn't a reliable
+// instant to do interval math against.
+const providerLastUpdateAt = new Map();
 
 function normalizeUpdateFrequency(frequency) {
   if (typeof frequency !== "string") {
@@ -88,10 +93,27 @@ export function stopProviderRefreshTimer(providerId) {
     return;
   }
 
-  clearInterval(timerId);
+  clearTimeout(timerId);
   providerRefreshTimers.delete(providerId);
 }
 
+// Marks `providerId` as having fresh data as of right now. Call this the
+// moment a fetch resolves (success), and also as the retry anchor after a
+// failed fetch — an attempt just happened either way, so the next one is a
+// full interval out rather than an immediate hot loop. Does not itself
+// (re)schedule anything; pair with restartProviderRefreshTimer.
+export function recordProviderUpdateNow(providerId) {
+  providerLastUpdateAt.set(providerId, Date.now());
+}
+
+// The next automatic refresh is always one interval after the provider's
+// last recorded update (via recordProviderUpdateNow), never from whenever
+// this function happened to run — so switching frequency, a manual refresh,
+// or re-enabling a provider all resolve to the same target time instead of
+// each restarting its own countdown. If no update has ever been recorded, or
+// the computed target time has already passed (e.g. the frequency just
+// changed to something shorter than the time since the last update), this
+// refreshes immediately rather than waiting out a stale interval.
 export function restartProviderRefreshTimer(providerId, refreshProvider) {
   stopProviderRefreshTimer(providerId);
 
@@ -101,15 +123,28 @@ export function restartProviderRefreshTimer(providerId, refreshProvider) {
   }
 
   const intervalMs = frequencyToMs(getProviderInterval(providerId));
-  providerNextRefreshAt.set(providerId, intervalMs == null ? null : Date.now() + intervalMs);
   if (intervalMs == null) {
+    providerNextRefreshAt.set(providerId, null);
     return;
   }
 
-  const timerId = setInterval(() => {
-    providerNextRefreshAt.set(providerId, Date.now() + intervalMs);
+  const lastUpdateMs = providerLastUpdateAt.get(providerId) ?? null;
+  if (lastUpdateMs == null) {
+    providerNextRefreshAt.set(providerId, Date.now());
     refreshProvider(providerId);
-  }, intervalMs);
+    return;
+  }
+
+  const nextRefreshAt = lastUpdateMs + intervalMs;
+  providerNextRefreshAt.set(providerId, nextRefreshAt);
+
+  const delay = nextRefreshAt - Date.now();
+  if (delay <= 0) {
+    refreshProvider(providerId);
+    return;
+  }
+
+  const timerId = setTimeout(() => refreshProvider(providerId), delay);
   providerRefreshTimers.set(providerId, timerId);
 }
 

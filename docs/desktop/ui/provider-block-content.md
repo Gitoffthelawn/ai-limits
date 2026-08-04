@@ -111,7 +111,7 @@ The line has two parts:
 - source status: origin label, timestamp from `dataTimestamp`, rendered as `Source {origin label}, as of {timestamp}`
 - next update: `Next upd {time}`, the next time this provider's own update-frequency timer (see [controls.md](controls.md#update-frequency)) will fire, or `Manual upd only` when that provider's frequency is set to `Manual only`
 
-Manually refreshing a provider — via that provider's own `UPDATE NOW` or the app-wide `UPDATE ALL NOW` (see [controls.md](controls.md#update-frequency)) — restarts its update-frequency timer, so `Next upd` counts forward from the manual refresh rather than continuing to count down from whenever the timer last fired.
+`Next upd` is always one interval after the provider's last update, from whatever source — the automatic timer, that provider's own `UPDATE NOW`, or the app-wide `UPDATE ALL NOW` (see [controls.md](controls.md#update-frequency)). It is never computed from the moment a setting was changed or a button was clicked. If the provider has no known last update yet, or the computed time has already passed (e.g. the frequency just changed to something shorter than the time since the last update), the app fetches immediately instead of showing a stale future time.
 
 Possible origin labels: `Local files`, `CLI`, `API2`, `Unknown`.
 

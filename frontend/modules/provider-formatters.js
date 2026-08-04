@@ -77,11 +77,6 @@ export function formatDecimal(value) {
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
 }
 
-export function parseTimestampMs(value) {
-  const date = toDate(value);
-  return date ? date.getTime() : null;
-}
-
 function toDate(value) {
   if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
   if (typeof value === "number") {
