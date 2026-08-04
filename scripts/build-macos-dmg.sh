@@ -37,7 +37,7 @@ fi
 
 if ! python3 -c "import dmgbuild" >/dev/null 2>&1; then
   echo "Installing dmgbuild..." >&2
-  python3 -m pip install --user --quiet dmgbuild
+  python3 -m pip install --user --break-system-packages --quiet dmgbuild
 fi
 
 rm -f "$OUTPUT_PATH"
