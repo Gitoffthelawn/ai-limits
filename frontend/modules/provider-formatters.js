@@ -48,8 +48,12 @@ export function formatSourceStatusLine(provider) {
 function formatTimeOnly(value) {
   if (value == null || value === "") return null;
   const date = toDate(value);
-  if (!date) return null;
-  return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+  if (date) return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+  // Backend timestamps arrive pre-formatted for display (e.g. "20:03" or
+  // "Aug 3, 20:03"), not as parseable instants, so fall back to pulling the
+  // trailing HH:MM out of the already-formatted string.
+  const match = String(value).match(/(\d{1,2}):(\d{2})\s*$/);
+  return match ? `${pad2(match[1])}:${match[2]}` : null;
 }
 
 export function formatUpdateTimeLine(provider, nextRefreshAt) {
