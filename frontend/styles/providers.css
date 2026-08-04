@@ -315,6 +315,7 @@
 .source-line,
 .update-time-line {
   margin: 0;
+  text-align: center;
   white-space: nowrap;
 }
 

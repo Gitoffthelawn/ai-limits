@@ -248,7 +248,6 @@ export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt)
       <div class="provider-sections">${buildProviderSectionsHtml(provider)}</div>
     </div>
     <div class="provider-footer">
-      ${buildSourceLineHtml(provider)}
       <div class="provider-actions">
         <button type="button" class="provider-manual-refresh" data-manual-refresh>
           UPDATE NOW
@@ -274,6 +273,7 @@ export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt)
         </div>
       </div>
       ${buildUpdateTimeLineHtml(provider, nextRefreshAt)}
+      ${buildSourceLineHtml(provider)}
     </div>
   `;
 

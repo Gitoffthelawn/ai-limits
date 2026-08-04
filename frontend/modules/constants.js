@@ -29,7 +29,7 @@ export const DEFAULT_APP_SETTINGS = {
   showLimits: true,
   showPlan: true,
   showSource: false,
-  showUpdateTime: true,
+  showUpdateTime: false,
 };
 
 /// How long the app waits between automatic update checks while it stays open.
