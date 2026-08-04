@@ -103,14 +103,16 @@ Usage stays fully collected in structured data and remains available through the
 Provider source information is shown on one line, after all sections:
 
 ```text
-API2, as of Jul 5, 22:12. Next upd 22:17
+Source API2, as of Jul 5, 22:12 Next upd 22:17
 ```
 
 The line has two parts:
 
-- source status: origin label, timestamp from `dataTimestamp`, rendered as `{origin label}, as of {timestamp}.`
+- source status: origin label, timestamp from `dataTimestamp`, rendered as `Source {origin label}, as of {timestamp}`
 - next update: `Next upd {time}`, the next time this provider's own update-frequency timer (see [controls.md](controls.md#update-frequency)) will fire, or `Manual upd only` when that provider's frequency is set to `Manual only`
+
+Manually refreshing a provider — via that provider's own `UPDATE NOW` or the app-wide `UPDATE ALL NOW` (see [controls.md](controls.md#update-frequency)) — restarts its update-frequency timer, so `Next upd` counts forward from the manual refresh rather than continuing to count down from whenever the timer last fired.
 
 Possible origin labels: `Local files`, `CLI`, `API2`, `Unknown`.
 
-Each part is a non-breaking unit: `{origin label}, as of {timestamp}.` and `Next upd {time}` (or `Manual upd only`) must not wrap in the middle. If the provider block is too narrow for the full line, the line may break only between these two units.
+Each part is a non-breaking unit: `Source {origin label}, as of {timestamp}` and `Next upd {time}` (or `Manual upd only`) must not wrap in the middle. If the provider block is too narrow for the full line, the line may break only between these two units.

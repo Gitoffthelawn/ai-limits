@@ -32,7 +32,7 @@ export function formatTimestampForDisplay(value) {
 
 export function formatSourceIdLine(provider) {
   if (provider.pending) return "—";
-  return `${SOURCE_DISPLAY_LABELS[provider.sourceId] ?? provider.sourceId ?? "Unknown"},`;
+  return `Source ${SOURCE_DISPLAY_LABELS[provider.sourceId] ?? provider.sourceId ?? "Unknown"},`;
 }
 
 export function formatSourceTimestampLine(provider) {
@@ -42,7 +42,7 @@ export function formatSourceTimestampLine(provider) {
 
 export function formatSourceStatusLine(provider) {
   if (provider.pending) return "—";
-  return `${formatSourceIdLine(provider)} ${formatSourceTimestampLine(provider)}.`;
+  return `${formatSourceIdLine(provider)} ${formatSourceTimestampLine(provider)}`;
 }
 
 function formatTimeOnly(value) {
@@ -75,6 +75,11 @@ export function escapeHtml(value) {
 export function formatDecimal(value) {
   const rounded = Math.round(Number(value) * 10) / 10;
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+}
+
+export function parseTimestampMs(value) {
+  const date = toDate(value);
+  return date ? date.getTime() : null;
 }
 
 function toDate(value) {
