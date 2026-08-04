@@ -74,8 +74,28 @@
 .provider-block h2,
 .provider-block .limit-top,
 .provider-block .segmented-control button,
-.provider-block .provider-manual-refresh {
+.provider-block .provider-manual-refresh,
+.provider-block .provider-settings-button {
   color: var(--provider-text);
+}
+
+/* UPDATE NOW and the gear pick up the card's brand color instead of the
+   generic control styling, so they read as part of the card. */
+.provider-block .provider-manual-refresh,
+.provider-block .provider-settings-button {
+  border-color: var(--provider-border-color);
+  background: color-mix(in srgb, var(--provider-brand) var(--mix-provider-text), var(--surface));
+}
+
+.provider-block .provider-manual-refresh:hover:not(:disabled),
+.provider-block .provider-settings-button:hover {
+  border-color: var(--provider-brand);
+  background: color-mix(in srgb, var(--provider-brand) var(--mix-hover-success), var(--surface));
+}
+
+.provider-block .provider-settings-button[aria-expanded="true"] {
+  border-color: var(--provider-brand);
+  background: color-mix(in srgb, var(--provider-brand) var(--mix-active-warning), var(--surface));
 }
 
 .provider-block .limit-row,
@@ -296,7 +316,48 @@
 }
 
 .provider-manual-refresh {
+  position: relative;
   flex: 1 1 auto;
+  overflow: hidden;
+}
+
+/* While a refresh is in flight the button is disabled with "UPDATING…"
+   text; a glare sweeps back and forth across it so the card reads as busy
+   without a spinner or progress bar. White (not brand-colored) so it reads
+   the same on every card and in both themes. Two stacked gradients on the
+   one layer give it a sharp bright core plus a softer aura around it, and
+   it travels from fully off the left edge to fully off the right, so it
+   never has to fade in or out — the button's own edges do that for free. */
+.provider-manual-refresh:disabled::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: 0;
+  width: 16%;
+  height: 220%;
+  background-image:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.85) 45%,
+      rgba(255, 255, 255, 0.85) 55%,
+      transparent
+    ),
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  background-size: 55% 100%, 100% 100%;
+  background-position: center, center;
+  background-repeat: no-repeat;
+  animation: provider-refresh-glare 1.8s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes provider-refresh-glare {
+  from {
+    transform: translateX(-160%) skewX(-30deg);
+  }
+  to {
+    transform: translateX(720%) skewX(-30deg);
+  }
 }
 
 .provider-settings-menu {
