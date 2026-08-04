@@ -2,12 +2,27 @@ import { updateFrequencyOptions } from "./constants.js";
 import { escapeHtml, formatDecimal, formatSourceStatusLine, formatTimestampForDisplay, formatUpdateTimeLine } from "./provider-formatters.js";
 import { isShowLimitsEnabled, isShowPlanEnabled, isShowSourceEnabled, isShowUpdateTimeEnabled } from "./settings.js";
 
-const GEAR_ICON_SVG = `
-  <svg class="settings-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-    <circle cx="12" cy="12" r="3" />
-  </svg>
-`;
+const FREQUENCY_ICON_BADGES = {
+  "Manual only": "X",
+  "1 min": "1",
+  "5 min": "5",
+  "10 min": "10",
+  "30 min": "30",
+  "1 hour": "60",
+};
+
+function buildFrequencyIconSvg(option) {
+  const badge = FREQUENCY_ICON_BADGES[option] ?? "";
+  const badgeFontSize = badge.length > 1 ? 7 : 8.5;
+  return `
+    <svg class="settings-icon frequency-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="10" cy="10" r="8" />
+      <path d="M10 5.5v4.5l3 1.5" />
+      <circle class="frequency-icon-badge-chip" cx="18" cy="18" r="6.5" stroke-width="1.5" />
+      <text class="frequency-icon-badge" x="18" y="18.5" text-anchor="middle" dominant-baseline="middle" font-size="${badgeFontSize}" font-weight="700" stroke="none" fill="currentColor">${escapeHtml(badge)}</text>
+    </svg>
+  `;
+}
 
 function providerLabel(providerId) {
   return providerId.charAt(0).toUpperCase() + providerId.slice(1);
@@ -203,7 +218,11 @@ function buildProviderSectionsHtml(provider) {
 
 function buildFrequencyOptionsHtml(selectedUpdateFrequency) {
   return updateFrequencyOptions
-    .map((option) => `<button type="button" class="frequency-option" data-frequency-option="${escapeHtml(option)}" aria-pressed="${option === selectedUpdateFrequency}">${escapeHtml(option)}</button>`)
+    .map((option) => `
+      <button type="button" class="frequency-option" data-frequency-option="${escapeHtml(option)}" aria-pressed="${option === selectedUpdateFrequency}">
+        ${buildFrequencyIconSvg(option)}<span class="frequency-option-label">${escapeHtml(option)}</span>
+      </button>
+    `)
     .join("");
 }
 
@@ -241,7 +260,7 @@ export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt)
           aria-haspopup="true"
           aria-expanded="false"
           aria-controls="${settingsDropdownId}"
-        >${GEAR_ICON_SVG}</button>
+        >${buildFrequencyIconSvg(selectedUpdateFrequency)}</button>
         <div class="settings-dropdown provider-settings-dropdown" id="${settingsDropdownId}" data-provider-settings-dropdown hidden>
           <div class="settings-section">
             <p class="settings-section-label">UPDATE FREQUENCY</p>
@@ -272,5 +291,10 @@ export function updateProviderUpdateTimeText(block, provider, nextRefreshAt) {
 export function syncFrequencyOptions(block, selectedUpdateFrequency) {
   for (const option of block.querySelectorAll("[data-frequency-option]")) {
     option.setAttribute("aria-pressed", String(option.dataset.frequencyOption === selectedUpdateFrequency));
+  }
+
+  const settingsButton = block.querySelector("[data-provider-settings-button]");
+  if (settingsButton) {
+    settingsButton.innerHTML = buildFrequencyIconSvg(selectedUpdateFrequency);
   }
 }

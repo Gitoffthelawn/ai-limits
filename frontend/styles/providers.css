@@ -385,6 +385,9 @@
 }
 
 .frequency-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
   border: var(--border-width) solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -395,6 +398,18 @@
   padding: var(--space-6) var(--space-8);
   text-align: left;
   cursor: pointer;
+}
+
+.frequency-icon {
+  flex: 0 0 auto;
+}
+
+.frequency-icon-badge-chip {
+  fill: var(--surface);
+}
+
+.frequency-icon-badge {
+  font-family: inherit;
 }
 
 .frequency-option:hover {
