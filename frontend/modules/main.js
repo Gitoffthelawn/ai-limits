@@ -37,7 +37,6 @@ const settingInputs = {
   codex: document.querySelector("#setting-codex"),
   showLimits: document.querySelector("#setting-show-limits"),
   showPlan: document.querySelector("#setting-show-plan"),
-  showUsage: document.querySelector("#setting-show-usage"),
   sourcePriority: document.querySelector("#setting-source-priority"),
   sourcePriorityInfo: document.querySelector("#setting-source-priority-info"),
   autoUpdate: document.querySelector("#setting-auto-update"),
@@ -108,7 +107,7 @@ window.__openSettingsFromNative = () => {
   setSettingsMenuOpen(true, menuEls);
 };
 
-const displaySettingInputs = [settingInputs.showLimits, settingInputs.showPlan, settingInputs.showUsage];
+const displaySettingInputs = [settingInputs.showLimits, settingInputs.showPlan];
 
 for (const input of Object.values(settingInputs)) {
   if (input === settingInputs.sourcePriority || input === settingInputs.sourcePriorityInfo) {

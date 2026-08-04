@@ -20,7 +20,7 @@ let statusLine = null;
 
 const providerRefreshInFlight = new Set();
 const providerDataCache = new Map();
-const SECTION_SLOT_KINDS = ["limits", "plan", "usage"];
+const SECTION_SLOT_KINDS = ["limits", "plan"];
 let sectionSlotAlignmentFrame = 0;
 
 export function initProviders(elements) {
@@ -169,7 +169,7 @@ function attachSectionHandlers(block) {
   attachPlanLinkHandlers(block);
 }
 
-// Display toggles (Show limits / Show plan / Show usage) never trigger a
+// Display toggles (Show limits / Show plan) never trigger a
 // refresh: they re-render every already-mounted provider block from the
 // data already held in providerDataCache, instantly and without a backend
 // call. See handleDisplaySettingsChange in settings.js.

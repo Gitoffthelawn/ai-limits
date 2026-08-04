@@ -90,37 +90,11 @@ The amount and the currency are always shown together or not at all. A price who
 
 ---
 
-## Usage Section
+## Usage Is Not Shown
 
-Heading: `USAGE`. At most four lines, one metric per line, always in this order:
+The card shows no usage figures and has no `USAGE` heading. Token totals, session, turn, file, event and money counters are consumption history rather than an answer to "where do I stand right now", which is what the card exists to answer; adding them made every card longer without changing a decision the user takes from it.
 
-```text
-Tokens 711.2M
-Sessions 92
-Turns 6,394
-Files 223
-```
-
-| Line | Structured source |
-| --- | --- |
-| `Tokens {total}` | `usage.tokens.total` |
-| `Sessions {count}` | `usage.activity.sessions_count` |
-| `Turns {count}` | `usage.activity.turns_count` |
-| `Files {count}` | `usage.activity.files_count` |
-
-This is the standard set for every provider and every source. The order is fixed so that the same metric sits on the same line across cards and the eye can compare providers vertically.
-
-Counts use thousands separators (`6,394`). Token totals use a compact suffix (`711.2M`, `1.5B`) because they routinely reach nine and ten digits and would otherwise dominate the card.
-
-A known zero renders as a line. `Sessions 0` states that the source reports no sessions yet; omitting the line would instead state that the source does not report sessions at all, which is a different fact.
-
-The remaining `usage` fields — the token breakdown, money, events, latest activity, and top model — stay in structured data and are not displayed. Keeping the set to four metrics is what makes cards comparable and keeps them short; a fifth line would be spent differently by each source and the vertical alignment between cards would be lost.
-
-A source that reports none of these four metrics shows no Usage heading and no Usage lines; when Show usage is on, the card still reserves the equalized Usage slot — see [section slot alignment](provider-blocks.md#section-slot-alignment).
-
-Only Codex reports a `Files` count. Both Claude sources and `cursor_api2` leave `usage.activity.files_count` `null` as a confirmed source limit, so their Usage sections are three lines; a scanned-file or event count is never substituted for it.
-
-`cursor_api2` reports `Tokens`, `Sessions`, and `Turns`, and no `Files` line. Its `Turns` figure counts billable usage events rather than interface turns; the difference is recorded in [get-limits/providers/cursor-api2-usage.md](../../get-limits/providers/cursor-api2-usage.md) and does not change how the line is rendered.
+Usage stays fully collected in structured data and remains available through the terminal's `--usage`, `--structured`, and `--raw` output (see [terminal/usage-block-format.md](../../terminal/usage-block-format.md)). The card is a display choice, not a collection rule; see [get-limits/structured-info-rules.md](../../get-limits/structured-info-rules.md).
 
 ---
 

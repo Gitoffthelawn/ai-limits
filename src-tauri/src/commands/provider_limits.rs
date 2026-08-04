@@ -1,8 +1,7 @@
 use ai_limits::get_limits::{SourcePriority, UiSourcePlanOptions};
 use ai_limits::presentation::{
     format_user_timestamp, is_limit_shown_to_user, normalize_percent, plan_display_lines,
-    remaining_percent_for_display, source_label_for_display, usage_display_lines,
-    window_label_for_desktop, TimeContext,
+    remaining_percent_for_display, source_label_for_display, window_label_for_desktop, TimeContext,
 };
 use ai_limits::types::{AccountInfo, StructuredSourceInfo};
 
@@ -41,7 +40,6 @@ pub struct ProviderLimits {
     credits_remaining: Option<f64>,
     available_limit_resets: Option<u64>,
     plan: ProviderPlan,
-    usage: ProviderUsage,
     error_message: Option<String>,
     no_fresh_data: bool,
     authorization_required: Option<String>,
@@ -67,12 +65,6 @@ pub struct ProviderPlan {
 pub struct ProviderLink {
     label: String,
     url: String,
-}
-
-#[derive(serde::Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ProviderUsage {
-    lines: Vec<String>,
 }
 
 pub(super) fn provider_limits_from_structured(
@@ -134,9 +126,6 @@ pub(super) fn provider_limits_from_structured(
             lines: plan_display_lines(&info.account, &time_context),
             links: plan_links(&info.account),
         },
-        usage: ProviderUsage {
-            lines: usage_display_lines(&info.usage),
-        },
         error_message,
         no_fresh_data,
         authorization_required,
@@ -157,7 +146,6 @@ pub(super) fn provider_error(id: &str, message: String) -> ProviderLimits {
             lines: Vec::new(),
             links: Vec::new(),
         },
-        usage: ProviderUsage { lines: Vec::new() },
         error_message: Some(message),
         no_fresh_data: false,
         authorization_required: None,
@@ -190,10 +178,7 @@ fn provider_label(id: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ai_limits::types::{
-        ActivityUsage, CliAuthorization, LimitInfo, ModelUsage, MoneyUsage, SourceStatus,
-        TokenUsage, UsageInfo,
-    };
+    use ai_limits::types::{CliAuthorization, LimitInfo, SourceStatus, UsageInfo};
 
     fn structured_with_resets(available_limit_resets: Option<u64>) -> StructuredSourceInfo {
         StructuredSourceInfo {
@@ -293,13 +278,11 @@ mod tests {
         provider: &str,
         source: &str,
         account: AccountInfo,
-        usage: UsageInfo,
     ) -> StructuredSourceInfo {
         StructuredSourceInfo {
             provider: provider.to_string(),
             source: source.to_string(),
             account,
-            usage,
             ..structured_with_resets(None)
         }
     }
@@ -317,36 +300,15 @@ mod tests {
                 credits_remaining: Some(38.6355075),
                 ..Default::default()
             },
-            UsageInfo {
-                tokens: TokenUsage {
-                    input: Some(1_538_117_126),
-                    cached_input: Some(1_440_486_272),
-                    output: Some(7_290_916),
-                    reasoning_output: Some(1_386_692),
-                    total: Some(1_545_504_962),
-                    ..Default::default()
-                },
-                activity: ActivityUsage {
-                    events_count: Some(22_545),
-                    files_count: Some(921),
-                    latest_activity_at: Some("2026-08-02T15:47:37.356Z".to_string()),
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
         )
     }
 
     #[test]
-    fn projects_codex_local_plan_and_usage() {
+    fn projects_codex_local_plan() {
         let response = provider_limits_from_structured("codex", &codex_local());
 
         assert_eq!(response.plan.lines, vec!["Plus".to_string()]);
         assert!(response.plan.links.is_empty());
-        assert_eq!(
-            response.usage.lines,
-            vec!["Tokens 1.5B".to_string(), "Files 921".to_string()]
-        );
     }
 
     #[test]
@@ -359,7 +321,7 @@ mod tests {
     }
 
     #[test]
-    fn projects_codex_cli_without_plan_or_usage_lines() {
+    fn projects_codex_cli_without_plan_lines() {
         let info = structured_source(
             "codex",
             "codex_cli",
@@ -367,122 +329,17 @@ mod tests {
                 credits_remaining: Some(39.0),
                 ..Default::default()
             },
-            UsageInfo::default(),
         );
         let response = provider_limits_from_structured("codex", &info);
 
         assert!(response.plan.lines.is_empty());
         assert!(response.plan.links.is_empty());
-        assert!(response.usage.lines.is_empty());
         assert_eq!(response.credits_remaining, Some(39.0));
     }
 
     #[test]
-    fn projects_claude_cli_zero_usage_as_known_zero_lines() {
-        let info = structured_source(
-            "claude",
-            "claude_cli",
-            AccountInfo::default(),
-            UsageInfo {
-                tokens: TokenUsage {
-                    input: Some(0),
-                    cached_input: Some(0),
-                    output: Some(0),
-                    reasoning_output: Some(0),
-                    cache_read: Some(0),
-                    cache_write: Some(0),
-                    total: Some(0),
-                },
-                activity: ActivityUsage {
-                    sessions_count: Some(0),
-                    ..Default::default()
-                },
-                money: MoneyUsage {
-                    used_amount: Some(0.0),
-                    total_amount: Some(0.0),
-                    currency: Some("usd".to_string()),
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-        );
-        let response = provider_limits_from_structured("claude", &info);
-
-        assert!(response.plan.lines.is_empty());
-        assert_eq!(
-            response.usage.lines,
-            vec!["Tokens 0".to_string(), "Sessions 0".to_string()]
-        );
-    }
-
-    #[test]
-    fn projects_claude_local_usage_groups() {
-        let info = structured_source(
-            "claude",
-            "claude_local",
-            AccountInfo::default(),
-            UsageInfo {
-                tokens: TokenUsage {
-                    input: Some(1_847_433),
-                    output: Some(3_326_333),
-                    cache_read: Some(685_869_426),
-                    cache_write: Some(20_146_310),
-                    total: Some(711_189_502),
-                    ..Default::default()
-                },
-                activity: ActivityUsage {
-                    files_count: Some(223),
-                    sessions_count: Some(92),
-                    turns_count: Some(6_394),
-                    ..Default::default()
-                },
-                models: ModelUsage {
-                    top_model: Some("claude-sonnet-5".to_string()),
-                },
-                ..Default::default()
-            },
-        );
-        let response = provider_limits_from_structured("claude", &info);
-
-        assert_eq!(
-            response.usage.lines,
-            vec![
-                "Tokens 711.2M".to_string(),
-                "Sessions 92".to_string(),
-                "Turns 6,394".to_string(),
-                "Files 223".to_string(),
-            ]
-        );
-    }
-
-    #[test]
-    fn projects_cursor_api2_money_only_usage_as_no_lines() {
-        let info = structured_source(
-            "cursor",
-            "cursor_api2",
-            AccountInfo::default(),
-            UsageInfo {
-                money: MoneyUsage {
-                    total_amount: Some(20.0),
-                    currency: Some("USD".to_string()),
-                    ..Default::default()
-                },
-                ..Default::default()
-            },
-        );
-        let response = provider_limits_from_structured("cursor", &info);
-
-        assert!(response.usage.lines.is_empty());
-    }
-
-    #[test]
     fn projects_cursor_pools_with_full_labels_and_hides_plan_and_included() {
-        let mut info = structured_source(
-            "cursor",
-            "cursor_api2",
-            AccountInfo::default(),
-            UsageInfo::default(),
-        );
+        let mut info = structured_source("cursor", "cursor_api2", AccountInfo::default());
         info.status.data_available = true;
         info.limits = vec![
             LimitInfo {
@@ -525,7 +382,6 @@ mod tests {
                 billing_management_url: Some("https://example.test/billing".to_string()),
                 ..Default::default()
             },
-            UsageInfo::default(),
         );
         let json = serialized(&provider_limits_from_structured("codex", &info));
 
@@ -547,7 +403,6 @@ mod tests {
                 billing_management_url: Some("https://example.test/billing".to_string()),
                 ..Default::default()
             },
-            UsageInfo::default(),
         );
         let response = provider_limits_from_structured("codex", &info);
 
@@ -556,7 +411,7 @@ mod tests {
     }
 
     #[test]
-    fn serializes_empty_plan_and_usage_objects_instead_of_null() {
+    fn serializes_empty_plan_object_instead_of_null() {
         let json = serialized(&provider_limits_from_structured(
             "codex",
             &structured_with_resets(None),
@@ -566,18 +421,16 @@ mod tests {
             json["plan"],
             serde_json::json!({ "lines": [], "links": [] })
         );
-        assert_eq!(json["usage"], serde_json::json!({ "lines": [] }));
     }
 
     #[test]
-    fn provider_error_emits_empty_plan_and_usage_objects() {
+    fn provider_error_emits_empty_plan_object() {
         let json = serialized(&provider_error("codex", "boom".to_string()));
 
         assert_eq!(
             json["plan"],
             serde_json::json!({ "lines": [], "links": [] })
         );
-        assert_eq!(json["usage"], serde_json::json!({ "lines": [] }));
     }
 
     #[test]
@@ -595,7 +448,6 @@ mod tests {
                 price_note: Some("may vary by country/currency".to_string()),
                 ..Default::default()
             },
-            UsageInfo::default(),
         );
         let response = provider_limits_from_structured("codex", &info);
 

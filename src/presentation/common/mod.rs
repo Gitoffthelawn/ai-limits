@@ -12,8 +12,8 @@ pub use labels::{
     ProviderBlock,
 };
 pub use numbers::{
-    format_compact_number, format_decimal, format_money, format_number, format_percent,
-    normalize_percent, remaining_percent_for_display,
+    format_decimal, format_money, format_number, format_percent, normalize_percent,
+    remaining_percent_for_display,
 };
 
 #[cfg(test)]

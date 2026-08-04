@@ -39,13 +39,12 @@ The display section has toggles:
 
 - Show limits
 - Show plan
-- Show usage
 
-These control the Limits, Plan, and Usage sections of every provider block, defined in [provider-blocks.md](provider-blocks.md) and [provider-block-content.md](provider-block-content.md). They apply to all provider blocks at once; there is no per-provider override.
+These control the Limits and Plan sections of every provider block, defined in [provider-blocks.md](provider-blocks.md) and [provider-block-content.md](provider-block-content.md). They apply to all provider blocks at once; there is no per-provider override.
 
 Defaults:
 
-- Show limits, Show plan, and Show usage are all on.
+- Show limits and Show plan are both on.
 
 User experience:
 
@@ -79,7 +78,7 @@ Settings storage:
 - theme preference is saved in `localStorage` under `ai-limits-theme`.
 - per-provider update intervals are saved in `localStorage` under `ai-limits-provider-intervals`.
 - these saved settings are frontend state; they are not returned by the backend.
-- Show limits, Show plan, and Show usage are saved in `ai-limits-settings` alongside the other toggles; they are purely a rendering choice and are never sent to the backend as part of the limits request.
+- Show limits and Show plan are saved in `ai-limits-settings` alongside the other toggles; they are purely a rendering choice and are never sent to the backend as part of the limits request.
 
 Settings request mapping:
 
@@ -91,4 +90,4 @@ Settings request mapping:
 | Codex | `enabledCodex` |
 | Source priority | `sourcePriority` |
 
-Show limits, Show plan, and Show usage have no command query field: they never affect what is requested from the backend, only what the frontend renders from the response it already has.
+Show limits and Show plan have no command query field: they never affect what is requested from the backend, only what the frontend renders from the response it already has.

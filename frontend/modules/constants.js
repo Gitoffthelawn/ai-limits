@@ -36,7 +36,6 @@ export const DEFAULT_APP_SETTINGS = {
   sourcePriority: "full",
   showLimits: true,
   showPlan: true,
-  showUsage: true,
 };
 
 /// How long the app waits between automatic update checks while it stays open.

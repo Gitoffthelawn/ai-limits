@@ -10,7 +10,7 @@ pub use common::{
     ProviderBlock,
 };
 pub use limits::limits_block;
-pub use sections::{plan_display_lines, usage_display_lines};
+pub use sections::plan_display_lines;
 pub use time::{format_user_date, format_user_timestamp, TimeContext};
 pub use usage::usage_block;
 

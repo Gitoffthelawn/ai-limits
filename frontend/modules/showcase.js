@@ -25,9 +25,6 @@ export const SHOWCASE_PROVIDERS = {
       lines: ["Plus", "renews Sep 3, 2026"],
       links: [],
     },
-    usage: {
-      lines: ["Tokens 1.5B", "Files 921"],
-    },
     errorMessage: null,
     noFreshData: false,
     authorizationRequired: null,
@@ -50,9 +47,6 @@ export const SHOWCASE_PROVIDERS = {
       lines: [],
       links: [],
     },
-    usage: {
-      lines: ["Tokens 711.2M", "Sessions 92", "Turns 6,394", "Files 223"],
-    },
     errorMessage: null,
     noFreshData: false,
     authorizationRequired: null,
@@ -74,12 +68,6 @@ export const SHOWCASE_PROVIDERS = {
     plan: {
       lines: ["renews Jul 28, 2026"],
       links: [],
-    },
-    // cursor_api2 reports only usage.money, which the card deliberately does
-    // not display (see docs/desktop/ui/provider-block-content.md), so the
-    // card has no usage section and no USAGE heading at all.
-    usage: {
-      lines: [],
     },
     errorMessage: null,
     noFreshData: false,

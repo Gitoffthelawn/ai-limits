@@ -22,7 +22,7 @@ Any interface may implement any subset of these three output kinds, and may impl
 
 What is fixed is the categorization itself: an interface that shows subscription context does so as **Plan**, an interface that shows consumption detail does so as **Usage**, and an interface that shows quota headroom does so as **Limits**. Interfaces do not invent a fourth category or blend these three into an undifferentiated feed, so that the same mental model transfers between the terminal, the desktop app, and any interface added later.
 
-The Tauri desktop app is the first interface implementing all three output kinds side by side, one per provider block. Its concrete layout, rendering rules, and visibility toggles are documented in [desktop/ui/provider-blocks.md](../desktop/ui/provider-blocks.md), [desktop/ui/provider-block-content.md](../desktop/ui/provider-block-content.md), and [desktop/ui/settings.md](../desktop/ui/settings.md).
+The Tauri desktop app implements Limits and Plan side by side, one section per provider block, and deliberately shows no Usage; the terminal CLI is where Usage output lives, under `--usage`. The desktop layout, rendering rules, and visibility toggles are documented in [desktop/ui/provider-blocks.md](../desktop/ui/provider-blocks.md), [desktop/ui/provider-block-content.md](../desktop/ui/provider-block-content.md), and [desktop/ui/settings.md](../desktop/ui/settings.md).
 
 ## Plan output: goal and content
 
@@ -42,7 +42,7 @@ A renewal date is only shown when it is still in the future. Sources that read a
 
 ## Usage output: goal and content
 
-Sources report consumption in different shapes, but the user's question is the same everywhere: how much have I done through this provider. Usage output answers it with one standard set of metrics, in a fixed order, so the same figure sits in the same place on every provider's card and can be compared at a glance:
+Sources report consumption in different shapes, but the user's question is the same everywhere: how much have I done through this provider. Usage output answers it with one standard set of metrics, in a fixed order, so the same figure sits in the same place for every provider and can be compared at a glance:
 
 - total tokens
 - sessions
@@ -51,9 +51,9 @@ Sources report consumption in different shapes, but the user's question is the s
 
 Every provider and source aims to supply these; see the target field set in [get-limits/structured-info-rules.md](../get-limits/structured-info-rules.md). Whatever a source cannot supply is simply absent, not padded or substituted.
 
-Sources expose far more than this — token breakdowns, cached-input ratios, monetary spend, event counts, model mixes, per-project attribution. All of it is collected into structured data. The standard set is what interfaces display by default; the rest is available for surfaces that have room, and for future features.
+Sources expose far more than this — token breakdowns, cached-input ratios, monetary spend, event counts, model mixes, per-project attribution. All of it is collected into structured data regardless of what any interface displays, and is available in raw and structured output.
 
-Monetary spend is deliberately not part of the standard set. For sources whose plan allowance is monetary, the Limits section already conveys how much of the allowance is gone, and the standard set is kept to four metrics so that cards stay comparable and short. The consequence is accepted knowingly: a source that reports only money and none of the four standard metrics shows no Usage section at all.
+Usage is the least time-critical of the three kinds: it describes what has already been spent rather than what is left, so an interface built around "can I keep working right now" gains little from it. This is why the desktop card omits it entirely (see [desktop/ui/provider-block-content.md](../desktop/ui/provider-block-content.md#usage-is-not-shown)) and the terminal keeps it behind an explicit `--usage` flag rather than in default output; the terminal's row format is documented in [terminal/usage-block-format.md](../terminal/usage-block-format.md).
 
 ## Coverage is uneven by design
 

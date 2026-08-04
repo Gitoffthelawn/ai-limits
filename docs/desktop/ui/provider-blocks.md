@@ -7,11 +7,10 @@ Each provider square contains, top to bottom:
 - provider name
 - **Limits section**
 - **Subscription section**
-- **Usage section**
 - source line with data origin label, timestamp, and next scheduled update
 - provider-specific manual update button and a settings gear at the bottom, side by side
 
-The three sections are the desktop rendering of the product's three output kinds, defined independent of any interface in [product/output-kinds.md](../../product/output-kinds.md). Each can be hidden independently through the [display toggles](settings.md#display). A display toggle turns the matching section slot on or off for every provider card at once. Heading and lines appear only when that card has data for the section; when the toggle is on and the card has no data, the slot stays as reserved empty space (see [Section Slot Alignment](#section-slot-alignment)).
+The two sections are the desktop rendering of two of the product's three output kinds, defined independent of any interface in [product/output-kinds.md](../../product/output-kinds.md). The third kind, Usage, is deliberately not rendered on the card — see [provider-block-content.md](provider-block-content.md#usage-is-not-shown). Each rendered section can be hidden independently through the [display toggles](settings.md#display). A display toggle turns the matching section slot on or off for every provider card at once. Heading and lines appear only when that card has data for the section; when the toggle is on and the card has no data, the slot stays as reserved empty space (see [Section Slot Alignment](#section-slot-alignment)).
 
 Provider names follow the shared [provider naming rules](../../presentation/provider-names.md).
 
@@ -22,7 +21,6 @@ Each section opens with a horizontal divider carrying the section name centered 
 ```text
 ──────── LIMITS ────────
 ───── SUBSCRIPTION ─────
-──────── USAGE ─────────
 ```
 
 The heading names the numbers below it, so the user does not have to infer what a bare figure means. The divider and its label occupy the same vertical space an unlabelled divider would.
@@ -39,13 +37,12 @@ Sections are deliberately short so cards stay compact:
 | --- | --- | --- |
 | Limits | one group per limit window, plus optional credits and manual-reset lines | unchanged from current behavior |
 | Subscription | at most 3 | plan with price, renewal, management links |
-| Usage | at most 4 | one metric per line |
 
 These budgets are content caps. A source with less data produces fewer lines; no placeholder or dash is shown for a missing value. Equal height across cards comes from [section slot alignment](#section-slot-alignment), not from padding each section up to its line-budget cap.
 
 ## Section Slot Alignment
 
-Every visible provider card uses the same section-slot structure: one slot per section whose display toggle is on, in the Limits → Subscription → Usage order. Each card owns its own layout; the row is not one shared grid spanning all cards.
+Every visible provider card uses the same section-slot structure: one slot per section whose display toggle is on, in the Limits → Subscription order. Each card owns its own layout; the row is not one shared grid spanning all cards.
 
 For each section type that is toggled on, the height of that slot is the maximum content height of that same slot among all currently visible provider cards. Cards hidden by provider visibility do not take part in the maximum. When a card has less content in a slot than that maximum — including no content at all — the leftover height is empty space (air). Missing values are never filled with placeholders or dashes.
 
@@ -75,12 +72,6 @@ Pro ≈ $20.00 /mo
 renews Sep 3, 2026
 Manage · Billing
 
-──────── USAGE ─────────
-Tokens 711.2M
-Sessions 92
-Turns 6,394
-Files 223
-
 API2, as of Jul 5, 19:28. Next upd 19:33
 ───────────────────────
 [     UPDATE NOW     ] [⚙]
@@ -105,15 +96,9 @@ reset Jul 6, 00:20              reset 20:48
 ───── SUBSCRIPTION ─────        Plus
 Pro                             renews Sep 3, 2026
 
-──────── USAGE ─────────        ──────── USAGE ─────────
-Tokens 711.2M                   Tokens 1.5B
-Sessions 92                     Sessions 148
-Turns 6,394                     Turns 2,910
-                                Files 921
-
 CLI, as of Jul 5, 19:29         Local files, as of Jul 5, 19:28
 ```
 
-Claude reports a plan name but no renewal date, no price, and no management links, so its subscription section is one line. It also reports no changed-file count, so the `Files` line is absent from its Usage section. Codex reports a plan name and a renewal date but no price and no management links, so its subscription section is two lines instead of three. The side-by-side above shows content only; on screen the matching section slots share equalized heights with empty space where a card has fewer lines — see [Section Slot Alignment](#section-slot-alignment).
+Claude reports a plan name but no renewal date, no price, and no management links, so its subscription section is one line. Codex reports a plan name and a renewal date but no price and no management links, so its subscription section is two lines instead of three. The side-by-side above shows content only; on screen the matching section slots share equalized heights with empty space where a card has fewer lines — see [Section Slot Alignment](#section-slot-alignment).
 
 Section content rules are documented in [provider-block-content.md](provider-block-content.md); accent and divider colors in [provider-block-colors.md](provider-block-colors.md).

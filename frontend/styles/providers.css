@@ -127,8 +127,7 @@
   gap: var(--space-16);
 }
 
-.provider-section--plan .provider-section-body,
-.provider-section--usage .provider-section-body {
+.provider-section--plan .provider-section-body {
   display: grid;
   gap: var(--space-6);
 }

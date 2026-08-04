@@ -58,7 +58,6 @@ function loadAppSettings() {
       sourcePriority: migrateSourcePriority(parsed),
       showLimits: typeof parsed.showLimits === "boolean" ? parsed.showLimits : DEFAULT_APP_SETTINGS.showLimits,
       showPlan: typeof parsed.showPlan === "boolean" ? parsed.showPlan : DEFAULT_APP_SETTINGS.showPlan,
-      showUsage: typeof parsed.showUsage === "boolean" ? parsed.showUsage : DEFAULT_APP_SETTINGS.showUsage,
     };
   } catch {
     return { ...DEFAULT_APP_SETTINGS };
@@ -118,7 +117,6 @@ export function syncSettingsInputs() {
   settingInputs.codex.checked = appSettings.codex;
   settingInputs.showLimits.checked = appSettings.showLimits;
   settingInputs.showPlan.checked = appSettings.showPlan;
-  settingInputs.showUsage.checked = appSettings.showUsage;
   settingInputs.darkTheme.checked = getAppTheme().value === "dark";
   renderSettingsSourcePriorityControl();
   syncSourcePriorityControls();
@@ -130,10 +128,6 @@ export function isShowLimitsEnabled() {
 
 export function isShowPlanEnabled() {
   return appSettings.showPlan;
-}
-
-export function isShowUsageEnabled() {
-  return appSettings.showUsage;
 }
 
 export function settingsToQuery() {
@@ -189,7 +183,7 @@ export function handleSettingsChange() {
   onSettingsChanged?.({ newlyEnabled });
 }
 
-// Display toggles (Show limits / Show plan / Show usage) never affect what is
+// Display toggles (Show limits / Show plan) never affect what is
 // requested from the backend and never trigger a refresh. They only change
 // what the frontend renders from data it already holds, so this handler saves
 // the choice and asks the caller to re-render already-mounted provider blocks
@@ -199,7 +193,6 @@ export function handleDisplaySettingsChange() {
     ...appSettings,
     showLimits: settingInputs.showLimits.checked,
     showPlan: settingInputs.showPlan.checked,
-    showUsage: settingInputs.showUsage.checked,
   };
   saveAppSettings();
   onDisplaySettingsChanged?.();

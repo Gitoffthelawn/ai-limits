@@ -21,7 +21,6 @@ User-facing problem and recovery rules are documented in [problems.md](problems.
 | `limits[].remainingPercentage` | displayed percent, bar width, bar color |
 | `limits[].resetTime` | optional reset line |
 | `plan` | Plan section content, always an object `{ lines: string[], links: { label: string, url: string }[] }`, never `null`. `lines` are ready-to-render text lines built by the backend from `account.plan`, `account.subscription_started_at`, `account.renewal_at`, `account.price_amount`, `account.price_currency`, and `account.price_note`; the frontend renders them verbatim in order. `links` carries at most `Manage plan` (from `account.plan_management_url`) and `Manage billing` (from `account.billing_management_url`); missing URLs are omitted by the backend. When both `lines` and `links` are empty, the section has no heading and no lines; if Show plan is on, the card still reserves the equalized slot — see [provider-blocks.md](provider-blocks.md#section-slot-alignment) |
-| `usage` | Usage section content, always an object `{ lines: string[] }`, never `null`. `lines` are ready-to-render text lines built by the backend, at most one per non-empty `usage.tokens`/`usage.money`/`usage.activity`/`usage.models` group, in that order; the frontend renders them verbatim in order. When `lines` is empty, the section has no heading and no lines; if Show usage is on, the card still reserves the equalized slot — see [provider-blocks.md](provider-blocks.md#section-slot-alignment) |
 | `sourceId` | origin label in `{label},`; possible values: `Local files`, `CLI`, `API2`, `Unknown` |
 | `dataTimestamp` | `as of {timestamp}`; missing value displays `unknown` |
 | `selectedUpdateFrequency` | fallback default for provider interval if no local value exists |
@@ -41,7 +40,6 @@ These values are not returned by the backend:
 - `appSettings.sourcePriority`.
 - `appSettings.showLimits`.
 - `appSettings.showPlan`.
-- `appSettings.showUsage`.
 - `appTheme`, persisted separately from app settings.
 - provider update interval selected in the dropdown after local initialization.
 - provider refresh timers.
@@ -53,4 +51,4 @@ These values are not returned by the backend:
 
 `appSettings.sourcePriority` is `"full"` by default. Fast maps to `fast_free`, Full maps to `cli_fallback`, and Best maps to `cli_first`. Source chain order is defined in [../../get-limits/source-chains.md](../../get-limits/source-chains.md).
 
-`appSettings.showLimits`, `appSettings.showPlan`, and `appSettings.showUsage` are `true` by default. They toggle the Limits, Plan, and Usage sections of every provider block in place, without triggering a refresh; see [settings.md](settings.md#display) and [provider-blocks.md](provider-blocks.md).
+`appSettings.showLimits` and `appSettings.showPlan` are `true` by default. They toggle the Limits and Plan sections of every provider block in place, without triggering a refresh; see [settings.md](settings.md#display) and [provider-blocks.md](provider-blocks.md).

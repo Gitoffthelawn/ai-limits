@@ -1,6 +1,6 @@
 import { updateFrequencyOptions } from "./constants.js";
 import { escapeHtml, formatDecimal, formatNextUpdateLine, formatSourceStatusLine, formatTimestampForDisplay } from "./provider-formatters.js";
-import { buildSourcePriorityControlHtml, isShowLimitsEnabled, isShowPlanEnabled, isShowUsageEnabled } from "./settings.js";
+import { buildSourcePriorityControlHtml, isShowLimitsEnabled, isShowPlanEnabled } from "./settings.js";
 
 const GEAR_ICON_SVG = `
   <svg class="settings-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -20,7 +20,6 @@ export function createEmptyProvider(providerId, selectedUpdateFrequency) {
     limits: [],
     availableLimitResets: null,
     plan: { lines: [], links: [] },
-    usage: { lines: [] },
     sourceId: null,
     dataTimestamp: null,
     selectedUpdateFrequency,
@@ -124,7 +123,6 @@ function buildLimitRowsHtml(provider) {
 const SECTION_HEADINGS = {
   limits: "LIMITS",
   plan: "SUBSCRIPTION",
-  usage: "USAGE",
 };
 
 // A section slot is always rendered when its display toggle is on. Content
@@ -179,15 +177,10 @@ function buildPlanBodyHtml(provider) {
   return `${buildPlanLinesHtml(provider.plan)}${buildPlanLinksHtml(provider.plan)}`;
 }
 
-function buildUsageBodyHtml(provider) {
-  return (provider.usage?.lines ?? []).map((line) => `<p class="section-line">${escapeHtml(line)}</p>`).join("");
-}
-
 function buildProviderSectionsHtml(provider) {
   return [
     isShowLimitsEnabled() ? buildProviderSectionHtml("limits", buildLimitsBodyHtml(provider)) : "",
     isShowPlanEnabled() ? buildProviderSectionHtml("plan", buildPlanBodyHtml(provider)) : "",
-    isShowUsageEnabled() ? buildProviderSectionHtml("usage", buildUsageBodyHtml(provider)) : "",
   ].join("");
 }
 

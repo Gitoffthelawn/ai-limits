@@ -6,7 +6,7 @@ Each provider block owns one provider accent token. The token defines the provid
 
 Provider-specific color values, including theme-tuned variants, should live together in the provider token block. Theme and component selectors should map or consume those tokens rather than scattering provider color values across the stylesheet.
 
-The provider block border and any internal divider must use the same provider border token stack. This includes the divider that separates provider metadata from provider controls, and the labelled section dividers that open the Limits, Subscription, and Usage sections (see [provider-blocks.md](provider-blocks.md)). It also includes the base provider border color and any theme-specific internal overlay/highlight layer used to tune the visible card border. This keeps every divider visible in both light and dark themes and prevents provider-specific overrides, such as Cursor dark theme tuning, from drifting between the card border and its internal separators.
+The provider block border and any internal divider must use the same provider border token stack. This includes the divider that separates provider metadata from provider controls, and the labelled section dividers that open the Limits and Subscription sections (see [provider-blocks.md](provider-blocks.md)). It also includes the base provider border color and any theme-specific internal overlay/highlight layer used to tune the visible card border. This keeps every divider visible in both light and dark themes and prevents provider-specific overrides, such as Cursor dark theme tuning, from drifting between the card border and its internal separators.
 
 ## Section Heading Label
 
