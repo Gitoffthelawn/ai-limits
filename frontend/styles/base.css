@@ -59,9 +59,8 @@ body {
   display: block;
 }
 
-/* Shared primary surface action buttons. */
-.refresh-button,
-.provider-manual-refresh {
+/* Shared primary surface action button. */
+.refresh-button {
   border: var(--border-control);
   border-radius: var(--radius-sm);
   background: var(--surface);
@@ -74,14 +73,12 @@ body {
   cursor: pointer;
 }
 
-.refresh-button:hover:not(:disabled),
-.provider-manual-refresh:hover:not(:disabled) {
+.refresh-button:hover:not(:disabled) {
   border-color: var(--accent-success);
   background: color-mix(in srgb, var(--accent-success) var(--mix-hover-success), var(--surface));
 }
 
-.refresh-button:disabled,
-.provider-manual-refresh:disabled {
+.refresh-button:disabled {
   color: var(--text-muted);
   cursor: not-allowed;
 }

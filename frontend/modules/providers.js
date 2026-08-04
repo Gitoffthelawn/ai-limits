@@ -127,10 +127,12 @@ function attachProviderBlockHandlers(block, providerId) {
         providerDataCache.get(providerId) ?? { pending: true },
         getProviderNextRefreshAt(providerId),
       );
+      closeAllProviderSettingsMenus();
     });
   }
 
   block.querySelector("[data-manual-refresh]")?.addEventListener("click", () => {
+    closeAllProviderSettingsMenus();
     refreshSingleProvider(providerId);
   });
   attachSectionHandlers(block);
@@ -311,15 +313,22 @@ async function fetchSingleProviderLimits(providerId) {
 // A failed fetch previously rejected silently: providerRefreshInFlight was
 // still cleared in `finally`, but nothing told the user the click did
 // anything. Manual and scheduled refreshes share this function, so surfacing
-// the error here covers both.
+// the error here covers both. The busy state now reads on the whole card
+// (the "is-refreshing" glare) rather than on a dedicated button.
 function setManualRefreshLoading(providerId, isLoading) {
-  const button = getProviderBlock(providerId)?.querySelector("[data-manual-refresh]");
-  if (!button) {
+  const block = getProviderBlock(providerId);
+  if (!block) {
     return;
   }
 
-  button.disabled = isLoading;
-  button.textContent = isLoading ? "UPDATING…" : "UPDATE NOW";
+  block.classList.toggle("is-refreshing", isLoading);
+
+  const manualRefreshOption = block.querySelector("[data-manual-refresh]");
+  if (manualRefreshOption) {
+    manualRefreshOption.disabled = isLoading;
+  }
+
+  block.querySelector("[data-provider-settings-button]")?.setAttribute("aria-busy", String(isLoading));
 }
 
 async function refreshSingleProvider(providerId) {

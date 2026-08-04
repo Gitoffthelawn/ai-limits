@@ -11,15 +11,24 @@ const FREQUENCY_ICON_BADGES = {
   "1 hour": "60",
 };
 
-function buildFrequencyIconSvg(option) {
-  const badge = FREQUENCY_ICON_BADGES[option] ?? "";
-  const badgeFontSize = badge.length > 1 ? 7 : 8.5;
+// Single glyph shared by the header trigger, the frequency options, and the
+// UPDATE NOW row: a refresh-cw arrow loop with an optional badge (minutes,
+// or "X" for manual-only) lettered into the open space at its center. The
+// arrows trace a wide ring near the icon's edge, so the center stays clear
+// almost to the icon's full radius — the badge can run large without
+// touching the strokes. Font size is set in viewBox units, so it scales
+// automatically with whatever pixel size the caller renders the icon at.
+function buildRefreshCwIconSvg(badge, { size = 20 } = {}) {
+  const badgeMarkup = badge
+    ? `<text class="refresh-icon-badge" x="12" y="12.5" text-anchor="middle" dominant-baseline="middle" font-size="${badge.length > 1 ? 9.5 : 13}" font-weight="700" stroke="none" fill="currentColor">${escapeHtml(badge)}</text>`
+    : "";
   return `
-    <svg class="settings-icon frequency-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <circle cx="10" cy="10" r="8" />
-      <path d="M10 5.5v4.5l3 1.5" />
-      <circle class="frequency-icon-badge-chip" cx="18" cy="18" r="6.5" stroke-width="1.5" />
-      <text class="frequency-icon-badge" x="18" y="18.5" text-anchor="middle" dominant-baseline="middle" font-size="${badgeFontSize}" font-weight="700" stroke="none" fill="currentColor">${escapeHtml(badge)}</text>
+    <svg class="settings-icon refresh-icon" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+      <path d="M8 16H3v5" />
+      ${badgeMarkup}
     </svg>
   `;
 }
@@ -229,7 +238,7 @@ function buildFrequencyOptionsHtml(selectedUpdateFrequency) {
   return updateFrequencyOptions
     .map((option) => `
       <button type="button" class="frequency-option" data-frequency-option="${escapeHtml(option)}" aria-pressed="${option === selectedUpdateFrequency}">
-        ${buildFrequencyIconSvg(option)}<span class="frequency-option-label">${escapeHtml(option)}</span>
+        ${buildRefreshCwIconSvg(FREQUENCY_ICON_BADGES[option] ?? "", { size: 18 })}<span class="frequency-option-label">${escapeHtml(option)}</span>
       </button>
     `)
     .join("");
@@ -250,17 +259,10 @@ export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt)
   const settingsDropdownId = `provider-settings-dropdown-${provider.id}`;
 
   block.innerHTML = `
+    <div class="provider-refresh-glare" aria-hidden="true"></div>
     <div class="provider-content">
       <div class="provider-header">
         <h2>${escapeHtml(provider.label)}</h2>
-      </div>
-      <div class="provider-sections">${buildProviderSectionsHtml(provider)}</div>
-    </div>
-    <div class="provider-footer">
-      <div class="provider-actions">
-        <button type="button" class="provider-manual-refresh" data-manual-refresh>
-          UPDATE NOW
-        </button>
         <div class="provider-settings-menu" data-provider-settings-menu>
           <button
             type="button"
@@ -270,8 +272,13 @@ export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt)
             aria-haspopup="true"
             aria-expanded="false"
             aria-controls="${settingsDropdownId}"
-          >${buildFrequencyIconSvg(selectedUpdateFrequency)}</button>
+          >${buildRefreshCwIconSvg(FREQUENCY_ICON_BADGES[selectedUpdateFrequency] ?? "", { size: 20 })}</button>
           <div class="settings-dropdown provider-settings-dropdown" id="${settingsDropdownId}" data-provider-settings-dropdown hidden>
+            <div class="settings-section">
+              <button type="button" class="frequency-option manual-refresh-option" data-manual-refresh>
+                ${buildRefreshCwIconSvg("", { size: 18 })}<span class="frequency-option-label">UPDATE NOW</span>
+              </button>
+            </div>
             <div class="settings-section">
               <p class="settings-section-label">UPDATE FREQUENCY</p>
               <div class="frequency-options" role="group" aria-label="${escapeHtml(provider.label)} update frequency">
@@ -281,6 +288,9 @@ export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt)
           </div>
         </div>
       </div>
+      <div class="provider-sections">${buildProviderSectionsHtml(provider)}</div>
+    </div>
+    <div class="provider-footer">
       ${buildUpdateTimeLineHtml(provider, nextRefreshAt)}
       ${buildSourceLineHtml(provider)}
     </div>
@@ -312,6 +322,6 @@ export function syncFrequencyOptions(block, selectedUpdateFrequency) {
 
   const settingsButton = block.querySelector("[data-provider-settings-button]");
   if (settingsButton) {
-    settingsButton.innerHTML = buildFrequencyIconSvg(selectedUpdateFrequency);
+    settingsButton.innerHTML = buildRefreshCwIconSvg(FREQUENCY_ICON_BADGES[selectedUpdateFrequency] ?? "", { size: 20 });
   }
 }

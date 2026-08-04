@@ -73,20 +73,17 @@
 
 .provider-block h2,
 .provider-block .limit-top,
-.provider-block .provider-manual-refresh,
 .provider-block .provider-settings-button {
   color: var(--provider-text);
 }
 
-/* UPDATE NOW and the gear pick up the card's brand color instead of the
-   generic control styling, so they read as part of the card. */
-.provider-block .provider-manual-refresh,
+/* The refresh trigger picks up the card's brand color instead of the
+   generic control styling, so it reads as part of the card. */
 .provider-block .provider-settings-button {
   border-color: var(--provider-border-color);
   background: color-mix(in srgb, var(--provider-brand) var(--mix-provider-text), var(--surface));
 }
 
-.provider-block .provider-manual-refresh:hover:not(:disabled),
 .provider-block .provider-settings-button:hover {
   border-color: var(--provider-brand);
   background: color-mix(in srgb, var(--provider-brand) var(--mix-hover-success), var(--surface));
@@ -119,7 +116,16 @@
   padding-bottom: var(--space-14);
 }
 
+/* The refresh trigger sits top-right, on the same line as the title. It is
+   positioned absolutely so it never shifts the centered title horizontally
+   — the title's centering is computed against the header's full width, not
+   against the space left over after the button. */
 .provider-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--provider-refresh-button-size);
   margin-bottom: var(--space-16);
   text-align: center;
 }
@@ -128,6 +134,13 @@
   margin: 0;
   font-size: var(--font-size-xl);
   line-height: var(--line-height-tight);
+}
+
+.provider-header .provider-settings-menu {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
 }
 
 
@@ -294,13 +307,6 @@
   line-height: var(--line-height-normal);
 }
 
-.provider-actions {
-  display: flex;
-  align-items: stretch;
-  flex-shrink: 0;
-  gap: var(--space-10);
-}
-
 .source-line,
 .update-time-line {
   margin: 0;
@@ -313,20 +319,27 @@
   display: none;
 }
 
-.provider-manual-refresh {
-  position: relative;
-  flex: 1 1 auto;
+/* Covers the whole card so the busy animation reads on the card rather than
+   on a single button. Its own overflow is clipped (not the card's), so the
+   dropdown — which must stay visible even if it were ever taller than the
+   card — is never cut off by this layer. */
+.provider-refresh-glare {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
 }
 
-/* While a refresh is in flight the button is disabled with "UPDATING…"
-   text; a glare sweeps back and forth across it so the card reads as busy
-   without a spinner or progress bar. White (not brand-colored) so it reads
-   the same on every card and in both themes. Two stacked gradients on the
-   one layer give it a sharp bright core plus a softer aura around it, and
-   it travels from fully off the left edge to fully off the right, so it
-   never has to fade in or out — the button's own edges do that for free. */
-.provider-manual-refresh:disabled::after {
+/* While a refresh is in flight the card carries "is-refreshing" and a glare
+   sweeps back and forth across it so it reads as busy without a spinner or
+   progress bar. White (not brand-colored) so it reads the same on every card
+   and in both themes. Two stacked gradients on the one layer give it a sharp
+   bright core plus a softer aura around it, and it travels from fully off
+   the left edge to fully off the right, so it never has to fade in or out —
+   the card's own edges do that for free. */
+.provider-block.is-refreshing .provider-refresh-glare::after {
   content: "";
   position: absolute;
   top: -60%;
@@ -363,13 +376,28 @@
   flex: 0 0 auto;
 }
 
-/* Opens upward and left-aligned to the button's right edge so the dropdown
-   stays inside the card it configures, per docs/desktop/ui/controls.md. */
+.provider-settings-button {
+  width: var(--provider-refresh-button-size);
+  height: var(--provider-refresh-button-size);
+}
+
+/* Opens downward, right-aligned to the trigger's right edge, so the
+   dropdown stays inside the card it configures, per
+   docs/desktop/ui/controls.md. */
 .provider-settings-dropdown {
-  top: auto;
-  right: 0;
-  bottom: calc(100% + var(--space-8));
   min-width: var(--provider-settings-dropdown-min-width);
+}
+
+.manual-refresh-option {
+  width: 100%;
+  font-weight: var(--font-weight-bold);
+}
+
+/* Echoes the toolbar's "UPDATE ALL NOW" hover treatment so the two refresh
+   actions read as the same kind of thing. */
+.manual-refresh-option:hover:not(:disabled) {
+  border-color: var(--accent-success);
+  background: color-mix(in srgb, var(--accent-success) var(--mix-hover-success), var(--surface));
 }
 
 .frequency-options {
@@ -393,20 +421,21 @@
   cursor: pointer;
 }
 
-.frequency-icon {
+.refresh-icon {
   flex: 0 0 auto;
 }
 
-.frequency-icon-badge-chip {
-  fill: var(--surface);
-}
-
-.frequency-icon-badge {
+.refresh-icon-badge {
   font-family: inherit;
 }
 
 .frequency-option:hover {
   background: var(--surface-hover);
+}
+
+.frequency-option:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
 }
 
 .frequency-option[aria-pressed="true"] {
