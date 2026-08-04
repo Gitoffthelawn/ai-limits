@@ -15,6 +15,15 @@ Updated:
 - macOS now ships as two downloads, Apple Silicon and Intel. The installed macOS app is much smaller:
   - Apple Silicon: 32.5 MB to 5.9 MB (-82%)
   - Intel: 32.5 MB to 6.5 MB (-80%)
+- Every release asset shrank compared to v0.3.0, measured from the actual GitHub Actions build output:
+  - -74.3% — macOS updater archive (Apple Silicon)
+  - -73.8% — macOS .dmg (Apple Silicon)
+  - -72.2% — macOS updater archive (Intel)
+  - -71.2% — macOS .dmg (Intel)
+  - -50.0% — Linux .deb
+  - -42.1% — Windows .msi
+  - -38.0% — Windows .exe
+  - -3.4% — Linux .AppImage, mostly the bundled WebKitGTK runtime rather than app code
 - The auto-update manifest points each architecture at its own signed archive:
   - Installs from the previous universal build need a one-time manual reinstall
 
