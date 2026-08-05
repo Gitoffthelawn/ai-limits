@@ -140,10 +140,22 @@ async function runCliCommand(button) {
 }
 
 export function isHelpOpen() {
-  return !helpView.hidden;
+  return Boolean(helpView) && !helpView.hidden;
 }
 
+// The Popover has no Help view of its own (see Roles in
+// docs/desktop/mac-popover.md) and never calls initHelp, so helpView/homeView
+// stay null there. Provider cards can still trigger openHelp (e.g. the
+// "More details" link on a data-errors state, shared via providers.js) —
+// when there's no local Help view to switch to, defer to whatever bridge the
+// native layer has wired up to open it in the Main Window instead. See
+// window.__openMainWindowHelp in popover.js.
 export function openHelp(chapterId = DEFAULT_HELP_CHAPTER) {
+  if (!helpView || !homeView) {
+    window.__openMainWindowHelp?.(chapterId);
+    return;
+  }
+
   closeSettingsMenu?.();
   selectHelpChapter(chapterId);
   homeView.hidden = true;

@@ -1,0 +1,598 @@
+/* macOS Menu Bar Popover — the whole visual layer for this surface.
+   See docs/desktop/mac-popover.md.
+
+   Loaded by both consumers of the surface, so the two cannot drift:
+     - frontend/popover.css  — the real popover window (frontend/popover.html)
+     - frontend/styles.css   — the `?showcase=popover` browser preview
+   Nothing here depends on the showcase stage or on the Main Window's own
+   chrome; the only shared code is the provider card markup itself.
+
+   Model: the popover is a native panel, not a window with a card in it. The
+   webview paints no panel background, no panel border, and no panel shadow —
+   the native window supplies the vibrancy material, the rounded corners and
+   the drop shadow (src-tauri/src/main.rs). Everything drawn here is either
+   near-opaque text or an alpha overlay, so the material stays visible through
+   the whole surface rather than only around a 10px margin. */
+
+/* Standalone page shell. Transparent so the native NSVisualEffectView
+   material behind the webview is what the user actually sees. */
+body.popover-page {
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  /* The real window is fixed-size, so the panel fills it exactly; the
+     showcase preview overrides this with the same nominal height. */
+  --popover-height: 100vh;
+}
+
+.popover-root {
+  /* System UI font, not the app's --font-family-base: that token leads with
+     Inter, which this repo ships no @font-face for, so it resolves to
+     whatever the user happens to have installed. A menu bar panel must be
+     San Francisco, the same as every other system panel. */
+  --pop-font: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --pop-text: rgba(0, 0, 0, 0.9);
+  --pop-text-secondary: rgba(0, 0, 0, 0.55);
+  --pop-tile: rgba(255, 255, 255, 0.55);
+  --pop-hover: rgba(0, 0, 0, 0.06);
+  --pop-pressed: rgba(0, 0, 0, 0.11);
+  --pop-track: rgba(0, 0, 0, 0.06);
+  --pop-segment: rgba(255, 255, 255, 0.92);
+  --pop-segment-shadow:
+    0 0.5px 1.5px rgba(0, 0, 0, 0.18),
+    0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  --pop-hairline: rgba(0, 0, 0, 0.1);
+  --pop-meter-track: rgba(0, 0, 0, 0.13);
+  --pop-scroll-thumb: rgba(0, 0, 0, 0.26);
+  --pop-focus: rgba(0, 0, 0, 0.4);
+
+  /* Popover-scoped overrides of the app-wide palette/scale tokens the shared
+     provider-card CSS reads. Scoped on purpose: the Main Window keeps the
+     global values. Colors become alpha overlays so nothing paints an opaque
+     block over the vibrancy; sizes drop to the system-panel scale
+     (13px body / 11px secondary / 15px max). */
+  --text: var(--pop-text);
+  --text-muted: var(--pop-text-secondary);
+  --surface: var(--pop-tile);
+  --surface-muted: var(--pop-track);
+  --surface-hover: var(--pop-hover);
+  --meter-bg: var(--pop-meter-track);
+  --meter-height: 3px;
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-md: 13px;
+  --font-size-xl: 13px;
+  --font-size-2xl: 15px;
+  --shadow-provider-elevated: 0 0 0 transparent;
+
+  display: flex;
+  flex-direction: column;
+  /* The native window is exactly POPOVER_WIDTH (src-tauri/src/windows.rs)
+     wide and the panel just fills it, so the width lives in exactly one
+     place — Rust. The showcase stage, which has no native window, supplies
+     its own stand-in width around the panel. */
+  width: 100%;
+  height: var(--popover-height, 480px);
+  /* Matches the native window's own corner radius (`radius: Some(11.0)` in
+     src-tauri/src/main.rs) exactly, so hover highlights and the footer
+     hairline are clipped on the same curve the window is. */
+  border-radius: 11px;
+  overflow: hidden;
+  color: var(--pop-text);
+  font-family: var(--pop-font);
+  font-size: 13px;
+  line-height: 1.25;
+  -webkit-font-smoothing: antialiased;
+  /* Native panels are not web pages: no text selection, no drag-out, no tap
+     highlight, and no pointer cursor on controls. */
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+:root[data-theme="dark"] .popover-root {
+  --pop-text: rgba(255, 255, 255, 0.92);
+  --pop-text-secondary: rgba(255, 255, 255, 0.55);
+  --pop-tile: rgba(255, 255, 255, 0.08);
+  --pop-hover: rgba(255, 255, 255, 0.1);
+  --pop-pressed: rgba(255, 255, 255, 0.16);
+  --pop-track: rgba(255, 255, 255, 0.08);
+  --pop-segment: rgba(255, 255, 255, 0.2);
+  --pop-segment-shadow:
+    0 0.5px 1.5px rgba(0, 0, 0, 0.4),
+    0 0 0 0.5px rgba(255, 255, 255, 0.08);
+  --pop-hairline: rgba(255, 255, 255, 0.12);
+  --pop-meter-track: rgba(255, 255, 255, 0.16);
+  --pop-scroll-thumb: rgba(255, 255, 255, 0.3);
+  --pop-focus: rgba(255, 255, 255, 0.55);
+}
+
+.popover-root * {
+  cursor: inherit;
+}
+
+/* Keyboard-only focus, and deliberately quiet: the Main Window's 2px green
+   ring (base.css) reads as a web form control inside a system panel. */
+.popover-root :focus {
+  outline: none;
+}
+
+.popover-root :focus-visible {
+  outline: 1.5px solid var(--pop-focus);
+  outline-offset: -1px;
+}
+
+/* The toolbar and footer are rendered into wrapper mounts (so the toolbar can
+   be rebuilt on a settings change); the wrappers must not become flex items
+   of their own. */
+.popover-mount {
+  display: contents;
+}
+
+/* Top bar: app name + [update all] on one line, the segmented view control
+   below it. Both sit directly on the material — no container, no separator. */
+.popover-topbar {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 10px 8px;
+}
+
+.popover-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 22px;
+  padding-left: 2px;
+}
+
+.popover-app-name {
+  font-size: 13px;
+  font-weight: 590;
+  letter-spacing: -0.01em;
+  color: var(--pop-text);
+}
+
+/* Borderless 22x22 icon buttons: nothing in the resting state, a rounded
+   alpha wash on hover, a slightly denser one while pressed. */
+.popover-icon-button {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pop-text);
+  opacity: 0.62;
+}
+
+.popover-icon-button:hover {
+  background: var(--pop-hover);
+  opacity: 0.9;
+}
+
+.popover-icon-button:active {
+  background: var(--pop-pressed);
+  opacity: 1;
+}
+
+.popover-icon {
+  display: block;
+}
+
+/* Segmented control (macOS style): an alpha track holding equal segments;
+   the selected one is a raised pill, not a bordered button. */
+.popover-tabs {
+  display: flex;
+  gap: 2px;
+  min-width: 0;
+  padding: 2px;
+  border-radius: 7px;
+  background: var(--pop-track);
+}
+
+.popover-tab {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 18px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--pop-text);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 510;
+  line-height: 1;
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popover-tab:hover {
+  opacity: 1;
+}
+
+.popover-tab[aria-selected="true"] {
+  background: var(--pop-segment);
+  box-shadow: var(--pop-segment-shadow);
+  font-weight: 590;
+  opacity: 1;
+}
+
+/* Only the card area scrolls; the top bar and footer stay put. Overlay
+   scrollbar, invisible at rest, no rubber-band. */
+.popover-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0 10px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: none;
+}
+
+/* Fades the last few pixels of the card area when there is more below, so
+   the row clipped by the footer hairline reads as "keep scrolling" instead
+   of a layout bug. The class is toggled from JS (observePopoverScroll in
+   popover-toolbar.js) and removed at the bottom of the list, so a panel whose
+   content fits is never dimmed. */
+.popover-scroll.has-more-below {
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent);
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 20px), transparent);
+}
+
+.popover-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.popover-scroll::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: transparent;
+}
+
+.popover-scroll:hover::-webkit-scrollbar-thumb {
+  background: var(--pop-scroll-thumb);
+}
+
+.popover-root .providers {
+  display: flex;
+  flex-direction: column;
+  width: auto;
+  margin: 0;
+  padding-bottom: 8px;
+  gap: 8px;
+}
+
+.popover-root .status-line {
+  margin: 0;
+  padding-bottom: 8px;
+  color: var(--pop-text-secondary);
+  font-size: 11px;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.popover-root .status-line.error {
+  color: var(--danger-text);
+}
+
+/* Provider card -> Control Center tile: a neutral rounded alpha fill over the
+   material, no border, no shadow. Deliberately the same fill for every
+   provider — a system panel's modules are neutral and let color mean data
+   (the meters), not identity; the provider is named by its own row heading.
+   For the same reason the brand-tinted text tokens the shared card CSS
+   derives are flattened back to the panel's plain text colors here. */
+.popover-root .provider-block {
+  --provider-border-color: var(--pop-hairline);
+  --provider-border-overlay-color: transparent;
+  --provider-card-drop-shadow: 0 0 0 transparent;
+  --provider-text: var(--pop-text);
+  --provider-text-muted: var(--pop-text-secondary);
+  border: 0;
+  border-radius: 9px;
+  padding: 8px 10px 9px;
+  background-color: var(--pop-tile);
+  background-image: none;
+  box-shadow: none;
+}
+
+:root[data-theme="dark"] .popover-root .provider-block[data-provider-id="cursor"] {
+  --provider-border-color: var(--pop-hairline);
+  --provider-border-overlay-color: transparent;
+  --provider-card-drop-shadow: 0 0 0 transparent;
+}
+
+/* `.provider-block` sets `display: flex`, which outranks the UA
+   `[hidden] { display: none }` rule, so the tab filter needs this restated. */
+.popover-root .provider-block[hidden] {
+  display: none;
+}
+
+/* Card Content decision (docs/desktop/mac-popover.md): the per-card
+   update-frequency dropdown is not part of the popover card — [update all]
+   in the top bar replaces it. */
+.popover-root .provider-settings-menu {
+  display: none;
+}
+
+.popover-root .provider-content {
+  padding-bottom: 0;
+}
+
+.popover-root .provider-header {
+  justify-content: flex-start;
+  min-height: 0;
+  margin-bottom: 4px;
+  text-align: left;
+}
+
+.popover-root .provider-block h2 {
+  font-size: 13px;
+  font-weight: 590;
+  letter-spacing: -0.01em;
+  line-height: 18px;
+}
+
+.popover-root .provider-sections {
+  gap: 6px;
+}
+
+/* providers.js's applySectionSlotAlignment writes an inline `min-height` on
+   every section so equal sections line up across cards. That pays off in the
+   Main Window, where the cards sit side by side; here they are stacked in one
+   column, so it only pads each card with dead space no one can compare
+   anything against. `!important` is the only way to beat an inline style, and
+   overriding it in CSS keeps the alignment logic itself untouched for the
+   Main Window. */
+.popover-root .provider-section {
+  gap: 4px;
+  min-height: 0 !important;
+}
+
+.popover-root .provider-section-body--placeholder {
+  min-height: 26px;
+}
+
+/* Section headings.
+
+   The Main Window opens each section with its name centered in a horizontal
+   rule. That is a desktop-card device: it costs two lines per section and is
+   the single strongest "this is an app window" signal inside the tile. The
+   rules are dropped here, and the two sections are handled differently
+   because they carry different weight:
+
+   - Limits: the heading goes away entirely. Its rows are self-describing
+     (a period, a percentage and a meter), so the label was pure overhead.
+   - Subscription: the heading becomes the left-hand key of a key-value row,
+     with the plan lines as its right-hand value — the same idiom every other
+     row in the tile now uses, at the cost of no extra line at all. */
+.popover-root .section-heading::before,
+.popover-root .section-heading::after {
+  display: none;
+}
+
+.popover-root .provider-section--limits .section-heading {
+  display: none;
+}
+
+.popover-root .provider-section--plan {
+  display: grid;
+  align-items: baseline;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 10px;
+}
+
+.popover-root .provider-section--plan .section-heading {
+  margin: 0;
+}
+
+/* The shared markup spells the label "PLAN"; as a key in a key-value row it
+   wants sentence case, which takes lowercasing the whole word and raising
+   the first letter back (`capitalize` alone cannot undo the source casing). */
+.popover-root .provider-section--plan .section-heading-label {
+  color: var(--pop-text-secondary);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: lowercase;
+}
+
+.popover-root .provider-section--plan .section-heading-label::first-letter {
+  text-transform: uppercase;
+}
+
+.popover-root .provider-section--plan .provider-section-body {
+  text-align: right;
+}
+
+.popover-root .provider-section--plan .plan-links {
+  justify-content: flex-end;
+}
+
+/* Limit row, in the system key-value idiom: the period on the left, the
+   value hard right, the reset time as secondary text between them, and a
+   hairline meter underneath — two lines instead of the Main Window's three.
+   `.limit-top` is `display: contents` so its label/value spans become items
+   of this grid directly and can be placed on either side of the reset time,
+   which is a sibling element rather than one of its children. */
+.popover-root .limits {
+  gap: 6px;
+}
+
+.popover-root .limit-row {
+  display: grid;
+  align-items: baseline;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  column-gap: 6px;
+  row-gap: 3px;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.popover-root .limit-top {
+  display: contents;
+}
+
+.popover-root .limit-label {
+  grid-column: 1;
+  grid-row: 1;
+  color: var(--pop-text);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 17px;
+  white-space: nowrap;
+}
+
+.popover-root .limit-separator {
+  display: none;
+}
+
+.popover-root .limit-value {
+  grid-column: 3;
+  grid-row: 1;
+  color: var(--pop-text);
+  font-size: 13px;
+  font-weight: 510;
+  line-height: 17px;
+  white-space: nowrap;
+}
+
+.popover-root .limit-reset {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  color: var(--pop-text-secondary);
+  font-size: 11px;
+  line-height: 17px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popover-root .meter {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  height: 3px;
+  border-radius: 999px;
+}
+
+/* Key-value lines (available credits, available resets): label left, value
+   right, the "label: value" separator the Main Window needs hidden. */
+.popover-root .credits-info {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0;
+  font-size: 11px;
+  line-height: 17px;
+}
+
+.popover-root .credits-info[hidden] {
+  display: none;
+}
+
+.popover-root .kv-separator {
+  display: none;
+}
+
+.popover-root .kv-label {
+  color: var(--pop-text-secondary);
+}
+
+.popover-root .kv-value {
+  color: var(--pop-text);
+  white-space: nowrap;
+}
+
+.popover-root .limit-resets-slot:empty {
+  display: none;
+}
+
+.popover-root .section-line,
+.popover-root .no-fresh-data,
+.popover-root .cli-authorization-manual {
+  font-size: 11px;
+  line-height: 17px;
+}
+
+.popover-root .provider-link {
+  font-size: 11px;
+}
+
+/* Card footer (source / update time), same hairline weight as the panel's. */
+.popover-root .provider-footer {
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.popover-root .provider-footer:has(.source-line:not([hidden])),
+.popover-root .provider-footer:has(.update-time-line:not([hidden])) {
+  gap: 2px;
+  margin-top: 7px;
+  padding-top: 6px;
+  border-top: 1px solid var(--pop-hairline);
+  box-shadow: none;
+}
+
+.popover-root .source-line,
+.popover-root .update-time-line {
+  text-align: left;
+}
+
+/* Footer: a hairline the full width of the panel, then a system-menu row.
+   [info]/[gear] live here rather than in the top bar — like the "Wi-Fi
+   Settings…" / "Sound Settings…" rows of the system panels, navigation out
+   of the panel belongs at the bottom, and it keeps the top bar to the two
+   things that act on the content above it. */
+.popover-footer {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px 8px;
+  border-top: 1px solid var(--pop-hairline);
+}
+
+.popover-menu-item {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 22px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--pop-text);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 22px;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Deliberately an alpha wash rather than the system's blue selection fill:
+   the app's own accent palette is warm/green, and a blue row would read as
+   borrowed chrome. */
+.popover-menu-item:hover {
+  background: var(--pop-hover);
+}
+
+.popover-menu-item:active {
+  background: var(--pop-pressed);
+}

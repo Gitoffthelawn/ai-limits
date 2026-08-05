@@ -18,7 +18,7 @@ const FREQUENCY_ICON_BADGES = {
 // almost to the icon's full radius — the badge can run large without
 // touching the strokes. Font size is set in viewBox units, so it scales
 // automatically with whatever pixel size the caller renders the icon at.
-function buildRefreshCwIconSvg(badge, { size = 20 } = {}) {
+export function buildRefreshCwIconSvg(badge, { size = 20 } = {}) {
   const badgeMarkup = badge
     ? `<text class="refresh-icon-badge" x="12" y="12.5" text-anchor="middle" dominant-baseline="middle" font-size="${badge.length > 1 ? 9.5 : 13}" font-weight="700" stroke="none" fill="currentColor">${escapeHtml(badge)}</text>`
     : "";
@@ -54,12 +54,23 @@ export function createEmptyProvider(providerId, selectedUpdateFrequency) {
   };
 }
 
-function formatCreditsLine(provider) {
+// Key-value lines are emitted as three spans — label, separator, value —
+// instead of one flat string. The Main Window concatenates them back into
+// exactly the "Available credits: 23.8" line it always showed (the spans are
+// inline and carry no styling of their own there), while the Popover lays
+// them out as a label-left/value-right menu row and hides the separator, the
+// way a system panel writes a key-value pair. See
+// docs/desktop/mac-popover.md#visual-layer.
+function buildKeyValueHtml(label, value) {
+  return `<span class="kv-label">${escapeHtml(label)}</span><span class="kv-separator">: </span><span class="kv-value">${escapeHtml(value)}</span>`;
+}
+
+function formatCreditsValue(provider) {
   if (provider.creditsRemaining == null) {
     return "";
   }
 
-  return `Available credits: ${formatDecimal(provider.creditsRemaining)}`;
+  return formatDecimal(provider.creditsRemaining);
 }
 
 function buildLimitResetsHtml(provider) {
@@ -68,7 +79,7 @@ function buildLimitResetsHtml(provider) {
   }
 
   return `
-    <p class="credits-info">Available resets: ${escapeHtml(provider.availableLimitResets)}</p>
+    <p class="credits-info">${buildKeyValueHtml("Available resets", String(provider.availableLimitResets))}</p>
   `;
 }
 
@@ -132,7 +143,7 @@ function buildLimitRowsHtml(provider) {
 
     return `
       <div class="limit-row">
-        <div class="limit-top">${escapeHtml(limit.label)} | ${percent}% left</div>
+        <div class="limit-top"><span class="limit-label">${escapeHtml(limit.label)}</span><span class="limit-separator"> | </span><span class="limit-value">${percent}% left</span></div>
         <progress class="meter" data-remaining="${width}" value="${width}" max="100" aria-label="${escapeHtml(provider.label)} ${escapeHtml(limit.label)} ${percent}% left"></progress>
         ${resetText ? `<div class="limit-reset">${resetText}</div>` : ""}
       </div>
@@ -188,16 +199,16 @@ function buildProviderSectionHtml(kind, bodyHtml, pending) {
 
 function buildLimitsBodyHtml(provider) {
   const limitRowsHtml = buildLimitRowsHtml(provider);
-  const creditsLine = formatCreditsLine(provider);
+  const creditsValue = formatCreditsValue(provider);
   const limitResetsHtml = buildLimitResetsHtml(provider);
 
-  if (!limitRowsHtml && !creditsLine && !limitResetsHtml) {
+  if (!limitRowsHtml && !creditsValue && !limitResetsHtml) {
     return "";
   }
 
   return `
     <div class="limits">${limitRowsHtml}</div>
-    <p class="credits-info" ${creditsLine ? "" : "hidden"}>${escapeHtml(creditsLine)}</p>
+    <p class="credits-info" ${creditsValue ? "" : "hidden"}>${buildKeyValueHtml("Available credits", creditsValue)}</p>
     <div class="limit-resets-slot">${limitResetsHtml}</div>
   `;
 }

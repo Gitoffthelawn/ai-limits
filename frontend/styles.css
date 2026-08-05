@@ -7,3 +7,7 @@
 @import "./styles/settings.css";
 @import "./styles/providers.css";
 @import "./styles/help.css";
+/* Last: the popover panel layer overrides base/provider rules inside its own
+   scope. The real popover window loads it through frontend/popover.css
+   instead; here it only serves the `?showcase=popover` preview. */
+@import "./styles/popover.css";

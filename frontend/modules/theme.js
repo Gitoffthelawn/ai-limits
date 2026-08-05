@@ -1,4 +1,4 @@
-import { THEME_STORAGE_KEY } from "./constants.js";
+import { THEME_CHANGED_EVENT, THEME_STORAGE_KEY } from "./constants.js";
 
 let darkThemeInput = null;
 let appTheme = { mode: "system", value: "light" };
@@ -64,6 +64,28 @@ export function applyAppTheme() {
 export function setManualTheme(isDark) {
   appTheme = { mode: "manual", value: isDark ? "dark" : "light" };
   saveAppTheme();
+  applyAppTheme();
+  emitThemeChanged();
+}
+
+// Notifies other open windows in this app process (currently the Popover) of
+// a manual theme change, mirroring settings.js's emitSettingsChanged. Only
+// under Tauri: a plain browser context has no cross-window IPC and no other
+// window to receive it.
+function emitThemeChanged() {
+  const emit = window.__TAURI__?.event?.emit;
+  if (!emit) {
+    return;
+  }
+
+  emit(THEME_CHANGED_EVENT, { mode: appTheme.mode, value: appTheme.value }).catch(() => {});
+}
+
+// Re-reads the theme from localStorage into this window's own module-scoped
+// `appTheme` and applies it. The counterpart of the emit above, for a window
+// reacting to THEME_CHANGED_EVENT.
+export function reloadAppTheme() {
+  appTheme = loadAppTheme();
   applyAppTheme();
 }
 

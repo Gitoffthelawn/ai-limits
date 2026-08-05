@@ -1,0 +1,10 @@
+/* Stylesheet entry point for the Menu Bar Popover window (popover.html).
+   Deliberately not styles.css: the popover has no Main Window toolbar, no
+   settings dropdown, no help view and no screenshot-showcase chrome, so it
+   loads only the tokens, the shared base, the provider cards it actually
+   renders, and its own panel layer (which overrides both of the former).
+   See docs/desktop/mac-popover.md. */
+@import "./styles/tokens.css";
+@import "./styles/base.css";
+@import "./styles/providers.css";
+@import "./styles/popover.css";

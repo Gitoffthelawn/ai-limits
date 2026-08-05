@@ -236,6 +236,48 @@ body.screenshot-showcase {
 @media (max-width: 860px) {
   body.screenshot-showcase { padding: 20px; }
   .showcase-stage { grid-template-columns: 1fr; }
-  .showcase-platforms { grid-template-columns: repeat(3, 1fr); }
+  .showcase-platforms { grid-template-columns: repeat(4, 1fr); }
   .showcase-platforms button { min-width: 0; }
+}
+
+
+/* `?showcase=popover` stage.
+
+   The panel itself carries no showcase-specific styling at all: every
+   `.popover-*` rule lives in styles/popover.css, shared verbatim with the
+   real popover window, so what is previewed here is what ships. What this
+   stage adds is only what the real window gets from macOS and cannot get
+   from CSS — something to be translucent against, and the native drop
+   shadow — so the preview reads the way the real panel does on a desktop.
+   See docs/desktop/mac-popover.md. */
+
+.showcase-capture-area--popover {
+  /* Stand-in for the native window, which is what fixes the panel's width in
+     the real app (POPOVER_WIDTH in src-tauri/src/windows.rs). The panel
+     itself only knows to fill whatever it is put in. */
+  --showcase-popover-width: 348px;
+  width: auto;
+  justify-self: start;
+  padding: 44px 52px;
+  border-radius: 20px;
+  background: linear-gradient(150deg, #cfe0f5 0%, #e7dcf2 45%, #f6e3d8 100%);
+}
+
+:root[data-theme="dark"] .showcase-capture-area--popover {
+  background: linear-gradient(150deg, #1b2333 0%, #2a2038 45%, #3a2630 100%);
+}
+
+/* Stand-in for the native window shadow (src-tauri/src/main.rs), which the
+   webview deliberately does not draw itself. */
+.showcase-capture-area--popover .popover-root {
+  width: var(--showcase-popover-width);
+  box-shadow:
+    0 14px 38px rgba(0, 0, 0, 0.3),
+    0 0 0 0.5px rgba(0, 0, 0, 0.16);
+}
+
+:root[data-theme="dark"] .showcase-capture-area--popover .popover-root {
+  box-shadow:
+    0 14px 38px rgba(0, 0, 0, 0.5),
+    0 0 0 0.5px rgba(255, 255, 255, 0.1);
 }

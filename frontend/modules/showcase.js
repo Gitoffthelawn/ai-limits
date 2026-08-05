@@ -1,5 +1,15 @@
-const SHOWCASE_PLATFORMS = ["macos", "windows", "linux"];
-const SHOWCASE_PLATFORM_LABELS = { macos: "macOS", windows: "Windows", linux: "Linux" };
+import { PROVIDER_IDS } from "./constants.js";
+import {
+  buildPopoverToolbarHtml,
+  buildPopoverFooterHtml,
+  attachPopoverToolbarHandlers,
+  attachPopoverFooterHandlers,
+  applyPopoverTabFilter,
+  observePopoverScroll,
+} from "./popover-toolbar.js";
+
+const SHOWCASE_PLATFORMS = ["macos", "windows", "linux", "popover"];
+const SHOWCASE_PLATFORM_LABELS = { macos: "macOS", windows: "Windows", linux: "Linux", popover: "Popover" };
 const SHOWCASE_RESIZE_ZONE_PX = 16;
 const SHOWCASE_MIN_WIDTH_PX = 320;
 const SHOWCASE_MIN_HEIGHT_PX = 540;
@@ -108,6 +118,49 @@ function createShowcaseWindow() {
   return windowFrame;
 }
 
+// The Toolbar and View Tabs markup/behavior live in popover-toolbar.js,
+// shared with the real popover.js surface (frontend/modules/popover.js) so
+// this preview and the real Popover window never drift apart. In the
+// showcase, all three SHOWCASE_PROVIDERS are always "enabled", so every
+// provider tab is shown — the real popover.js filters this list down to
+// providers actually enabled in settings.
+
+// The popover is not an OS window: it has no titlebar and is anchored under
+// a menu bar icon, not resizable. It reuses the same live `#provider-list`
+// already mounted (and fed by SHOWCASE_PROVIDERS) inside `.app` by the
+// existing provider pipeline, rather than rendering a second copy — so the
+// cards shown here are byte-identical to the ones on the other platforms,
+// with their real interactivity intact.
+//
+// The panel's structure and every `.popover-*` style come from the same two
+// files the real window uses (popover-toolbar.js, styles/popover.css), so
+// this preview and frontend/popover.html render the same surface. See
+// docs/desktop/mac-popover.md.
+function createPopoverSurface(app) {
+  const providerList = app.querySelector("#provider-list");
+  const root = document.createElement("section");
+  root.className = "popover-root";
+  root.setAttribute("aria-label", "AI Limits menu bar popover");
+  root.innerHTML = `
+    <div class="popover-mount">${buildPopoverToolbarHtml(PROVIDER_IDS)}</div>
+    <div class="popover-scroll"></div>
+    <div class="popover-mount">${buildPopoverFooterHtml()}</div>
+  `;
+  root.querySelector(".popover-scroll").append(providerList);
+
+  // [update all], [info], [gear] and "Open Application" have no real behavior
+  // in the preview: it is a layout surface, not a running app window (the
+  // real behavior lives in popover.js). Attaching with no callbacks still
+  // wires up tab switching, which the preview does exercise.
+  attachPopoverToolbarHandlers(root);
+  attachPopoverFooterHandlers(root);
+
+  applyPopoverTabFilter(root, "all");
+  observePopoverScroll(root);
+
+  return root;
+}
+
 function attachShowcaseResize(windowFrame, captureArea) {
   windowFrame.addEventListener("pointerdown", (event) => {
     if (event.button !== 0) {
@@ -156,12 +209,19 @@ export function setupScreenshotShowcase() {
   const stage = document.createElement("div");
   stage.className = "showcase-stage";
   const controls = createShowcasePlatformControls();
-  const windowFrame = createShowcaseWindow();
   const captureArea = document.createElement("div");
   captureArea.className = "showcase-capture-area";
 
   app.replaceWith(stage);
   stage.append(controls, captureArea);
+
+  if (showcasePlatform === "popover") {
+    captureArea.classList.add("showcase-capture-area--popover");
+    captureArea.append(createPopoverSurface(app));
+    return;
+  }
+
+  const windowFrame = createShowcaseWindow();
   captureArea.append(windowFrame);
   windowFrame.append(app);
   attachShowcaseResize(windowFrame, captureArea);

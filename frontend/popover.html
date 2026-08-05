@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Limits — Popover</title>
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <link rel="stylesheet" href="./popover.css" />
+  </head>
+  <body class="popover-page">
+    <div class="popover-root" id="popover-root">
+      <div class="popover-mount" id="popover-toolbar-mount"></div>
+
+      <div class="popover-scroll" id="popover-scroll">
+        <section class="providers" aria-label="Provider limits" id="provider-list"></section>
+        <section class="status-line" aria-live="polite" id="status-line" hidden></section>
+      </div>
+
+      <div class="popover-mount" id="popover-footer-mount"></div>
+    </div>
+
+    <script type="module" src="./modules/popover.js"></script>
+  </body>
+</html>

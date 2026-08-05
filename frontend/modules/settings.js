@@ -1,6 +1,7 @@
 import {
   DEFAULT_APP_SETTINGS,
   PROVIDER_IDS,
+  SETTINGS_CHANGED_EVENT,
   SETTINGS_STORAGE_KEY,
 } from "./constants.js";
 import { getAppTheme } from "./theme.js";
@@ -15,6 +16,32 @@ export function initSettings(inputs, { onChanged, onDisplayChanged } = {}) {
   onSettingsChanged = onChanged ?? null;
   onDisplaySettingsChanged = onDisplayChanged ?? null;
   appSettings = loadAppSettings();
+}
+
+// Re-reads settings from localStorage into this window's own module-scoped
+// `appSettings`. Needed by windows that react to the SETTINGS_CHANGED_EVENT
+// emitted below: each Tauri webview window runs its own JS context with its
+// own copy of this module, so a settings save in one window (e.g. the Main
+// Window) does not update another already-open window's in-memory
+// `appSettings` (e.g. the Popover) — only the localStorage value it wrote.
+// Call this before re-reading isProviderEnabled/isShowLimitsEnabled/etc. in
+// response to the event, otherwise they'd still report the pre-change state.
+export function reloadAppSettings() {
+  appSettings = loadAppSettings();
+}
+
+// Emits SETTINGS_CHANGED_EVENT for other open windows in this app process to
+// react to (currently: the Popover — see popover.js). Only under Tauri: in a
+// plain-browser context (no window.__TAURI__, e.g. the showcase preview or
+// this file loaded directly) there is no cross-window IPC to emit over, and
+// no other window to receive it.
+function emitSettingsChanged(kind) {
+  const emit = window.__TAURI__?.event?.emit;
+  if (!emit) {
+    return;
+  }
+
+  emit(SETTINGS_CHANGED_EVENT, { kind }).catch(() => {});
 }
 
 function loadAppSettings() {
@@ -132,6 +159,7 @@ export function handleSettingsChange() {
   );
 
   onSettingsChanged?.({ newlyEnabled });
+  emitSettingsChanged("visibility");
 }
 
 // Display toggles (Limits / Plan / Source / Update time) never affect
@@ -149,4 +177,5 @@ export function handleDisplaySettingsChange() {
   };
   saveAppSettings();
   onDisplaySettingsChanged?.();
+  emitSettingsChanged("display");
 }

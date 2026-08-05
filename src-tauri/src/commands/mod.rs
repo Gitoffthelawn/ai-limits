@@ -5,6 +5,8 @@ mod provider_limits;
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex};
 
+use tauri::Manager;
+
 use crate::platform::terminal;
 use ai_limits::infra::os_access;
 use ai_limits::infra::os_access::{
@@ -12,6 +14,10 @@ use ai_limits::infra::os_access::{
 };
 use ai_limits::notifications::PreviousRemainingStore;
 use ai_limits::types::CliAuthorization;
+
+use crate::windows::{
+    MAIN_WINDOW_LABEL, POPOVER_MAX_HEIGHT, POPOVER_MIN_HEIGHT, POPOVER_WIDTH, POPOVER_WINDOW_LABEL,
+};
 
 pub use provider_limits::{ProviderLimits, ProviderLimitsQuery};
 
@@ -80,6 +86,126 @@ pub fn get_cli_command() -> Result<String, String> {
 #[tauri::command]
 pub fn run_cli_in_terminal() -> Result<(), String> {
     terminal::run_current_cli_in_terminal()
+}
+
+/// Shows and focuses the Main Window, without navigating it anywhere —
+/// backs the Popover's "Open Application" button
+/// (docs/desktop/mac-popover.md#entry-points). No-op if the Main Window does
+/// not exist (should not happen in practice: it is the app's implicit
+/// default window).
+#[tauri::command]
+pub fn open_main_window(app: tauri::AppHandle) -> Result<(), String> {
+    show_and_focus_main_window(&app);
+    Ok(())
+}
+
+/// Shows and focuses the Main Window, then asks it to open Settings — backs
+/// the Popover's `[gear]` toolbar button
+/// (docs/desktop/mac-popover.md#toolbar). Mirrors the "open-settings" branch
+/// of `handle_menu_event` in main.rs, which does the same thing in response
+/// to the native app-menu Settings item instead of a Popover click.
+#[tauri::command]
+pub fn open_main_window_settings(app: tauri::AppHandle) -> Result<(), String> {
+    show_and_focus_main_window(&app);
+
+    if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
+        let _ = window.eval("window.__openSettingsFromNative && window.__openSettingsFromNative()");
+    }
+
+    Ok(())
+}
+
+/// Shows and focuses the Main Window, then asks it to open Help — optionally
+/// on a specific chapter — backing the Popover's `[info]` toolbar button and
+/// a provider card's "More details" link when no local Help view exists
+/// (docs/desktop/mac-popover.md#toolbar). Mirrors the "help:<id>" branch of
+/// `handle_menu_event` in main.rs.
+///
+/// `chapter` is forwarded as-is: `None` evals
+/// `window.__openHelpFromNative()` with no argument at all (not `null`), so
+/// the frontend's own `openHelp(chapterId = DEFAULT_HELP_CHAPTER)` default
+/// parameter kicks in exactly as it does for the Main Window's own Help
+/// button — passing an explicit `null` would bypass that default.
+#[tauri::command]
+pub fn open_main_window_help(app: tauri::AppHandle, chapter: Option<String>) -> Result<(), String> {
+    show_and_focus_main_window(&app);
+
+    if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
+        let call = match chapter {
+            Some(chapter) => {
+                let chapter_json =
+                    serde_json::to_string(&chapter).unwrap_or_else(|_| "null".to_string());
+                format!(
+                    "window.__openHelpFromNative && window.__openHelpFromNative({chapter_json})"
+                )
+            }
+            None => "window.__openHelpFromNative && window.__openHelpFromNative()".to_string(),
+        };
+        let _ = window.eval(call);
+    }
+
+    Ok(())
+}
+
+/// Hides the Popover without destroying it — backs the Popover frontend's
+/// Escape-key handler. No-op if the Popover does not exist (any non-macOS
+/// platform).
+#[tauri::command]
+pub fn hide_popover(app: tauri::AppHandle) -> Result<(), String> {
+    hide_popover_window(&app);
+    Ok(())
+}
+
+/// Resizes the Popover to the content height the frontend measured, in
+/// logical pixels, so the panel is as tall as what it shows — the way system
+/// menu bar panels behave — instead of a fixed size that is too tall for one
+/// provider card and too short for three failing ones.
+///
+/// Contract with the frontend (see docs/desktop/mac-popover.md#window-size):
+/// pass the full desired *outer* height of the panel, including its own
+/// padding; the width is owned by the native side and never changes. Values
+/// outside [`POPOVER_MIN_HEIGHT`, `POPOVER_MAX_HEIGHT`] are clamped rather
+/// than rejected, so an over-tall panel scrolls internally instead of running
+/// off the screen. The window grows downwards from its anchor under the tray
+/// icon, so a resize never needs a reposition. Calling this repeatedly is
+/// cheap and idempotent; a non-finite height is ignored.
+#[tauri::command]
+pub fn set_popover_height(app: tauri::AppHandle, height: f64) -> Result<(), String> {
+    if !height.is_finite() {
+        return Err("Popover height must be a finite number".to_string());
+    }
+
+    let Some(popover) = app.get_webview_window(POPOVER_WINDOW_LABEL) else {
+        return Ok(());
+    };
+
+    let height = height.clamp(POPOVER_MIN_HEIGHT, POPOVER_MAX_HEIGHT);
+    popover
+        .set_size(tauri::LogicalSize::new(POPOVER_WIDTH, height))
+        .map_err(|error| error.to_string())
+}
+
+/// Shared show+focus logic for the three commands above. No-op if `"main"`
+/// does not exist.
+fn show_and_focus_main_window(app: &tauri::AppHandle) {
+    let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) else {
+        return;
+    };
+
+    let _ = window.show();
+    let _ = window.set_focus();
+
+    // Focusing "main" also takes focus away from the Popover, so its
+    // `Focused(false)` handler (install_popover_window in main.rs) would hide
+    // it anyway — but the OS decides when that notification lands, and this
+    // makes the Popover's disappearance part of the same user action instead.
+    hide_popover_window(app);
+}
+
+fn hide_popover_window(app: &tauri::AppHandle) {
+    if let Some(popover) = app.get_webview_window(POPOVER_WINDOW_LABEL) {
+        let _ = popover.hide();
+    }
 }
 
 #[cfg(test)]

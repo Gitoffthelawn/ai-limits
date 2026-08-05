@@ -10,8 +10,20 @@ tauri-build = { version = "2", features = [] }
 ai-limits = { path = ".." }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tauri = { version = "2", features = [] }
+# `image-png` enables `tauri::image::Image::from_bytes`, used to load the menu
+# bar template icon (icons/icon-tray.png) embedded in src/main.rs.
+tauri = { version = "2", features = ["tray-icon", "macos-private-api", "image-png"] }
 tauri-plugin-notification = "2"
 
 [target."cfg(any(target_os = \"macos\", target_os = \"windows\", target_os = \"linux\"))".dependencies]
 tauri-plugin-updater = "2"
+
+# Reuses the exact objc2/objc2-app-kit versions Tauri's own macOS backend
+# already resolves (see Cargo.lock) rather than adding a second, potentially
+# incompatible copy or an older `cocoa`/`objc` crate family. Used directly in
+# src/main.rs to set NSWindow.collectionBehavior on the Popover window (see
+# docs/desktop/mac-popover.md) — something Tauri's own WebviewWindow API does
+# not expose a wrapper for.
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6.4"
+objc2-app-kit = { version = "0.3.2", default-features = false, features = ["std", "NSResponder", "NSWindow"] }
