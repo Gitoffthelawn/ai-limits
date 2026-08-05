@@ -4,9 +4,9 @@
     "quality": "sh scripts/quality.sh",
     "screenshots:update": "sh scripts/update-showcase-screenshots.sh",
     "tauri": "npm run tauri:dev",
-    "tauri:dev": "npm run quality && sh scripts/tauri-clean-dev-assets.sh && tauri dev --no-watch",
+    "tauri:dev": "sh scripts/clear-webview-cache.sh; npm run quality && sh scripts/tauri-clean-dev-assets.sh && tauri dev --no-watch",
     "tauri:build": "npm run quality && tauri build",
-    "tauri:build:debug": "npm run quality && tauri build --debug --bundles app"
+    "tauri:build:debug": "sh scripts/clear-webview-cache.sh; npm run quality && tauri build --debug --bundles app"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.11.4",
