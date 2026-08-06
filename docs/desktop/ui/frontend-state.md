@@ -8,6 +8,18 @@ The current frontend calls:
 
 Each provider is requested independently; there is no aggregate limits-fetch command in the desktop IPC contract.
 
+## Shared Structured Data Cache
+
+The application process keeps one current `StructuredSourceInfo` snapshot for each provider. The snapshot is written only after the provider source chain has selected its result and applied account-field backfill.
+
+Main Window and Menu Bar Popover read the same snapshot. Each surface independently projects the unchanged structured data into its own provider-card state and keeps only presentation state locally.
+
+The shared cache contains no raw provider output, stderr, UI-specific `ProviderLimits` model, rendered markup, or cached transport failures. A failed collection does not replace the last successful structured snapshot.
+
+`collected_at` and `data_as_of` remain fields of the unchanged structured snapshot. `collected_at` is the time of the actual collection and is the common basis for update scheduling; `data_as_of` remains the freshness timestamp of the provider data and is displayed to the user according to the presentation rules.
+
+Concurrent requests for the same provider must share one collection operation. On a successful collection, notifications are evaluated once from the selected structured snapshot before it is made available to both surfaces.
+
 User-facing problem and recovery rules are documented in [problems.md](problems.md).
 
 ## Provider Fields Used
