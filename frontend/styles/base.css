@@ -30,19 +30,22 @@ body {
   background: var(--surface-hover);
 }
 
-/* Neutral controls warm to yellow in dark theme. See docs/desktop/ui/styleguide.md. */
+/* Neutral controls warm to yellow in dark theme. See docs/desktop/ui/styleguide.md.
+   The icon itself (currentColor, see buildRefreshCwIconSvg) follows the same
+   border-color so the glyph and its frame warm to yellow together instead of
+   the icon staying a flat black/white against a yellow border. */
 :root[data-theme="dark"] .settings-button:hover,
 :root[data-theme="dark"] .help-menu-item:hover,
 :root[data-theme="dark"] .info-link:hover {
   border-color: var(--accent-warning);
   background: color-mix(in srgb, var(--accent-warning) var(--mix-hover-warning), var(--surface));
-  color: var(--text);
+  color: var(--accent-warning);
 }
 
 .settings-button[aria-expanded="true"] {
   border-color: var(--accent-warning);
   background: color-mix(in srgb, var(--accent-warning) var(--mix-active-warning), var(--surface));
-  color: var(--text);
+  color: var(--accent-warning);
 }
 
 .settings-icon {

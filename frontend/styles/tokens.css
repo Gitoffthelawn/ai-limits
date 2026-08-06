@@ -84,7 +84,11 @@
   --border: #d9dde3;
   --border-strong: #bfc6d0;
   --shadow: rgba(23, 26, 31, 0.12);
-  --meter-bg: var(--surface-muted);
+  /* Same token as the card border (--border-strong), not --surface-muted:
+     the unfilled remainder of a limit bar needs to read as a track, not
+     disappear into the card background — see colorForRemaining in
+     provider-formatters.js for the fill colors that sit on top of it. */
+  --meter-bg: var(--border-strong);
   --focus: var(--accent-success);
   --segmented-track: #e2e6eb;
   --segmented-track-border: #bfc6d0;

@@ -2,16 +2,21 @@ const MONTH_NAMES = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
-// Theme-specific so the fill always has >=4.5:1 contrast against both the
-// meter track and the (possibly brand-tinted) card behind it: light picks
-// dark, saturated tones for contrast against light cards; dark picks bright
-// ones for contrast against dark cards. Not the shared --accent-* tokens
-// (tokens.css), which stay tuned for borders/focus rings, not meter fills.
+// Theme-specific so the fill always has >=4.5:1 contrast against the
+// (possibly brand-tinted) card behind it: light picks fully-saturated, deep
+// tones that still read as red/gold/green rather than desaturating toward
+// grey-brown; dark picks bright ones for contrast against dark cards. Not
+// the shared --accent-* tokens (tokens.css), which stay tuned for
+// borders/focus rings, not meter fills. Full saturation is deliberate here:
+// on a light background, hitting 4.5:1 forces the lightness down regardless
+// (true yellow at 4.5:1 is physically impossible against white — its own
+// luminance is too high), so the fix is to keep saturation maxed at that
+// lightness rather than let it drift toward a desaturated, muddy brown.
 const METER_ACCENTS = {
   light: {
-    danger: [183, 28, 28],
-    warning: [110, 80, 0],
-    success: [23, 96, 36],
+    danger: [214, 14, 0],
+    warning: [148, 111, 0],
+    success: [0, 133, 44],
   },
   dark: {
     danger: [255, 125, 114],
