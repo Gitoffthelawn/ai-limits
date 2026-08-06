@@ -30,63 +30,45 @@ const CLI_FIRST_CODEX_CHAIN: &[Source] = &[Source::CodexRpc, Source::CodexLocal]
 const CLI_FIRST_CLAUDE_CHAIN: &[Source] = &[Source::ClaudeRpc, Source::ClaudeLocal];
 const CLI_FIRST_CURSOR_CHAIN: &[Source] = &[Source::CursorApi2];
 
+fn provider_chain_plans(
+    codex: &'static [Source],
+    claude: &'static [Source],
+    cursor: &'static [Source],
+) -> Vec<SourcePlan> {
+    vec![
+        SourcePlan::Chain {
+            label: "codex",
+            sources: codex,
+        },
+        SourcePlan::Chain {
+            label: "claude",
+            sources: claude,
+        },
+        SourcePlan::Chain {
+            label: "cursor",
+            sources: cursor,
+        },
+    ]
+}
+
 pub fn default_source_plan() -> Vec<SourcePlan> {
-    fast_free_source_plan()
+    provider_chain_plans(FAST_CODEX_CHAIN, FAST_CLAUDE_CHAIN, FAST_CURSOR_CHAIN)
 }
 
 pub fn best_source_plan() -> Vec<SourcePlan> {
-    cli_fallback_source_plan()
-}
-
-pub fn fast_free_source_plan() -> Vec<SourcePlan> {
-    vec![
-        SourcePlan::Chain {
-            label: "codex",
-            sources: FAST_CODEX_CHAIN,
-        },
-        SourcePlan::Chain {
-            label: "claude",
-            sources: FAST_CLAUDE_CHAIN,
-        },
-        SourcePlan::Chain {
-            label: "cursor",
-            sources: FAST_CURSOR_CHAIN,
-        },
-    ]
-}
-
-pub fn cli_fallback_source_plan() -> Vec<SourcePlan> {
-    vec![
-        SourcePlan::Chain {
-            label: "codex",
-            sources: CLI_FALLBACK_CODEX_CHAIN,
-        },
-        SourcePlan::Chain {
-            label: "claude",
-            sources: CLI_FALLBACK_CLAUDE_CHAIN,
-        },
-        SourcePlan::Chain {
-            label: "cursor",
-            sources: CLI_FALLBACK_CURSOR_CHAIN,
-        },
-    ]
+    provider_chain_plans(
+        CLI_FALLBACK_CODEX_CHAIN,
+        CLI_FALLBACK_CLAUDE_CHAIN,
+        CLI_FALLBACK_CURSOR_CHAIN,
+    )
 }
 
 pub fn cli_first_source_plan() -> Vec<SourcePlan> {
-    vec![
-        SourcePlan::Chain {
-            label: "codex",
-            sources: CLI_FIRST_CODEX_CHAIN,
-        },
-        SourcePlan::Chain {
-            label: "claude",
-            sources: CLI_FIRST_CLAUDE_CHAIN,
-        },
-        SourcePlan::Chain {
-            label: "cursor",
-            sources: CLI_FIRST_CURSOR_CHAIN,
-        },
-    ]
+    provider_chain_plans(
+        CLI_FIRST_CODEX_CHAIN,
+        CLI_FIRST_CLAUDE_CHAIN,
+        CLI_FIRST_CURSOR_CHAIN,
+    )
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

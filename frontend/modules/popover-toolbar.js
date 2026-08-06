@@ -22,21 +22,21 @@ function buildPopoverIconSvg(paths) {
 
 // A single circular refresh arrow — the system-standard "refresh everything"
 // shape, drawn directly instead of reshaping another module's markup.
-export const POPOVER_UPDATE_ALL_ICON_SVG = buildPopoverIconSvg(`
+const POPOVER_UPDATE_ALL_ICON_SVG = buildPopoverIconSvg(`
     <path d="M20.5 12a8.5 8.5 0 1 1-2.49-6.01" />
     <path d="M20.5 4.5V10h-5.5" />
 `);
 
 // Lucide "info": a circle with a lower stem and a dot — the same glyph the
 // Main Window's Help entry point carries, redrawn at popover weight.
-export const POPOVER_INFO_ICON_SVG = buildPopoverIconSvg(`
+const POPOVER_INFO_ICON_SVG = buildPopoverIconSvg(`
     <circle cx="12" cy="12" r="9" />
     <path d="M12 16.5v-5" />
     <path d="M12 8h.01" />
 `);
 
 // Lucide "settings" gear, likewise redrawn at popover weight.
-export const POPOVER_GEAR_ICON_SVG = buildPopoverIconSvg(`
+const POPOVER_GEAR_ICON_SVG = buildPopoverIconSvg(`
     <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
     <circle cx="12" cy="12" r="3" />
 `);

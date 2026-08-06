@@ -14,11 +14,12 @@
 // throws and the cards show the same "Tauri API is unavailable" error state
 // the Main Window would show under the same condition.
 import { SETTINGS_CHANGED_EVENT, THEME_CHANGED_EVENT } from "./constants.js";
-import { initTheme, applyAppTheme, reloadAppTheme, syncSystemTheme } from "./theme.js";
+import { initTheme, applyAppTheme, reloadAppTheme } from "./theme.js";
 import { initSettings, reloadAppSettings } from "./settings.js";
 import {
   initProviders,
   initProviderIntervals,
+  listenForSystemThemeMeterRefresh,
   refreshEnabledProviders,
   refreshProviderSectionsFromCache,
   applySharedUpdateFrequency,
@@ -199,19 +200,7 @@ window.addEventListener("focus", () => {
   }
 });
 
-// See the matching comment in main.js: meter fill colors are theme-dependent
-// but only computed at render time, so a theme flip has to force a
-// from-cache re-render or already-mounted meters keep the previous theme's
-// color.
-function syncSystemThemeAndMeterColors() {
-  syncSystemTheme();
-  refreshProviderSectionsFromCache();
-}
-
-if (typeof window.matchMedia === "function") {
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncSystemThemeAndMeterColors);
-  window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", syncSystemThemeAndMeterColors);
-}
+listenForSystemThemeMeterRefresh();
 
 initProviderIntervals();
 applyAppTheme();

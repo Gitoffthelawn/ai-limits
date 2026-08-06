@@ -1,4 +1,3 @@
-import { PROVIDER_IDS } from "./constants.js";
 import {
   buildPopoverHeaderHtml,
   attachPopoverHeaderHandlers,

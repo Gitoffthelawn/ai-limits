@@ -82,12 +82,12 @@ export function formatTimestampForDisplay(value) {
   return `${MONTH_NAMES[date.getMonth()]} ${date.getDate()}, ${time}`;
 }
 
-export function formatSourceIdLine(provider) {
+function formatSourceIdLine(provider) {
   if (provider.pending) return "—";
   return `Source ${SOURCE_DISPLAY_LABELS[provider.sourceId] ?? provider.sourceId ?? "Unknown"},`;
 }
 
-export function formatSourceTimestampLine(provider) {
+function formatSourceTimestampLine(provider) {
   if (provider.pending) return "—";
   return `as of ${formatTimestampForDisplay(provider.dataTimestamp) || "unknown"}`;
 }

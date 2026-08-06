@@ -1,4 +1,4 @@
-import { initTheme, applyAppTheme, setManualTheme, syncSystemTheme } from "./theme.js";
+import { initTheme, applyAppTheme, setManualTheme } from "./theme.js";
 import {
   initSettings,
   syncSettingsInputs,
@@ -14,6 +14,7 @@ import { setupScreenshotShowcase } from "./showcase.js";
 import {
   initProviders,
   initProviderIntervals,
+  listenForSystemThemeMeterRefresh,
   refreshEnabledProviders,
   refreshProviderSectionsFromCache,
   removeDisabledProviderBlocks,
@@ -147,19 +148,7 @@ for (const input of Object.values(settingInputs)) {
   input.addEventListener("change", handleSettingsChange);
 }
 
-// Meter fill colors are theme-dependent (see colorForRemaining in
-// provider-formatters.js) but only computed at render time, so a theme
-// flip has to force a from-cache re-render or already-mounted meters keep
-// the previous theme's color.
-function syncSystemThemeAndMeterColors() {
-  syncSystemTheme();
-  refreshProviderSectionsFromCache();
-}
-
-if (typeof window.matchMedia === "function") {
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncSystemThemeAndMeterColors);
-  window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", syncSystemThemeAndMeterColors);
-}
+listenForSystemThemeMeterRefresh();
 
 window.addEventListener("resize", scheduleSectionSlotAlignment);
 
