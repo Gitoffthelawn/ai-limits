@@ -25,6 +25,11 @@
   <img src="screenshots/macos-help.png" alt="Справка ai-limits" width="24%">
 </p>
 
+<p align="center">
+  <img src="screenshots/macos-popover-dark.png" alt="Popover ai-limits для macOS в тёмном оформлении" width="32%">
+  <img src="screenshots/macos-popover-light.png" alt="Popover ai-limits для macOS в светлом оформлении" width="32%">
+</p>
+
 ## Преимущества
 
 - Работает без подписки на API,

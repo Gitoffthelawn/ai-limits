@@ -25,6 +25,11 @@
   <img src="screenshots/macos-help.png" alt="Hilfe zu ai-limits" width="24%">
 </p>
 
+<p align="center">
+  <img src="screenshots/macos-popover-dark.png" alt="ai-limits macOS-Popover im dunklen Design" width="32%">
+  <img src="screenshots/macos-popover-light.png" alt="ai-limits macOS-Popover im hellen Design" width="32%">
+</p>
+
 ## Vorteile
 
 - Funktioniert ohne API-Abonnement,

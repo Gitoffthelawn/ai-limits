@@ -25,6 +25,11 @@
   <img src="screenshots/macos-help.png" alt="مساعدة ai-limits" width="24%">
 </p>
 
+<p align="center">
+  <img src="screenshots/macos-popover-dark.png" alt="نافذة ai-limits المنبثقة على macOS بالمظهر الداكن" width="32%">
+  <img src="screenshots/macos-popover-light.png" alt="نافذة ai-limits المنبثقة على macOS بالمظهر الفاتح" width="32%">
+</p>
+
 <div dir="rtl">
 
 ## المزايا

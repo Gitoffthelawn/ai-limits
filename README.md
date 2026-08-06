@@ -25,6 +25,11 @@
   <img src="docs/readmes/screenshots/macos-help.png" alt="ai-limits help" width="24%">
 </p>
 
+<p align="center">
+  <img src="docs/readmes/screenshots/macos-popover-dark.png" alt="ai-limits macOS popover in dark appearance" width="32%">
+  <img src="docs/readmes/screenshots/macos-popover-light.png" alt="ai-limits macOS popover in light appearance" width="32%">
+</p>
+
 ## Benefits
 
 - Works without an API subscription,

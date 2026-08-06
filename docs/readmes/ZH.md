@@ -25,6 +25,11 @@
   <img src="screenshots/macos-help.png" alt="ai-limits 帮助" width="24%">
 </p>
 
+<p align="center">
+  <img src="screenshots/macos-popover-dark.png" alt="深色模式下的 ai-limits macOS 浮窗" width="32%">
+  <img src="screenshots/macos-popover-light.png" alt="浅色模式下的 ai-limits macOS 浮窗" width="32%">
+</p>
+
 ## 优势
 
 - 无需 API 订阅即可使用，
