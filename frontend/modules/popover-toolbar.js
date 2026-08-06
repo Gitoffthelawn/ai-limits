@@ -1,5 +1,5 @@
-// Shared chrome (top bar, view tabs, footer) for the macOS Menu Bar Popover,
-// per docs/desktop/mac-popover.md#toolbar and #view-tabs.
+// Shared chrome (the single header row) for the macOS Menu Bar Popover, per
+// docs/desktop/mac-popover.md#toolbar.
 //
 // This module is imported by both:
 //   - popover.js — the real Popover surface, driven by the real provider
@@ -13,7 +13,6 @@
 // Icons are hand-authored here rather than borrowed from the Main Window's
 // glyph builders: the popover draws at the system-panel scale (15px, 1.5
 // stroke, currentColor, muted opacity), not the Main Window's 18-20px/2.0.
-import { escapeHtml } from "./provider-formatters.js";
 
 function buildPopoverIconSvg(paths) {
   return `
@@ -42,48 +41,14 @@ export const POPOVER_GEAR_ICON_SVG = buildPopoverIconSvg(`
     <circle cx="12" cy="12" r="3" />
 `);
 
-function capitalizeProviderId(providerId) {
-  return providerId.charAt(0).toUpperCase() + providerId.slice(1);
-}
-
-// `providerIds` is the already-filtered list of providers whose tab should
-// appear — per docs/desktop/mac-popover.md#view-tabs, a disabled provider's
-// tab does not appear. `All` always appears regardless.
-//
-// Rendered as a macOS segmented control: `role="tab"` inside the
-// `role="tablist"`, selection carried by `aria-selected` (the role's own
-// state) rather than the button-flavored `aria-pressed`.
-export function buildPopoverTabsHtml(providerIds) {
-  const providerTabsHtml = providerIds.map((providerId) => `
-    <button type="button" class="popover-tab" role="tab" data-popover-tab="${escapeHtml(providerId)}" aria-selected="false">${escapeHtml(capitalizeProviderId(providerId))}</button>
-  `).join("");
-
+// Header: the "AI Limits" entry point into the Main Window on the left, then
+// the icon buttons — update, info, settings — at its right edge, with a
+// hairline separating it from the scrollable card list below. Used to sit
+// split across a top bar (View Tabs) and a footer (this row); now that View
+// Tabs are gone the whole thing lives in one header row instead.
+export function buildPopoverHeaderHtml() {
   return `
-    <div class="popover-tabs" role="tablist" aria-label="Provider view">
-      <button type="button" class="popover-tab" role="tab" data-popover-tab="all" aria-selected="true">All</button>
-      ${providerTabsHtml}
-    </div>
-  `;
-}
-
-// Top bar: just the segmented view control — no app name / [update all] row
-// above it, so the tabs sit at the very top of the panel. [update all] moved
-// into the footer's icon-button row (see buildPopoverFooterHtml); [info]/
-// [gear] are still navigation *out* of the panel, the way system panels put
-// their "… Settings" row at the bottom. See docs/desktop/mac-popover.md#toolbar.
-export function buildPopoverToolbarHtml(providerIds) {
-  return `
-    <div class="popover-topbar">
-      ${buildPopoverTabsHtml(providerIds)}
-    </div>
-  `;
-}
-
-// Footer: a hairline, then the "AI Limits" menu row and three icon buttons —
-// update, info, settings — at its right edge.
-export function buildPopoverFooterHtml() {
-  return `
-    <div class="popover-footer">
+    <div class="popover-header">
       <button type="button" class="popover-menu-item" data-popover-open-app>AI&nbsp;Limits</button>
       <button type="button" class="popover-icon-button" data-popover-update-all aria-label="Update all">${POPOVER_UPDATE_ALL_ICON_SVG}</button>
       <button type="button" class="popover-icon-button" data-popover-info aria-label="Help">${POPOVER_INFO_ICON_SVG}</button>
@@ -92,34 +57,12 @@ export function buildPopoverFooterHtml() {
   `;
 }
 
-// Filters the provider cards under `root` to the selected tab. "all" is the
-// default view the Popover opens on.
-export function applyPopoverTabFilter(root, selectedTab) {
-  for (const tabButton of root.querySelectorAll("[data-popover-tab]")) {
-    tabButton.setAttribute("aria-selected", String(tabButton.dataset.popoverTab === selectedTab));
-  }
-
-  for (const block of root.querySelectorAll(".provider-block")) {
-    block.hidden = selectedTab !== "all" && block.dataset.providerId !== selectedTab;
-  }
-}
-
-// Wires the top bar's tab switching. Safe to call again after the toolbar
-// markup is rebuilt (settings change) — every element it binds to is part of
-// that rebuilt markup, so no listener outlives it.
-export function attachPopoverToolbarHandlers(root) {
-  for (const tabButton of root.querySelectorAll("[data-popover-tab]")) {
-    tabButton.addEventListener("click", () => {
-      applyPopoverTabFilter(root, tabButton.dataset.popoverTab);
-    });
-  }
-}
-
 // Marks the card area while there is still content below the fold, so the
-// panel can fade its bottom edge instead of letting the footer hairline slice
-// a row in half (see `.popover-scroll.has-more-below` in styles/popover.css).
-// Lives here rather than in popover.js because the showcase preview needs the
-// same behavior and shares this module.
+// panel can fade its bottom edge instead of clipping a row abruptly. The
+// class is toggled from JS and removed at the bottom of the list, so a panel
+// whose content fits is never dimmed. Lives here rather than in popover.js
+// because the showcase preview needs the same behavior and shares this
+// module.
 export function observePopoverScroll(root) {
   const scrollArea = root.querySelector(".popover-scroll");
   if (!scrollArea) {
@@ -133,9 +76,9 @@ export function observePopoverScroll(root) {
 
   scrollArea.addEventListener("scroll", sync, { passive: true });
 
-  // The card list changes height constantly (data resolving, tab filtering,
-  // display toggles), and the panel itself is resized to its content, so both
-  // ends of the comparison move.
+  // The card list changes height constantly (data resolving, display
+  // toggles), and the panel itself is resized to its content, so both ends
+  // of the comparison move.
   if (typeof window.ResizeObserver === "function") {
     const observer = new ResizeObserver(sync);
     observer.observe(scrollArea);
@@ -147,11 +90,10 @@ export function observePopoverScroll(root) {
   sync();
 }
 
-// Wires the footer's four actions. Separate from the toolbar because the
-// footer is mounted once and never rebuilt — calling this on every toolbar
-// rebuild would stack duplicate listeners. Callbacks are optional so callers
-// without real behavior (the showcase preview) get no-ops.
-export function attachPopoverFooterHandlers(root, { onOpenApp, onUpdateAll, onInfo, onGear } = {}) {
+// Wires the header's four actions. Mounted once and never rebuilt, so this
+// is called once too. Callbacks are optional so callers without real
+// behavior (the showcase preview) get no-ops.
+export function attachPopoverHeaderHandlers(root, { onOpenApp, onUpdateAll, onInfo, onGear } = {}) {
   root.querySelector("[data-popover-open-app]")?.addEventListener("click", () => onOpenApp?.());
   root.querySelector("[data-popover-update-all]")?.addEventListener("click", () => onUpdateAll?.());
   root.querySelector("[data-popover-info]")?.addEventListener("click", () => onInfo?.());

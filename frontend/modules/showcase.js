@@ -1,10 +1,7 @@
 import { PROVIDER_IDS } from "./constants.js";
 import {
-  buildPopoverToolbarHtml,
-  buildPopoverFooterHtml,
-  attachPopoverToolbarHandlers,
-  attachPopoverFooterHandlers,
-  applyPopoverTabFilter,
+  buildPopoverHeaderHtml,
+  attachPopoverHeaderHandlers,
   observePopoverScroll,
 } from "./popover-toolbar.js";
 
@@ -118,12 +115,9 @@ function createShowcaseWindow() {
   return windowFrame;
 }
 
-// The Toolbar and View Tabs markup/behavior live in popover-toolbar.js,
-// shared with the real popover.js surface (frontend/modules/popover.js) so
-// this preview and the real Popover window never drift apart. In the
-// showcase, all three SHOWCASE_PROVIDERS are always "enabled", so every
-// provider tab is shown — the real popover.js filters this list down to
-// providers actually enabled in settings.
+// The header markup/behavior lives in popover-toolbar.js, shared with the
+// real popover.js surface (frontend/modules/popover.js) so this preview and
+// the real Popover window never drift apart.
 
 // The popover is not an OS window: it has no titlebar and is anchored under
 // a menu bar icon, not resizable. It reuses the same live `#provider-list`
@@ -142,20 +136,16 @@ function createPopoverSurface(app) {
   root.className = "popover-root";
   root.setAttribute("aria-label", "AI Limits menu bar popover");
   root.innerHTML = `
-    <div class="popover-mount">${buildPopoverToolbarHtml(PROVIDER_IDS)}</div>
+    <div class="popover-mount">${buildPopoverHeaderHtml()}</div>
     <div class="popover-scroll"></div>
-    <div class="popover-mount">${buildPopoverFooterHtml()}</div>
   `;
   root.querySelector(".popover-scroll").append(providerList);
 
   // [update all], [info], [gear] and "Open Application" have no real behavior
   // in the preview: it is a layout surface, not a running app window (the
-  // real behavior lives in popover.js). Attaching with no callbacks still
-  // wires up tab switching, which the preview does exercise.
-  attachPopoverToolbarHandlers(root);
-  attachPopoverFooterHandlers(root);
+  // real behavior lives in popover.js).
+  attachPopoverHeaderHandlers(root);
 
-  applyPopoverTabFilter(root, "all");
   observePopoverScroll(root);
 
   return root;

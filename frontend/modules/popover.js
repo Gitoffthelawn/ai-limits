@@ -13,9 +13,9 @@
 // `window.__TAURI__` will be undefined, so providers.js's real IPC path
 // throws and the cards show the same "Tauri API is unavailable" error state
 // the Main Window would show under the same condition.
-import { PROVIDER_IDS, SETTINGS_CHANGED_EVENT, THEME_CHANGED_EVENT } from "./constants.js";
+import { SETTINGS_CHANGED_EVENT, THEME_CHANGED_EVENT } from "./constants.js";
 import { initTheme, applyAppTheme, reloadAppTheme, syncSystemTheme } from "./theme.js";
-import { initSettings, isProviderEnabled, reloadAppSettings } from "./settings.js";
+import { initSettings, reloadAppSettings } from "./settings.js";
 import {
   initProviders,
   initProviderIntervals,
@@ -23,19 +23,15 @@ import {
   refreshProviderSectionsFromCache,
 } from "./providers.js";
 import {
-  buildPopoverToolbarHtml,
-  buildPopoverFooterHtml,
-  attachPopoverToolbarHandlers,
-  attachPopoverFooterHandlers,
-  applyPopoverTabFilter,
+  buildPopoverHeaderHtml,
+  attachPopoverHeaderHandlers,
   observePopoverScroll,
 } from "./popover-toolbar.js";
 
 const popoverRoot = document.querySelector("#popover-root");
 const providerList = document.querySelector("#provider-list");
 const statusLine = document.querySelector("#status-line");
-const toolbarMount = document.querySelector("#popover-toolbar-mount");
-const footerMount = document.querySelector("#popover-footer-mount");
+const headerMount = document.querySelector("#popover-header-mount");
 
 // Resolves Tauri's invoke, or null outside Tauri (this page opened in a plain
 // browser). Every call site below no-ops in that case rather than throwing.
@@ -67,7 +63,7 @@ window.__openMainApplication = () => {
 // Help or Settings UI itself. [update all] is real, local behavior:
 // refreshes this window's own mounted provider cards, no cross-window IPC
 // needed.
-const footerHandlers = {
+const headerHandlers = {
   onOpenApp() {
     window.__openMainApplication?.();
   },
@@ -81,26 +77,6 @@ const footerHandlers = {
     window.__openMainWindowSettings?.();
   },
 };
-
-// Builds the toolbar/tab markup from the current provider-visibility
-// settings and mounts it, preserving `selectedTab` if its provider is still
-// enabled (falling back to "all" otherwise — e.g. the previously-selected
-// provider's tab just got disabled). Used both for the initial mount and to
-// rebuild the tab list live on SETTINGS_CHANGED_EVENT (kind: "visibility"),
-// per docs/desktop/mac-popover.md#view-tabs.
-function buildAndAttachToolbar(selectedTab) {
-  const enabledProviderIds = PROVIDER_IDS.filter(isProviderEnabled);
-  const nextSelectedTab =
-    selectedTab === "all" || enabledProviderIds.includes(selectedTab) ? selectedTab : "all";
-
-  toolbarMount.innerHTML = buildPopoverToolbarHtml(enabledProviderIds);
-  applyPopoverTabFilter(popoverRoot, nextSelectedTab);
-  attachPopoverToolbarHandlers(popoverRoot);
-}
-
-function currentlySelectedTab() {
-  return toolbarMount.querySelector('[data-popover-tab][aria-selected="true"]')?.dataset.popoverTab ?? "all";
-}
 
 // The Popover has no Settings UI of its own (see Roles in
 // docs/desktop/mac-popover.md), so there are no setting input elements to
@@ -117,16 +93,10 @@ initTheme(null);
 initSettings({});
 initProviders({ providerList, statusLine });
 
-// View Tabs follow the same provider-visibility settings as the Main Window
-// (Cursor/Claude/Codex toggles) — a disabled provider's tab does not appear,
-// per docs/desktop/mac-popover.md#view-tabs. Initial mount, "all" selected by
-// default (the Popover always opens on "All" — see #view-tabs).
-buildAndAttachToolbar("all");
-
-// The footer is mounted once and never rebuilt, so its handlers are attached
-// once too (unlike the toolbar's, which are reattached on every rebuild).
-footerMount.innerHTML = buildPopoverFooterHtml();
-attachPopoverFooterHandlers(popoverRoot, footerHandlers);
+// The header is mounted once and never rebuilt, so its handlers are attached
+// once too.
+headerMount.innerHTML = buildPopoverHeaderHtml();
+attachPopoverHeaderHandlers(popoverRoot, headerHandlers);
 observePopoverScroll(popoverRoot);
 
 // Cross-window settings sync (Main Window -> Popover; see
@@ -137,8 +107,9 @@ observePopoverScroll(popoverRoot);
 // Tauri webview window is its own JS context with its own copy of
 // settings.js's module-scoped `appSettings`, so localStorage alone does not
 // make an already-open Popover notice a Main Window change — reloadAppSettings()
-// re-reads it here first, then the toolbar/tab list and already-mounted card
-// sections are refreshed from that freshly-loaded state.
+// re-reads it here first, then the already-mounted card sections (which
+// providers.js itself filters down to enabled providers) are refreshed from
+// that freshly-loaded state.
 //
 // Both a provider-visibility change and a display-toggle change are cheap
 // and idempotent to redo, so this handler does not need to branch on
@@ -146,7 +117,6 @@ observePopoverScroll(popoverRoot);
 if (window.__TAURI__?.event?.listen) {
   window.__TAURI__.event.listen(SETTINGS_CHANGED_EVENT, () => {
     reloadAppSettings();
-    buildAndAttachToolbar(currentlySelectedTab());
     refreshProviderSectionsFromCache();
   });
 
@@ -161,8 +131,8 @@ if (window.__TAURI__?.event?.listen) {
 
 // Content-driven window height (see docs/desktop/mac-popover.md#window-size).
 // The native side owns the width and clamps the height, so this only has to
-// report what the panel would like to be: the two fixed strips plus the
-// natural height of the card list. It deliberately does not measure
+// report what the panel would like to be: the header strip plus the natural
+// height of the card list. It deliberately does not measure
 // `.popover-scroll` itself — that element is stretched to whatever height the
 // window currently has, which would make the measurement circular and pin the
 // window at its first size forever.
@@ -172,19 +142,17 @@ function reportPopoverHeight() {
     return;
   }
 
-  const topbar = popoverRoot.querySelector(".popover-topbar");
-  const footer = popoverRoot.querySelector(".popover-footer");
+  const header = popoverRoot.querySelector(".popover-header");
   const height =
-    (topbar?.offsetHeight ?? 0) +
+    (header?.offsetHeight ?? 0) +
     providerList.offsetHeight +
-    (statusLine.hidden ? 0 : statusLine.offsetHeight) +
-    (footer?.offsetHeight ?? 0);
+    (statusLine.hidden ? 0 : statusLine.offsetHeight);
 
   invoke("set_popover_height", { height }).catch(() => {});
 }
 
 // The card list changes height on nearly every interaction — data resolving,
-// a tab filtering cards out, a display toggle syncing in from the Main
+// a display toggle syncing in from the Main
 // Window — so the report is driven by observing it rather than hooked into
 // each of those call sites.
 if (typeof window.ResizeObserver === "function") {
@@ -218,6 +186,21 @@ document.addEventListener(
 // A native panel has no WebKit "Reload / Inspect Element" context menu.
 document.addEventListener("contextmenu", (event) => {
   event.preventDefault();
+});
+
+// `makeKeyAndOrderFront` in popover_panel.rs's `show_near_tray` makes the
+// panel key on every show (needed so Escape/outside-click work immediately —
+// see docs/desktop/mac-popover.md#native-panel). WebKit reacts to a webview
+// becoming key by auto-focusing the first focusable element in the page —
+// here, the header's "AI Limits" button — which then paints the
+// `:focus-visible` ring as if the user had tabbed to it, on a panel that was
+// only ever clicked open. The panel has no keyboard-driven navigation to
+// preserve, so this just blurs whatever WebKit auto-focused every time the
+// window regains focus, rather than trying to special-case that one button.
+window.addEventListener("focus", () => {
+  if (document.activeElement instanceof HTMLElement && document.activeElement !== document.body) {
+    document.activeElement.blur();
+  }
 });
 
 if (typeof window.matchMedia === "function") {

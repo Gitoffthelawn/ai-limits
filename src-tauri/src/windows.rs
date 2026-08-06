@@ -33,10 +33,10 @@ pub const POPOVER_CORNER_RADIUS: f64 = 11.0;
 
 /// Vertical gap between the bottom of the menu bar (i.e. the bottom of the
 /// clicked tray icon) and the top of the Popover, in logical pixels — system
-/// menu bar panels leave a similar few-point gap rather than butting against
-/// the menu bar.
+/// menu bar panels (Wi-Fi, Control Center, Notification Center) sit almost
+/// flush against the menu bar, not a visually distinct few points below it.
 #[cfg(target_os = "macos")]
-pub const POPOVER_MENU_BAR_GAP: f64 = 6.0;
+pub const POPOVER_MENU_BAR_GAP: f64 = 2.0;
 
 /// Minimum distance the Popover keeps from the left/right/bottom edges of the
 /// display it is shown on, in logical pixels.

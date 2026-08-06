@@ -16,6 +16,17 @@
 
 /* Standalone page shell. Transparent so the native NSVisualEffectView
    material behind the webview is what the user actually sees. */
+/* tokens.css paints an opaque `--app-bg` on `:root` (i.e. `<html>`) for the
+   Main Window. `body.popover-page` below sets its own background
+   transparent, but that alone still leaves the opaque `<html>` background
+   showing through it — the actual cause of the popover rendering as a solid
+   opaque panel instead of the native vibrancy material. Overriding it back
+   to transparent only when the popover page's body is present (`:has()`)
+   keeps the Main Window's own opaque page background untouched. */
+html:has(body.popover-page) {
+  background: transparent;
+}
+
 body.popover-page {
   display: block;
   min-width: 0;
@@ -41,10 +52,6 @@ body.popover-page {
   --pop-hover: rgba(0, 0, 0, 0.06);
   --pop-pressed: rgba(0, 0, 0, 0.11);
   --pop-track: rgba(0, 0, 0, 0.06);
-  --pop-segment: rgba(255, 255, 255, 0.92);
-  --pop-segment-shadow:
-    0 0.5px 1.5px rgba(0, 0, 0, 0.18),
-    0 0 0 0.5px rgba(0, 0, 0, 0.04);
   --pop-hairline: rgba(0, 0, 0, 0.1);
   --pop-meter-track: rgba(0, 0, 0, 0.13);
   --pop-scroll-thumb: rgba(0, 0, 0, 0.26);
@@ -103,10 +110,6 @@ body.popover-page {
   --pop-hover: rgba(255, 255, 255, 0.1);
   --pop-pressed: rgba(255, 255, 255, 0.16);
   --pop-track: rgba(255, 255, 255, 0.08);
-  --pop-segment: rgba(255, 255, 255, 0.2);
-  --pop-segment-shadow:
-    0 0.5px 1.5px rgba(0, 0, 0, 0.4),
-    0 0 0 0.5px rgba(255, 255, 255, 0.08);
   --pop-hairline: rgba(255, 255, 255, 0.12);
   --pop-meter-track: rgba(255, 255, 255, 0.16);
   --pop-scroll-thumb: rgba(255, 255, 255, 0.3);
@@ -135,12 +138,17 @@ body.popover-page {
   display: contents;
 }
 
-/* Top bar: just the segmented view control, sitting directly on the
-   material — no container, no separator, no app name / [update all] row
-   above it ([update all] lives in the footer's icon row instead). */
-.popover-topbar {
+/* Header: the app name on the left (opens the Main Window), the icon
+   buttons (update / info / gear) at the right edge — the same row that used
+   to live in the footer, moved above the content instead. No hairline
+   against the card list below it: the vibrancy material alone separates
+   them, the way other menu-bar popovers do it. */
+.popover-header {
   flex: 0 0 auto;
-  padding: 10px 10px 8px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 8px 6px;
 }
 
 /* Borderless 22x22 icon buttons: nothing in the resting state, a rounded
@@ -172,47 +180,6 @@ body.popover-page {
 
 .popover-icon {
   display: block;
-}
-
-/* Segmented control (macOS style): an alpha track holding equal segments;
-   the selected one is a raised pill, not a bordered button. */
-.popover-tabs {
-  display: flex;
-  gap: 2px;
-  min-width: 0;
-  padding: 2px;
-  border-radius: 7px;
-  background: var(--pop-track);
-}
-
-.popover-tab {
-  flex: 1 1 0;
-  min-width: 0;
-  height: 18px;
-  padding: 0 4px;
-  border: 0;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--pop-text);
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 510;
-  line-height: 1;
-  opacity: 0.7;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.popover-tab:hover {
-  opacity: 1;
-}
-
-.popover-tab[aria-selected="true"] {
-  background: var(--pop-segment);
-  box-shadow: var(--pop-segment-shadow);
-  font-weight: 590;
-  opacity: 1;
 }
 
 /* Only the card area scrolls; the top bar and footer stay put. Overlay
@@ -295,12 +262,6 @@ body.popover-page {
   --provider-border-color: var(--pop-hairline);
   --provider-border-overlay-color: transparent;
   --provider-card-drop-shadow: 0 0 0 transparent;
-}
-
-/* `.provider-block` sets `display: flex`, which outranks the UA
-   `[hidden] { display: none }` rule, so the tab filter needs this restated. */
-.popover-root .provider-block[hidden] {
-  display: none;
 }
 
 /* Card Content decision (docs/desktop/mac-popover.md): the per-card
@@ -522,20 +483,6 @@ body.popover-page {
 .popover-root .source-line,
 .popover-root .update-time-line {
   text-align: left;
-}
-
-/* Footer: a hairline the full width of the panel, then a system-menu row.
-   [info]/[gear] live here rather than in the top bar — like the "Wi-Fi
-   Settings…" / "Sound Settings…" rows of the system panels, navigation out
-   of the panel belongs at the bottom, and it keeps the top bar to the two
-   things that act on the content above it. */
-.popover-footer {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 6px 8px 8px;
-  border-top: 1px solid var(--pop-hairline);
 }
 
 .popover-menu-item {

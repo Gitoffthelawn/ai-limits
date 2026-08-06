@@ -336,14 +336,23 @@ fn popover_panel_class() -> &'static AnyClass {
 }
 
 /// The panel's `contentView`: an `NSVisualEffectView` using the same
-/// `.popover` material a real system popover uses, rounded to
-/// `POPOVER_CORNER_RADIUS` (kept equal to the CSS radius the panel content
-/// uses — see docs/desktop/mac-popover.md#visual-layer).
+/// `.menu` material the system's own menu-bar status-item dropdowns use
+/// (Wi-Fi, Bluetooth, Control Center) — rounded to `POPOVER_CORNER_RADIUS`
+/// (kept equal to the CSS radius the panel content uses — see
+/// docs/desktop/mac-popover.md#visual-layer).
+///
+/// `.popover` (the previous material here) is Apple's material for a true
+/// `NSPopover` with an arrow/tip pointing back at what opened it; its
+/// background tint reads visibly different from the menu-bar status-item
+/// dropdowns this panel is actually trying to match, since this panel has no
+/// arrow and is anchored under a menu-bar icon like those dropdowns are, not
+/// under an on-screen control the way a real `NSPopover` is. `.menu` is the
+/// material those dropdowns use, and matches their color/opacity instead.
 fn build_vibrancy_view(mtm: MainThreadMarker, size: NSSize) -> Retained<NSVisualEffectView> {
     let rect = NSRect::new(NSPoint::new(0.0, 0.0), size);
     let view = NSVisualEffectView::initWithFrame(NSVisualEffectView::alloc(mtm), rect);
 
-    view.setMaterial(NSVisualEffectMaterial::Popover);
+    view.setMaterial(NSVisualEffectMaterial::Menu);
     view.setBlendingMode(NSVisualEffectBlendingMode::BehindWindow);
     view.setState(NSVisualEffectState::Active);
     view.setWantsLayer(true);
