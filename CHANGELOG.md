@@ -11,6 +11,7 @@ Added:
 - Unified cache
 
 Updated:
+- macOS opens the Main Window only on the first launch; later launches start from the menu bar
 - Redisign
 
 ## [v0.4.0](https://github.com/md2it/ai-limits/releases/tag/v0.4.0) — 2026-08-04

@@ -109,8 +109,8 @@ The card animation these three events drive — including the short flash played
 
 ## Launch Behavior
 
-- **First launch** — open the Main Window. No change needed: this is default Tauri window-config behavior (`app.windows` in tauri.conf.json), confirmed still true — the Popover panel is built with `orderOut` never called and `orderFrontRegardless` never called during `popover_panel::install`/`finish_install`, so it starts off-screen and is never shown at startup.
-- **Normal manual launch** — open the Main Window. Same as above — unchanged, default behavior, confirmed still holds.
+- **First launch** — open the Main Window. The configured window starts hidden; `launch::show_initial_window` atomically creates a marker in the app-data directory and shows the window only when that marker did not already exist. If the marker cannot be read or written, the Main Window opens so the application never starts with no accessible interface.
+- **Normal manual launch after the first one** — do not open the Main Window automatically. The app is available through the menu bar icon; the user can explicitly open the Main Window from the Dock, the Popover, or the menu-bar context menu.
 - **Autostart/login item** — launch in the background, show the menu bar icon, do not open the Main Window, do not open the Popover automatically. **N/A for this phase**: this app has no launch-at-login / autostart feature at all yet (no `tauri-plugin-autostart`, no LaunchAgent, no login-item registration anywhere in the codebase). This case is blocked on a launch-at-login feature that doesn't exist yet — implementing it is a separate, larger feature outside this phase's scope. Tracked in [Open Items](#open-items).
 
 ## UX Principle

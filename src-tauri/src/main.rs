@@ -1,4 +1,5 @@
 mod commands;
+mod launch;
 mod notifications;
 mod platform;
 #[cfg(target_os = "macos")]
@@ -69,6 +70,7 @@ fn main() {
                 popover_panel::install_main_window_fullscreen_observer(app);
                 install_tray_icon(app)?;
             }
+            launch::show_initial_window(app.handle());
             Ok(())
         })
         .on_menu_event(|app, event| {
