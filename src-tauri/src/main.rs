@@ -50,6 +50,8 @@ fn main() {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(Arc::new(Mutex::new(HashSet::<String>::new())))
+        .manage(commands::new_structured_info_cache())
+        .manage(commands::CollectionCoordinator::new())
         .setup(|app| {
             notifications::start_notification_bridge(app.handle().clone());
             let store_path = notifications::previous_remaining_store_path(app.handle())?;

@@ -6,50 +6,78 @@ use ai_limits::get_limits::{
 };
 use ai_limits::notifications as core_notifications;
 use ai_limits::notifications::PreviousRemainingStore;
-use ai_limits::types::SourceReport;
+use ai_limits::types::{SourceReport, StructuredSourceInfo};
 
 use super::provider_limits::{
     provider_error, provider_limits_from_structured, ProviderLimits, ProviderLimitsQuery,
 };
+use super::structured_cache::{CollectionCoordinator, StructuredInfoCache};
 
-pub(super) fn collect_single_provider_limits(
+pub(super) async fn collect_single_provider_limits(
     provider_id: &str,
     query: &ProviderLimitsQuery,
     app: tauri::AppHandle,
     sent_notifications: Arc<Mutex<HashSet<String>>>,
     remaining_store: Arc<dyn PreviousRemainingStore>,
+    structured_cache: StructuredInfoCache,
+    coordinator: CollectionCoordinator,
 ) -> Result<ProviderLimits, String> {
     let source_plan = ui_source_plan(source_plan_options(query))
         .into_iter()
         .find(|plan| plan.label() == provider_id)
         .ok_or_else(|| format!("Provider '{provider_id}' is disabled or unknown"))?;
 
-    Ok(collect_provider_limits_for_plan(
-        source_plan,
-        query,
-        app,
-        sent_notifications,
-        remaining_store,
-    ))
+    let id = source_plan.label().to_string();
+    let notifications_enabled = query.notifications_enabled;
+
+    let result = coordinator
+        .collect_once(&id, move || {
+            run_collection(
+                source_plan,
+                notifications_enabled,
+                app,
+                sent_notifications,
+                remaining_store,
+                structured_cache,
+            )
+        })
+        .await;
+
+    Ok(match result {
+        Ok(structured) => provider_limits_from_structured(&id, &structured),
+        Err(error) => provider_error(&id, error),
+    })
 }
 
-fn collect_provider_limits_for_plan(
+/// The single actual collection for one provider: runs the source chain,
+/// evaluates notifications once on success, and — only on success — updates
+/// the shared structured-data cache. Always runs on a blocking thread, since
+/// the source chain performs blocking file/process/network I/O.
+async fn run_collection(
     source_plan: SourcePlan,
-    query: &ProviderLimitsQuery,
+    notifications_enabled: bool,
     app: tauri::AppHandle,
     sent_notifications: Arc<Mutex<HashSet<String>>>,
     remaining_store: Arc<dyn PreviousRemainingStore>,
-) -> ProviderLimits {
+    structured_cache: StructuredInfoCache,
+) -> Result<StructuredSourceInfo, String> {
     let id = source_plan.label().to_string();
-    match get_source_plan_limits(source_plan) {
+
+    tauri::async_runtime::spawn_blocking(move || match get_source_plan_limits(source_plan) {
         Ok(report) => {
-            if query.notifications_enabled {
+            if notifications_enabled {
                 notify_for_report(&report, app, &sent_notifications, &remaining_store);
             }
-            provider_limits_from_structured(&id, &report.data.structured)
+            let structured = report.data.structured;
+            if let Ok(mut cache) = structured_cache.lock() {
+                cache.insert(id, structured.clone());
+            }
+            Ok(structured)
         }
-        Err(error) => provider_error(&id, error.to_string()),
-    }
+        Err(error) => Err(error.to_string()),
+    })
+    .await
+    .map_err(|error| error.to_string())?
 }
 
 fn source_plan_options(query: &ProviderLimitsQuery) -> UiSourcePlanOptions {

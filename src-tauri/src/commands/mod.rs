@@ -1,6 +1,7 @@
 pub mod app_update;
 mod collect;
 mod provider_limits;
+mod structured_cache;
 
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex};
@@ -18,6 +19,7 @@ use ai_limits::types::CliAuthorization;
 use crate::windows::MAIN_WINDOW_LABEL;
 
 pub use provider_limits::{ProviderLimits, ProviderLimitsQuery};
+pub use structured_cache::{new_structured_info_cache, CollectionCoordinator, StructuredInfoCache};
 
 use collect::collect_single_provider_limits;
 
@@ -33,21 +35,24 @@ pub async fn get_single_provider_limits(
     app: tauri::AppHandle,
     sent_notifications: tauri::State<'_, Arc<Mutex<HashSet<String>>>>,
     remaining_store: tauri::State<'_, Arc<dyn PreviousRemainingStore>>,
+    structured_cache: tauri::State<'_, StructuredInfoCache>,
+    coordinator: tauri::State<'_, CollectionCoordinator>,
 ) -> Result<ProviderLimits, String> {
     let sent_notifications = Arc::clone(sent_notifications.inner());
     let remaining_store = Arc::clone(remaining_store.inner());
+    let structured_cache = Arc::clone(structured_cache.inner());
+    let coordinator = coordinator.inner().clone();
 
-    tauri::async_runtime::spawn_blocking(move || {
-        collect_single_provider_limits(
-            &provider_id,
-            &query,
-            app,
-            sent_notifications,
-            remaining_store,
-        )
-    })
+    collect_single_provider_limits(
+        &provider_id,
+        &query,
+        app,
+        sent_notifications,
+        remaining_store,
+        structured_cache,
+        coordinator,
+    )
     .await
-    .map_err(|error| error.to_string())?
 }
 
 #[tauri::command]

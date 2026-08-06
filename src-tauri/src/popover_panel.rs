@@ -86,6 +86,7 @@ use objc2_app_kit::{
 use objc2_foundation::{
     MainThreadMarker, NSNotification, NSNotificationCenter, NSPoint, NSRect, NSSize,
 };
+use objc2_quartz_core::kCACornerCurveContinuous;
 use serde_json::{json, Value as JsonValue};
 use tauri::Listener;
 use tauri::Manager;
@@ -94,7 +95,7 @@ use wry::http::Response as HttpResponse;
 use wry::raw_window_handle::{
     AppKitWindowHandle, HandleError, HasWindowHandle, RawWindowHandle, WindowHandle,
 };
-use wry::{Rect, WebView, WebViewBuilder};
+use wry::{Rect, WebView, WebViewBuilder, WebViewExtMacOS};
 
 use crate::windows::{
     POPOVER_CORNER_RADIUS, POPOVER_DEFAULT_HEIGHT, POPOVER_MAX_HEIGHT, POPOVER_MENU_BAR_GAP,
@@ -359,6 +360,13 @@ fn build_vibrancy_view(mtm: MainThreadMarker, size: NSSize) -> Retained<NSVisual
     if let Some(layer) = view.layer() {
         layer.setCornerRadius(POPOVER_CORNER_RADIUS);
         layer.setMasksToBounds(true);
+        // System menu-bar panels round with the "squircle" continuous
+        // curve, not a plain circular arc; at this same radius a circular
+        // corner reads visibly tighter/sharper than the system's, which is
+        // what made this panel's radius look off next to Control Center's.
+        // SAFETY: reading the extern `NSString` constant is safe; only its
+        // `extern` declaration requires the block.
+        layer.setCornerCurve(unsafe { kCACornerCurveContinuous });
     }
     view.setAutoresizingMask(
         objc2_app_kit::NSAutoresizingMaskOptions::ViewWidthSizable
@@ -387,7 +395,7 @@ fn create_webview(app: &tauri::AppHandle, panel: &NSPanel, size: NSSize) -> WebV
     let protocol_app = app.clone();
     let ipc_app = app.clone();
 
-    WebViewBuilder::new()
+    let webview = WebViewBuilder::new()
         .with_url(format!("{POPOVER_SCHEME}://localhost/popover.html"))
         .with_transparent(true)
         .with_initialization_script(BOOTSTRAP_JS)
@@ -400,7 +408,26 @@ fn create_webview(app: &tauri::AppHandle, panel: &NSPanel, size: NSSize) -> WebV
             size: wry::dpi::LogicalSize::new(size.width, size.height).into(),
         })
         .build_as_child(&handle)
-        .expect("failed to build the Popover's webview")
+        .expect("failed to build the Popover's webview");
+
+    // `WKWebView` composites its GPU-accelerated content through its own
+    // remote layer, which does not automatically inherit `masksToBounds`
+    // from the content view it was added as a subview of. Left unmasked,
+    // the webview's own square corners show through at the very corners
+    // the vibrancy view's rounding is supposed to clip — the "sharp corners
+    // peeking out from under the rounded rect" this panel used to show. The
+    // fix is to round the webview's own layer to the same radius/curve.
+    let wk_view = webview.webview();
+    wk_view.setWantsLayer(true);
+    if let Some(layer) = wk_view.layer() {
+        layer.setCornerRadius(POPOVER_CORNER_RADIUS);
+        layer.setMasksToBounds(true);
+        // SAFETY: reading the extern `NSString` constant is safe; only its
+        // `extern` declaration requires the block.
+        layer.setCornerCurve(unsafe { kCACornerCurveContinuous });
+    }
+
+    webview
 }
 
 /// Serves a bundled frontend asset for the Popover's custom-protocol
@@ -551,12 +578,16 @@ fn handle_ipc(app: &tauri::AppHandle, body: &str) {
                 let remaining_store = app
                     .state::<std::sync::Arc<dyn ai_limits::notifications::PreviousRemainingStore>>(
                     );
+                let structured_cache = app.state::<crate::commands::StructuredInfoCache>();
+                let coordinator = app.state::<crate::commands::CollectionCoordinator>();
                 let result = crate::commands::get_single_provider_limits(
                     provider_id,
                     query,
                     app.clone(),
                     sent_notifications,
                     remaining_store,
+                    structured_cache,
+                    coordinator,
                 )
                 .await;
                 let payload = match result {
