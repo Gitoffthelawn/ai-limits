@@ -35,10 +35,7 @@
 }
 
 .help-menu-item {
-  border: var(--border-control);
   border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text);
   font: inherit;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
@@ -47,26 +44,13 @@
   cursor: pointer;
 }
 
-.help-menu-item:hover {
-  background: var(--surface-hover);
-}
-
-.help-menu-item[aria-current="page"] {
-  border-color: var(--accent-warning);
-  background: color-mix(in srgb, var(--accent-warning) var(--mix-active-warning), var(--surface));
-  color: var(--text);
-}
-
 .help-content {
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
   gap: var(--space-12);
-  border: var(--border-surface);
   border-radius: var(--radius-md);
-  background: var(--surface);
   padding: var(--space-16);
-  color: var(--text-muted);
   font-size: var(--font-size-xs);
   line-height: var(--line-height-relaxed);
 }
@@ -91,7 +75,6 @@
   flex: 0 0 auto;
   min-width: 34px;
   font-weight: var(--font-weight-bold);
-  color: var(--text);
 }
 
 .info-terms dd {
@@ -100,7 +83,6 @@
 }
 
 .info-note {
-  color: var(--text-muted);
   font-size: 12px;
 }
 
@@ -148,10 +130,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-6);
-  border: var(--border-control);
   border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text);
   font: inherit;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
@@ -159,10 +138,6 @@
   cursor: pointer;
   text-align: center;
   white-space: nowrap;
-}
-
-.info-link:hover {
-  background: var(--surface-hover);
 }
 
 /* Trailing glyph marking where a link leads: an out-of-app arrow for external

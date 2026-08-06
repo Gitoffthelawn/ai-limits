@@ -9,37 +9,22 @@ body {
   background: var(--app-bg);
 }
 
-/* Shared primary surface action button. */
+/* Shared primary surface action button. Tile styling for the Main Window lives
+   in main-glass.css (.app .refresh-button). */
 .refresh-button {
-  border: var(--border-control);
   border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text);
   font: inherit;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   padding: var(--space-8) var(--space-14);
   text-align: center;
   cursor: pointer;
-  box-shadow: var(--shadow-control);
-}
-
-.refresh-button:hover:not(:disabled) {
-  border-color: var(--accent-success);
-  background: color-mix(in srgb, var(--accent-success) var(--mix-hover-success), var(--surface));
 }
 
 .refresh-button:disabled {
   color: var(--text-muted);
   cursor: not-allowed;
-}
-
-/* Neutral controls warm to yellow in dark theme. See docs/desktop/ui/styleguide.md. */
-:root[data-theme="dark"] .help-menu-item:hover,
-:root[data-theme="dark"] .info-link:hover {
-  border-color: var(--accent-warning);
-  background: color-mix(in srgb, var(--accent-warning) var(--mix-hover-warning), var(--surface));
-  color: var(--accent-warning);
+  opacity: 0.55;
 }
 
 .settings-toggle input[type="checkbox"]:focus-visible,

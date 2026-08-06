@@ -1,5 +1,6 @@
 /* Stylesheet entry point. Cascade order matches the app surface areas. */
 @import "./styles/tokens.css";
+@import "./styles/main-glass.css";
 @import "./styles/base.css";
 @import "./styles/showcase.css";
 @import "./styles/toolbar.css";

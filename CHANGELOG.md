@@ -16,7 +16,8 @@ Updated:
 - Main Window reworked into Overview, Settings, and Help
 - Provider cards no longer have their own refresh-frequency or per-card UPDATE NOW controls
 - Redesign:
-  - Main Window surfaces use the Popover material palette, blur, and tile lift
+  - Main Window navigation and Help share quiet grouped controls in both themes
+  - Main Window actions now share one glass state pattern for rest, hover and press
 
 Fixed:
 - Cmd+W closes the Main Window from fullscreen

@@ -1,0 +1,162 @@
+/* Main Window — Popover material on an opaque window.
+
+   Reference hierarchy (Main Window only):
+   - Provider cards (.provider-block): default tile for both themes
+   - Navigation (.app-nav, .help-menu): quiet grouped controls
+   - Actions: one raised-tile stack for rest, hover and pressed states
+
+   Sizes and radii stay on the Main Window tokens. */
+
+body:has(main.app) {
+  background: linear-gradient(165deg, #d4d4da 0%, #ececf1 42%, #dedee4 100%);
+  color: var(--pop-text);
+}
+
+:root[data-theme="dark"] body:has(main.app) {
+  background: linear-gradient(165deg, #0b0b0d 0%, #151518 50%, #0e0e10 100%);
+  color: var(--pop-text);
+}
+
+/* Provider-card tile — shared fill, lift, and blur. */
+.app :is(
+    .provider-block,
+    .help-content,
+    .settings-view,
+    .update-banner
+  ) {
+  border: 0;
+  background-color: var(--glass-control-surface);
+  box-shadow: var(--shadow-glass);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  color: var(--pop-text);
+}
+
+/* Raised actions share the same material and state changes. This applies to
+   primary, secondary and contextual actions without inventing per-button
+   variants. */
+.app :is(
+    .refresh-button,
+    .info-link,
+    .update-restart-button,
+    .update-dismiss-button,
+    .settings-toggle select,
+    .provider-settings-button
+  ) {
+  border: 0;
+  background-color: var(--glass-control-surface);
+  box-shadow: var(--shadow-glass);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  color: var(--pop-text);
+}
+
+/* Hover/pressed remain within the same material family in either theme. */
+.app :is(
+    .refresh-button:hover:not(:disabled),
+    .info-link:hover,
+    .update-restart-button:hover,
+    .update-dismiss-button:hover,
+    .settings-toggle select:hover,
+    .provider-settings-button:hover,
+    .provider-settings-button[aria-expanded="true"]
+  ) {
+  background-color: var(--glass-control-hover);
+  border-color: transparent;
+  color: var(--pop-text);
+}
+
+.app :is(
+    .refresh-button:active:not(:disabled),
+    .info-link:active,
+    .update-restart-button:active,
+    .update-dismiss-button:active,
+    .provider-settings-button:active
+  ) {
+  background-color: var(--glass-control-pressed);
+}
+
+/* Navigation is a quiet group, so its items read as one choice rather than
+   three unrelated provider-specific buttons. Help uses the identical model. */
+.app :is(.app-nav, .help-menu) {
+  gap: var(--space-2);
+  border: var(--border-width) solid var(--glass-control-hairline);
+  border-radius: var(--radius-md);
+  background: var(--glass-control-group);
+  padding: var(--space-2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.app :is(.app-nav-tab, .help-menu-item) {
+  border: 0;
+  background: transparent;
+  color: var(--pop-text-secondary);
+}
+
+.app :is(.app-nav-tab, .help-menu-item):hover {
+  background: var(--glass-control-hover);
+  color: var(--pop-text);
+}
+
+.app :is(.app-nav-tab, .help-menu-item):active {
+  background: var(--glass-control-pressed);
+}
+
+/* Selected navigation always has the raised tile, not a theme-specific tint. */
+.app :is(.app-nav-tab, .help-menu-item)[aria-current="page"] {
+  background-color: var(--glass-control-surface);
+  box-shadow: var(--shadow-glass);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  color: var(--pop-text);
+}
+
+/* Provider cards — brand on name/icon/meters only. */
+.app .provider-block {
+  --provider-border-color: var(--pop-hairline);
+  --provider-border-overlay-color: transparent;
+  --provider-card-drop-shadow: var(--shadow-none);
+  --provider-text: var(--pop-text);
+  --provider-text-muted: var(--pop-text-secondary);
+}
+
+:root[data-theme="dark"] .app .provider-block[data-provider-id="cursor"] {
+  --provider-border-color: var(--pop-hairline);
+  --provider-border-overlay-color: transparent;
+  --provider-card-drop-shadow: var(--shadow-none);
+}
+
+.app .provider-block .provider-settings-button {
+  border-color: transparent;
+}
+
+.app .section-heading::before,
+.app .section-heading::after {
+  background: var(--pop-hairline);
+  box-shadow: none;
+}
+
+.app .section-heading-label {
+  color: var(--pop-text-secondary);
+}
+
+.app .provider-footer:has(.source-line:not([hidden])),
+.app .provider-footer:has(.update-time-line:not([hidden])) {
+  border-top-color: var(--pop-hairline);
+  box-shadow: none;
+}
+
+.app .help-content {
+  color: var(--pop-text-secondary);
+}
+
+.app .help-content .info-terms dt {
+  color: var(--pop-text);
+}
+
+.app :is(button, a, select):focus-visible {
+  outline: var(--border-width-focus) solid var(--pop-focus);
+  outline-offset: var(--space-2);
+}

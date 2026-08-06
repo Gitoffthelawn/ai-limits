@@ -1,14 +1,12 @@
-/* Main Window Settings page. Visibility is handled by main.js's switchView. */
+/* Main Window Settings page. Tile styling lives in main-glass.css. Visibility is
+   handled by main.js's switchView. */
 .settings-view {
   display: grid;
   gap: var(--space-16);
   width: min(100%, var(--content-width));
   margin: var(--space-0) auto;
-  border: var(--border-surface);
   border-radius: var(--radius-md);
-  background: var(--surface);
   padding: var(--space-16);
-  box-shadow: var(--shadow-control);
 }
 
 .settings-view[hidden] {
@@ -52,9 +50,9 @@
   height: var(--toggle-height);
   margin: 0;
   appearance: none;
-  border: var(--border-control);
+  border: var(--border-width) solid var(--pop-hairline);
   border-radius: var(--radius-pill);
-  background: var(--surface-muted);
+  background: var(--pop-track);
   cursor: pointer;
   transition: background var(--motion-fast), border-color var(--motion-fast);
 }
@@ -67,8 +65,8 @@
   width: var(--toggle-knob-size);
   height: var(--toggle-knob-size);
   border-radius: var(--radius-circle);
-  background: var(--surface);
-  box-shadow: var(--shadow-control);
+  background: var(--pop-tile);
+  box-shadow: var(--shadow-glass);
   transition: transform var(--motion-fast);
 }
 
@@ -84,13 +82,20 @@
 .settings-toggle select {
   min-width: 7.5rem;
   margin: 0;
-  border: var(--border-control);
+  border: 0;
   border-radius: var(--radius-sm);
-  background: var(--surface-muted);
-  color: var(--text);
+  background: var(--pop-tile);
+  box-shadow: var(--shadow-glass);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  color: var(--pop-text);
   font: inherit;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   padding: var(--space-6) var(--space-8);
   cursor: pointer;
+}
+
+.settings-toggle select:hover {
+  background: var(--pop-hover);
 }
