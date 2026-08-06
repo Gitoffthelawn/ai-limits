@@ -6,6 +6,8 @@ Format: each version groups its entries under plain-text labels, in this order w
 
 ## Unreleased
 
+## [v0.5.0](https://github.com/md2it/ai-limits/releases/tag/v0.5.0) — 2026-08-06
+
 New feature:
 - The macOS menu bar Popover
 - Shared live cache and refresh schedule between Main Window and Popover
