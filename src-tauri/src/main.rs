@@ -7,6 +7,7 @@ mod windows;
 
 use std::collections::HashSet;
 use std::process::ExitCode;
+use std::sync::atomic::Ordering;
 use std::sync::{Arc, Mutex};
 
 use tauri::Manager;
@@ -194,6 +195,16 @@ fn install_help_menu(app: &tauri::App) -> tauri::Result<()> {
 /// hiding it in place would strand its macOS Space and leave that Space bound
 /// to AI Limits.
 ///
+/// `set_fullscreen(false)` only *requests* the exit; the animated transition
+/// back to a normal window runs asynchronously on AppKit's main thread and
+/// isn't finished by the time this handler returns. Calling `hide()`
+/// immediately after used to race that animation: AppKit would cancel the
+/// in-flight fullscreen exit's completion and leave the window merely
+/// un-fullscreened (and visible) instead of hidden. So the fullscreen case
+/// defers `hide()` to `NSWindowDidExitFullScreenNotification`, which fires
+/// once the transition genuinely completes; the already-windowed case still
+/// hides synchronously since there's no transition to race.
+///
 /// Quit (Cmd+Q, or the native Quit item installed in `install_help_menu` via
 /// `PredefinedMenuItem::quit`) is unaffected by this: it terminates the app
 /// directly through the OS's native menu action rather than going through a
@@ -204,16 +215,67 @@ fn install_main_window_close_guard(app: &tauri::App) {
         return;
     };
 
+    install_main_window_hide_after_fullscreen_exit_observer(&main_window);
+
     let window_to_hide = main_window.clone();
     main_window.on_window_event(move |event| {
         if let tauri::WindowEvent::CloseRequested { api, .. } = event {
             api.prevent_close();
             if window_to_hide.is_fullscreen().unwrap_or(false) {
+                HIDE_MAIN_WINDOW_AFTER_FULLSCREEN_EXIT.store(true, Ordering::SeqCst);
                 let _ = window_to_hide.set_fullscreen(false);
+            } else {
+                let _ = window_to_hide.hide();
             }
+        }
+    });
+}
+
+/// Set by `install_main_window_close_guard` when Cmd+W arrives while the
+/// Main Window is fullscreen, and consumed by the fullscreen-exit observer
+/// below. Left `false` the rest of the time, so the Main Window exiting
+/// fullscreen for any other reason (e.g. the user manually leaving
+/// fullscreen) never hides it.
+#[cfg(target_os = "macos")]
+static HIDE_MAIN_WINDOW_AFTER_FULLSCREEN_EXIT: std::sync::atomic::AtomicBool =
+    std::sync::atomic::AtomicBool::new(false);
+
+/// Hides the Main Window once its native-fullscreen exit animation actually
+/// completes, if that exit was requested by the close guard above. The
+/// observer token is leaked intentionally: it must live for the process's
+/// lifetime, exactly like the analogous popover observer in
+/// `popover_panel::install_main_window_fullscreen_observer`.
+#[cfg(target_os = "macos")]
+fn install_main_window_hide_after_fullscreen_exit_observer(main_window: &tauri::WebviewWindow) {
+    use objc2_app_kit::{NSWindow, NSWindowDidExitFullScreenNotification};
+    use objc2_foundation::{NSNotification, NSNotificationCenter};
+    use std::ptr::NonNull;
+
+    let Ok(main_window_ptr) = main_window.ns_window() else {
+        return;
+    };
+    // SAFETY: Tauri returned the live NSWindow pointer for the application's
+    // always-alive Main Window. The observer is installed during setup and
+    // is removed only when the process exits, after AppKit has stopped
+    // sending window notifications.
+    let ns_window = unsafe { &*main_window_ptr.cast::<NSWindow>() };
+    let window_to_hide = main_window.clone();
+    let block = block2::RcBlock::new(move |_notification: NonNull<NSNotification>| {
+        if HIDE_MAIN_WINDOW_AFTER_FULLSCREEN_EXIT.swap(false, Ordering::SeqCst) {
             let _ = window_to_hide.hide();
         }
     });
+    // SAFETY: the observer is scoped to the live Main Window; `queue: None`
+    // invokes the block synchronously on AppKit's main thread.
+    let observer = unsafe {
+        NSNotificationCenter::defaultCenter().addObserverForName_object_queue_usingBlock(
+            Some(NSWindowDidExitFullScreenNotification),
+            Some(ns_window.as_ref()),
+            None,
+            &block,
+        )
+    };
+    std::mem::forget(observer);
 }
 
 /// Creates the macOS menu bar tray icon. Left-clicking it toggles the
