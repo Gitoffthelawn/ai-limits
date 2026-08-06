@@ -6,13 +6,19 @@ Format: each version groups its entries under plain-text labels, in this order w
 
 ## Unreleased
 
-Added:
-- The macOS Popover
-- Unified cache
+New feature:
+- The macOS menu bar Popover
+- Shared live cache and refresh schedule between Main Window and Popover
 
 Updated:
 - macOS opens the Main Window only on the first launch; later launches start from the menu bar
-- Redisign
+- Main Window reworked into Overview, Settings, and Help
+- Redesign:
+  - Surfaces over the page background get a light Liquid Glass lift
+
+Fixed:
+- Cmd+W closes the Main Window from fullscreen
+- Popover no longer flickers when switching Spaces
 
 ## [v0.4.0](https://github.com/md2it/ai-limits/releases/tag/v0.4.0) — 2026-08-04
 
