@@ -1,5 +1,7 @@
 import {
   PROVIDER_IDS,
+  PROVIDER_REFRESH_FAILED_EVENT,
+  PROVIDER_REFRESH_STARTED_EVENT,
   PROVIDER_UPDATED_EVENT,
 } from "./constants.js";
 import { isProviderEnabled, settingsToQuery } from "./settings.js";
@@ -16,6 +18,24 @@ let statusLine = null;
 let providerSurface = "main";
 
 const providerRefreshInFlight = new Set();
+// Providers with a collection currently in flight in *another* surface,
+// tracked from PROVIDER_REFRESH_STARTED_EVENT until the matching
+// PROVIDER_UPDATED_EVENT/PROVIDER_REFRESH_FAILED_EVENT arrives. Kept separate
+// from providerRefreshInFlight (this window's own requests) so the two can be
+// unioned in updateRefreshVisual without either clearing the other early.
+const providerRemoteRefreshInFlight = new Set();
+// Providers currently playing a short, non-loading "something changed" flash
+// (see flashRemoteUpdate) — a card that receives applied data or a failure it
+// never saw a providerRemoteRefreshInFlight signal for (the started event did
+// not arrive, or arrived and resolved between two ticks). Kept separate from
+// providerRemoteRefreshInFlight so its own short timeout doesn't fight a
+// still-active loading state for the same provider.
+const providerFlashRefreshing = new Set();
+// How long the flash plays: one full pass of the "is-refreshing" glare
+// (see @keyframes provider-refresh-glare in styles/providers.css), long
+// enough to read as "this card just changed" without lingering like a real
+// loading state.
+const REMOTE_UPDATE_FLASH_MS = 1800;
 const providerDataCache = new Map();
 const SECTION_SLOT_KINDS = ["limits", "plan"];
 let sectionSlotAlignmentFrame = 0;
@@ -39,20 +59,137 @@ export function initProviders(elements, { surface = "main" } = {}) {
   window.__TAURI__?.event?.listen?.(PROVIDER_UPDATED_EVENT, (event) => {
     applyRemoteProviderUpdate(event.payload);
   });
+
+  // Backend-emitted, fires right as a collection begins, from whichever
+  // surface started it (including this one — the event is app-wide and this
+  // window receives its own). Lets this window's card show the same
+  // in-flight refresh animation a collection started elsewhere is already
+  // showing there, without starting a collection of its own.
+  window.__TAURI__?.event?.listen?.(PROVIDER_REFRESH_STARTED_EVENT, (event) => {
+    const providerId = event.payload?.id;
+    if (typeof providerId !== "string") {
+      return;
+    }
+    providerRemoteRefreshInFlight.add(providerId);
+    updateRefreshVisual(providerId);
+  });
+
+  // Backend-emitted, fires after a failed actual collection. Lets a surface
+  // that did not start the collection show the same error state instead of
+  // sitting on stale data with no explanation.
+  window.__TAURI__?.event?.listen?.(PROVIDER_REFRESH_FAILED_EVENT, (event) => {
+    applyRemoteProviderFailure(event.payload);
+  });
+}
+
+// Reflects the union of this window's own in-flight refresh
+// (providerRefreshInFlight), a refresh started elsewhere but not yet resolved
+// (providerRemoteRefreshInFlight), and a short post-hoc flash
+// (providerFlashRefreshing) onto the card's busy state, so one animation
+// lifecycle covers every case a card's content can change from.
+function updateRefreshVisual(providerId) {
+  const block = getProviderBlock(providerId);
+  if (!block) {
+    return;
+  }
+
+  const isLoading =
+    providerRefreshInFlight.has(providerId) ||
+    providerRemoteRefreshInFlight.has(providerId) ||
+    providerFlashRefreshing.has(providerId);
+  block.classList.toggle("is-refreshing", isLoading);
+
+  for (const manualRefreshOption of block.querySelectorAll("[data-manual-refresh]")) {
+    manualRefreshOption.disabled = isLoading;
+  }
+
+  block.querySelector("[data-provider-settings-button]")?.setAttribute("aria-busy", String(isLoading));
+}
+
+// Plays a short, self-clearing "is-refreshing" flash for a card whose content
+// just changed without this window ever seeing a providerRemoteRefreshInFlight
+// signal for it (the provider-refresh-started event did not arrive, or
+// already resolved by the time this ran) — so a card never silently changes
+// content with no visible feedback, regardless of what the started event did.
+function flashRemoteUpdate(providerId) {
+  providerFlashRefreshing.add(providerId);
+  updateRefreshVisual(providerId);
+  window.setTimeout(() => {
+    providerFlashRefreshing.delete(providerId);
+    updateRefreshVisual(providerId);
+  }, REMOTE_UPDATE_FLASH_MS);
 }
 
 // Applies a provider snapshot collected by *this window's own* in-flight
 // refresh is deliberately skipped here: refreshSingleProvider's own success
 // path already renders it, and rendering it twice from two code paths would
-// race. This only runs for a result collected elsewhere.
+// race. This only runs for a result collected elsewhere. The remote in-flight
+// marker is cleared unconditionally first, regardless of which path renders
+// the result, so the loading animation always clears when the collection
+// ends; if this window never saw the matching started signal, a short flash
+// plays instead so the change is still visible.
 function applyRemoteProviderUpdate(provider) {
-  if (!provider || typeof provider.id !== "string" || providerRefreshInFlight.has(provider.id)) {
+  if (!provider || typeof provider.id !== "string") {
     return;
+  }
+
+  const wasAnimatingRemoteStart = providerRemoteRefreshInFlight.delete(provider.id);
+  updateRefreshVisual(provider.id);
+
+  if (providerRefreshInFlight.has(provider.id)) {
+    return;
+  }
+
+  if (!wasAnimatingRemoteStart) {
+    flashRemoteUpdate(provider.id);
   }
 
   provider.pending = false;
   cacheProviderData(provider);
   recordProviderUpdateNow(provider.id, provider.collectedAt);
+
+  if (!isProviderEnabled(provider.id)) {
+    return;
+  }
+
+  const block = getProviderBlock(provider.id);
+  if (!block) {
+    return;
+  }
+
+  restartProviderRefreshTimer(provider.id, refreshSingleProvider);
+  updateProviderBlockData(block, provider, getProviderNextRefreshAt(provider.id));
+  attachSectionHandlers(block, provider.id);
+  scheduleSectionSlotAlignment();
+}
+
+// Same shape and same skip-if-this-window-already-owns-it guard as
+// applyRemoteProviderUpdate, for a collection that failed instead of
+// succeeding. `provider` is the same ProviderLimits shape with errorMessage
+// set and limits empty (built by the backend's provider_error), which the
+// existing card renderer already knows how to show as an error state.
+// recordProviderUpdateNow is called without a collectedAt, same as the local
+// catch-path failure handling in refreshSingleProvider — a failed collection
+// has no collectedAt, so the retry anchors to this moment instead.
+function applyRemoteProviderFailure(provider) {
+  if (!provider || typeof provider.id !== "string") {
+    return;
+  }
+
+  const wasAnimatingRemoteStart = providerRemoteRefreshInFlight.delete(provider.id);
+  updateRefreshVisual(provider.id);
+
+  if (providerRefreshInFlight.has(provider.id)) {
+    return;
+  }
+
+  if (!wasAnimatingRemoteStart) {
+    flashRemoteUpdate(provider.id);
+  }
+
+  provider.pending = false;
+  cacheProviderData(provider);
+  recordProviderUpdateNow(provider.id);
 
   if (!isProviderEnabled(provider.id)) {
     return;
@@ -409,28 +546,13 @@ async function loadCachedProviderLimits(providerId) {
 // anything. Manual and scheduled refreshes share this function, so surfacing
 // the error here covers both. The busy state now reads on the whole card
 // (the "is-refreshing" glare) rather than on a dedicated button.
-function setManualRefreshLoading(providerId, isLoading) {
-  const block = getProviderBlock(providerId);
-  if (!block) {
-    return;
-  }
-
-  block.classList.toggle("is-refreshing", isLoading);
-
-  for (const manualRefreshOption of block.querySelectorAll("[data-manual-refresh]")) {
-    manualRefreshOption.disabled = isLoading;
-  }
-
-  block.querySelector("[data-provider-settings-button]")?.setAttribute("aria-busy", String(isLoading));
-}
-
 async function refreshSingleProvider(providerId) {
   if (!isProviderEnabled(providerId) || providerRefreshInFlight.has(providerId)) {
     return;
   }
 
   providerRefreshInFlight.add(providerId);
-  setManualRefreshLoading(providerId, true);
+  updateRefreshVisual(providerId);
 
   try {
     const provider = await fetchSingleProviderLimits(providerId);
@@ -460,9 +582,9 @@ async function refreshSingleProvider(providerId) {
     recordProviderUpdateNow(providerId);
     restartProviderRefreshTimer(providerId, refreshSingleProvider);
   } finally {
-    setManualRefreshLoading(providerId, false);
-    scheduleSectionSlotAlignment();
     providerRefreshInFlight.delete(providerId);
+    updateRefreshVisual(providerId);
+    scheduleSectionSlotAlignment();
   }
 }
 

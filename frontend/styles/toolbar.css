@@ -12,6 +12,7 @@
 .overview-actions {
   display: flex;
   align-items: stretch;
+  margin-top: var(--space-16);
 }
 
 .refresh-button {

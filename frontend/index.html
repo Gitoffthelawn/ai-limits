@@ -41,12 +41,6 @@
       </nav>
 
       <div class="view" id="overview-view">
-        <div class="overview-actions">
-          <button type="button" class="refresh-button" id="refresh-button">
-            UPDATE ALL NOW
-          </button>
-        </div>
-
         <section
           class="update-banner"
           id="update-banner"
@@ -72,6 +66,12 @@
         <section class="providers" aria-label="Provider limits" id="provider-list"></section>
 
         <section class="status-line" aria-live="polite" id="status-line" hidden></section>
+
+        <div class="overview-actions">
+          <button type="button" class="refresh-button" id="refresh-button">
+            UPDATE ALL DATA NOW
+          </button>
+        </div>
       </div>
 
       <section class="settings-view" id="settings-view" aria-label="Settings" hidden>
@@ -127,9 +127,6 @@
       </section>
 
       <section class="help-view" id="help-view" aria-label="Help" hidden>
-        <header class="help-header">
-          <h1 class="help-title">Help</h1>
-        </header>
         <div class="help-layout">
           <nav class="help-menu" id="help-menu" aria-label="Help sections"></nav>
           <div class="help-content" id="help-content"></div>

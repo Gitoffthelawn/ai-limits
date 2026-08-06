@@ -24,6 +24,26 @@ use super::structured_cache::{CollectionCoordinator, StructuredInfoCache};
 /// non-Tauri-managed webview by `popover_panel::install_event_forwarding`.
 pub const PROVIDER_UPDATED_EVENT: &str = "provider-updated";
 
+/// Tauri app event emitted right as an actual collection begins (before the
+/// source chain runs), payload `{ "id": <provider id> }`. `CollectionCoordinator`
+/// guarantees `run_collection` runs at most once per real collection — a
+/// concurrent caller for the same provider joins it instead of starting a
+/// second one — so this fires exactly once per collection regardless of how
+/// many surfaces requested it. Lets every open surface show the same
+/// in-flight refresh animation for a card, even when the collection was
+/// started by a different surface. Forwarded to the Popover the same way as
+/// `PROVIDER_UPDATED_EVENT`.
+pub const PROVIDER_REFRESH_STARTED_EVENT: &str = "provider-refresh-started";
+
+/// Tauri app event emitted after a failed actual collection, payload the same
+/// `ProviderLimits` shape `PROVIDER_UPDATED_EVENT` carries (built via
+/// `provider_error`, so `errorMessage` is set and `limits` is empty). Lets
+/// every open surface show the same error state for a card whose collection
+/// failed on another surface, without a second collection attempt. The
+/// shared structured-data cache is left untouched on failure, same as
+/// before — this event only carries the failure to other surfaces' UI state.
+pub const PROVIDER_REFRESH_FAILED_EVENT: &str = "provider-refresh-failed";
+
 pub(super) async fn collect_single_provider_limits(
     provider_id: &str,
     query: &ProviderLimitsQuery,
@@ -74,6 +94,11 @@ async fn run_collection(
 ) -> Result<StructuredSourceInfo, String> {
     let id = source_plan.label().to_string();
 
+    let _ = app.emit(
+        PROVIDER_REFRESH_STARTED_EVENT,
+        &StartedPayload { id: id.clone() },
+    );
+
     tauri::async_runtime::spawn_blocking(move || match get_source_plan_limits(source_plan) {
         Ok(report) => {
             if notifications_enabled {
@@ -87,10 +112,20 @@ async fn run_collection(
             let _ = app.emit(PROVIDER_UPDATED_EVENT, &payload);
             Ok(structured)
         }
-        Err(error) => Err(error.to_string()),
+        Err(error) => {
+            let message = error.to_string();
+            let payload = provider_error(&id, message.clone());
+            let _ = app.emit(PROVIDER_REFRESH_FAILED_EVENT, &payload);
+            Err(message)
+        }
     })
     .await
     .map_err(|error| error.to_string())?
+}
+
+#[derive(serde::Serialize)]
+struct StartedPayload {
+    id: String,
 }
 
 fn source_plan_options(query: &ProviderLimitsQuery) -> UiSourcePlanOptions {

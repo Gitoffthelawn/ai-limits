@@ -11,7 +11,7 @@ The UI should remain compact and operational rather than marketing-oriented.
 The UI contains:
 
 - a top nav bar with Overview, Settings, and Help tabs
-- on the Overview tab: global manual update above a centered last-update line, then provider blocks as the main content
+- on the Overview tab: provider blocks as the main content, then a centered last-update line, then the global manual update action below the cards
 - three inline rounded squares for providers, in order:
   - Codex
   - Claude
@@ -27,8 +27,8 @@ A persistent nav bar (`#app-nav`) sits above all page content, with three tabs: 
 
 Provider blocks, the global manual update action, and the last-update status line live on the Overview page. Settings and Help are their own pages instead of a dropdown/overlay on top of Overview.
 
-## Top Actions
+## Update Actions
 
-The Overview page's action row contains the `UPDATE ALL NOW` button, which takes the available row width. Its label is centered.
+The Overview page's action row sits below the provider blocks and contains the `UPDATE ALL DATA NOW` button, which takes the available row width. Its label is centered.
 
-The last update text is shown under the action row and above provider blocks, centered.
+The last update status line is shown between the provider blocks and the action row, centered.

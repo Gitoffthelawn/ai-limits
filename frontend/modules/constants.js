@@ -52,6 +52,24 @@ export const THEME_CHANGED_EVENT = "theme-changed";
 // the same way SETTINGS_CHANGED_EVENT/THEME_CHANGED_EVENT are.
 export const PROVIDER_UPDATED_EVENT = "provider-updated";
 
+// Tauri app-wide event emitted by the backend right as an actual collection
+// begins (before the source chain runs), payload `{ id: <provider id> }`.
+// `CollectionCoordinator` runs at most one real collection per provider at a
+// time, so this fires exactly once per collection no matter which surface
+// (or how many) requested it. Both Main Window and Popover listen so a
+// refresh started in one surface shows the in-flight animation on the same
+// card in the other surface too, without starting a collection of its own.
+// Forwarded to the Popover the same way as PROVIDER_UPDATED_EVENT.
+export const PROVIDER_REFRESH_STARTED_EVENT = "provider-refresh-started";
+
+// Tauri app-wide event emitted by the backend after a failed actual
+// collection, carrying the same `ProviderLimits` shape PROVIDER_UPDATED_EVENT
+// does (errorMessage set, limits empty). Lets a surface that did not start
+// the collection show the same error state instead of sitting on stale data
+// with no explanation. Forwarded to the Popover the same way as
+// PROVIDER_UPDATED_EVENT.
+export const PROVIDER_REFRESH_FAILED_EVENT = "provider-refresh-failed";
+
 export const EXTERNAL_LINKS = {
   claude: "https://code.claude.com/docs/en/setup",
   codex: "https://developers.openai.com/codex/cli",

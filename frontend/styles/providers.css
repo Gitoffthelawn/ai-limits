@@ -405,7 +405,7 @@
   font-weight: var(--font-weight-bold);
 }
 
-/* Echoes the toolbar's "UPDATE ALL NOW" hover treatment so the two refresh
+/* Echoes the toolbar's "UPDATE ALL DATA NOW" hover treatment so the two refresh
    actions read as the same kind of thing. */
 .manual-refresh-option:hover:not(:disabled) {
   border-color: var(--accent-success);

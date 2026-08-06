@@ -653,9 +653,11 @@ fn dispatch_event(name: &str, payload_json: &str) {
     });
 }
 
-/// Subscribes to the two Tauri app events the Popover's frontend listens
-/// for, forwarding each to the page via `dispatch_event`. Called once from
-/// `install`, after `APP_HANDLE` is stashed.
+/// Subscribes to the Tauri app events the Popover's frontend listens for
+/// (`settings-changed`, `theme-changed`, `provider-updated`,
+/// `provider-refresh-started`, `provider-refresh-failed`), forwarding each
+/// to the page via `dispatch_event`. Called once from `install`, after
+/// `APP_HANDLE` is stashed.
 fn install_event_forwarding(app: &tauri::AppHandle) {
     let settings_app = app.clone();
     app.listen("settings-changed", move |event| {
@@ -677,6 +679,28 @@ fn install_event_forwarding(app: &tauri::AppHandle) {
             dispatch_event(crate::commands::PROVIDER_UPDATED_EVENT, &payload)
         });
     });
+
+    let provider_refresh_started_app = app.clone();
+    app.listen(
+        crate::commands::PROVIDER_REFRESH_STARTED_EVENT,
+        move |event| {
+            let payload = event.payload().to_string();
+            let _ = provider_refresh_started_app.run_on_main_thread(move || {
+                dispatch_event(crate::commands::PROVIDER_REFRESH_STARTED_EVENT, &payload)
+            });
+        },
+    );
+
+    let provider_refresh_failed_app = app.clone();
+    app.listen(
+        crate::commands::PROVIDER_REFRESH_FAILED_EVENT,
+        move |event| {
+            let payload = event.payload().to_string();
+            let _ = provider_refresh_failed_app.run_on_main_thread(move || {
+                dispatch_event(crate::commands::PROVIDER_REFRESH_FAILED_EVENT, &payload)
+            });
+        },
+    );
 }
 
 /// Finishes wiring the Popover up: stashes the `AppHandle` `resolve_on_main_thread`
