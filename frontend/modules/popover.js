@@ -126,6 +126,7 @@ if (window.__TAURI__?.event?.listen) {
   // fire in this window independently.
   window.__TAURI__.event.listen(THEME_CHANGED_EVENT, () => {
     reloadAppTheme();
+    refreshProviderSectionsFromCache();
   });
 }
 
@@ -203,9 +204,18 @@ window.addEventListener("focus", () => {
   }
 });
 
+// See the matching comment in main.js: meter fill colors are theme-dependent
+// but only computed at render time, so a theme flip has to force a
+// from-cache re-render or already-mounted meters keep the previous theme's
+// color.
+function syncSystemThemeAndMeterColors() {
+  syncSystemTheme();
+  refreshProviderSectionsFromCache();
+}
+
 if (typeof window.matchMedia === "function") {
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncSystemTheme);
-  window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", syncSystemTheme);
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncSystemThemeAndMeterColors);
+  window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", syncSystemThemeAndMeterColors);
 }
 
 initProviderIntervals();

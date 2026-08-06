@@ -112,6 +112,7 @@ for (const input of Object.values(settingInputs)) {
   if (input === settingInputs.darkTheme) {
     input.addEventListener("change", (event) => {
       setManualTheme(event.target.checked);
+      refreshProviderSectionsFromCache();
     });
     continue;
   }
@@ -124,9 +125,18 @@ for (const input of Object.values(settingInputs)) {
   input.addEventListener("change", handleSettingsChange);
 }
 
+// Meter fill colors are theme-dependent (see colorForRemaining in
+// provider-formatters.js) but only computed at render time, so a theme
+// flip has to force a from-cache re-render or already-mounted meters keep
+// the previous theme's color.
+function syncSystemThemeAndMeterColors() {
+  syncSystemTheme();
+  refreshProviderSectionsFromCache();
+}
+
 if (typeof window.matchMedia === "function") {
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncSystemTheme);
-  window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", syncSystemTheme);
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", syncSystemThemeAndMeterColors);
+  window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", syncSystemThemeAndMeterColors);
 }
 
 window.addEventListener("resize", scheduleSectionSlotAlignment);

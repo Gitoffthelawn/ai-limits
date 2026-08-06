@@ -53,7 +53,11 @@ body.popover-page {
   --pop-pressed: rgba(0, 0, 0, 0.11);
   --pop-track: rgba(0, 0, 0, 0.06);
   --pop-hairline: rgba(0, 0, 0, 0.1);
-  --pop-meter-track: rgba(0, 0, 0, 0.13);
+  /* Brightened rather than darkened toward the hairline color: the meter
+     fill colors below are all dark, saturated tones (for contrast against
+     the light tile), so the track needs to read as near-white to stay
+     clearly separated from the fill, not as a darker groove. */
+  --pop-meter-track: rgba(255, 255, 255, 0.35);
   --pop-scroll-thumb: rgba(0, 0, 0, 0.26);
   --pop-focus: rgba(0, 0, 0, 0.4);
 
@@ -111,7 +115,10 @@ body.popover-page {
   --pop-pressed: rgba(255, 255, 255, 0.16);
   --pop-track: rgba(255, 255, 255, 0.08);
   --pop-hairline: rgba(255, 255, 255, 0.12);
-  --pop-meter-track: rgba(255, 255, 255, 0.16);
+  /* Darkened rather than lightened: the dark-theme meter fills below are
+     bright, saturated tones, so the track needs to read as near-black to
+     stay clearly separated from the fill. */
+  --pop-meter-track: rgba(0, 0, 0, 0.5);
   --pop-scroll-thumb: rgba(255, 255, 255, 0.3);
   --pop-focus: rgba(255, 255, 255, 0.55);
 }

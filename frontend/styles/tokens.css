@@ -84,7 +84,7 @@
   --border: #d9dde3;
   --border-strong: #bfc6d0;
   --shadow: rgba(23, 26, 31, 0.12);
-  --meter-bg: var(--white);
+  --meter-bg: var(--surface-muted);
   --focus: var(--accent-success);
   --segmented-track: #e2e6eb;
   --segmented-track-border: #bfc6d0;
@@ -129,7 +129,6 @@
   --border: #343941;
   --border-strong: #4c545f;
   --shadow: rgba(0, 0, 0, 0.42);
-  --meter-bg: #59616c;
   --segmented-track: #2d3239;
   --segmented-track-border: #5c6674;
   --segmented-unselected-text: #e8ecf2;

@@ -2,22 +2,40 @@ const MONTH_NAMES = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
+// Theme-specific so the fill always has >=4.5:1 contrast against both the
+// meter track and the (possibly brand-tinted) card behind it: light picks
+// dark, saturated tones for contrast against light cards; dark picks bright
+// ones for contrast against dark cards. Not the shared --accent-* tokens
+// (tokens.css), which stay tuned for borders/focus rings, not meter fills.
 const METER_ACCENTS = {
-  danger: [255, 42, 34],
-  warning: [255, 207, 22],
-  success: [126, 217, 65],
+  light: {
+    danger: [183, 28, 28],
+    warning: [110, 80, 0],
+    success: [23, 96, 36],
+  },
+  dark: {
+    danger: [255, 125, 114],
+    warning: [255, 207, 22],
+    success: [126, 217, 65],
+  },
 };
+
+function currentMeterAccents() {
+  const theme = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+  return METER_ACCENTS[theme];
+}
 
 // 90%+ is green, 50% is yellow, 10% or less is red; values between anchors
 // are linearly interpolated so the fill is never a flat step.
 export function colorForRemaining(remainingPercent) {
+  const accents = currentMeterAccents();
   const clamped = Math.max(0, Math.min(100, remainingPercent));
-  if (clamped <= 10) return `rgb(${METER_ACCENTS.danger.join(", ")})`;
-  if (clamped >= 90) return `rgb(${METER_ACCENTS.success.join(", ")})`;
+  if (clamped <= 10) return `rgb(${accents.danger.join(", ")})`;
+  if (clamped >= 90) return `rgb(${accents.success.join(", ")})`;
   const stops = [
-    { pct: 10, rgb: METER_ACCENTS.danger },
-    { pct: 50, rgb: METER_ACCENTS.warning },
-    { pct: 90, rgb: METER_ACCENTS.success },
+    { pct: 10, rgb: accents.danger },
+    { pct: 50, rgb: accents.warning },
+    { pct: 90, rgb: accents.success },
   ];
   const upperIndex = stops.findIndex((stop) => clamped <= stop.pct);
   const upper = stops[upperIndex];
