@@ -8,7 +8,7 @@ Allowed:
 - Local read: provider data under `~/.codex`, `~/.claude`, `~/.config/claude`, and Xcode Claude agent project data.
 - Local write: application-managed WebView storage for desktop settings.
 - External browser open: documented setup links only.
-- CLI execution: `claude` and `codex` only when Full or Best source priority is selected.
+- CLI execution: `claude` and `codex` only for the desktop application's CLI-first provider chains.
 
 Not allowed without a new documented reason:
 

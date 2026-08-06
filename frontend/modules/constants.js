@@ -41,6 +41,17 @@ export const SETTINGS_CHANGED_EVENT = "settings-changed";
 // See setManualTheme in theme.js (emitter) and popover.js (listener).
 export const THEME_CHANGED_EVENT = "theme-changed";
 
+// Tauri app-wide event emitted by the backend (not by any frontend module)
+// after every successful actual provider collection, carrying the same
+// `ProviderLimits` shape a direct `get_single_provider_limits` response
+// does. Both Main Window and Popover listen so a collection started by
+// either surface updates the other's already-mounted card without a second
+// collection — see docs/desktop/ui/frontend-state.md and
+// docs/desktop/mac-popover.md#cross-window-sync. Forwarded to the Popover by
+// `popover_panel::install_event_forwarding` (src-tauri/src/popover_panel.rs)
+// the same way SETTINGS_CHANGED_EVENT/THEME_CHANGED_EVENT are.
+export const PROVIDER_UPDATED_EVENT = "provider-updated";
+
 export const EXTERNAL_LINKS = {
   claude: "https://code.claude.com/docs/en/setup",
   codex: "https://developers.openai.com/codex/cli",

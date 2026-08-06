@@ -16,6 +16,18 @@ pub fn new_structured_info_cache() -> StructuredInfoCache {
     Arc::new(Mutex::new(HashMap::new()))
 }
 
+/// Reads the current shared snapshot for `provider_id`, if any, without
+/// starting or joining a collection. Backs `get_cached_provider_limits`, used
+/// by a surface that is initializing (or was just re-enabled) so it can
+/// render the snapshot another surface already collected instead of always
+/// waiting on its own fetch.
+pub fn read_cached_structured_info(
+    cache: &StructuredInfoCache,
+    provider_id: &str,
+) -> Option<StructuredSourceInfo> {
+    cache.lock().ok()?.get(provider_id).cloned()
+}
+
 type CollectResult = Result<StructuredSourceInfo, String>;
 
 #[derive(Default)]
@@ -147,6 +159,26 @@ mod tests {
 
             assert_eq!(runs.load(Ordering::SeqCst), 1);
         });
+    }
+
+    #[test]
+    fn read_cached_structured_info_returns_none_before_any_collection() {
+        let cache = new_structured_info_cache();
+        assert!(read_cached_structured_info(&cache, "codex").is_none());
+    }
+
+    #[test]
+    fn read_cached_structured_info_returns_the_last_successful_snapshot() {
+        let cache = new_structured_info_cache();
+        cache
+            .lock()
+            .unwrap()
+            .insert("codex".to_string(), structured("codex"));
+
+        let snapshot =
+            read_cached_structured_info(&cache, "codex").expect("snapshot should be cached");
+        assert_eq!(snapshot.provider, "codex");
+        assert!(read_cached_structured_info(&cache, "claude").is_none());
     }
 
     #[test]

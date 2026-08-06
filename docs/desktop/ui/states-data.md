@@ -8,5 +8,4 @@ Backend state:
 
 Frontend-only state:
 
-- inline source priority control state comes from `appSettings.sourcePriority`.
 - help view open/closed state and the selected help chapter are frontend state.

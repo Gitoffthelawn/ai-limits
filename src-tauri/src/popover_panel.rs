@@ -669,6 +669,14 @@ fn install_event_forwarding(app: &tauri::AppHandle) {
         let payload = event.payload().to_string();
         let _ = theme_app.run_on_main_thread(move || dispatch_event("theme-changed", &payload));
     });
+
+    let provider_updated_app = app.clone();
+    app.listen(crate::commands::PROVIDER_UPDATED_EVENT, move |event| {
+        let payload = event.payload().to_string();
+        let _ = provider_updated_app.run_on_main_thread(move || {
+            dispatch_event(crate::commands::PROVIDER_UPDATED_EVENT, &payload)
+        });
+    });
 }
 
 /// Finishes wiring the Popover up: stashes the `AppHandle` `resolve_on_main_thread`

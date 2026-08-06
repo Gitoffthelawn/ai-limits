@@ -2,30 +2,7 @@
 
 ## Settings
 
-The settings button opens a dropdown grouped into behavior, provider visibility, display, and other sections.
-
-The behavior section is first.
-
-It has a source priority three-option segmented control:
-
-- Fast
-- Full
-- Best
-
-Default value:
-
-- Full
-
-Source priority behavior:
-
-- Fast uses the `fast_free` source chain from [../../get-limits/source-chains.md](../../get-limits/source-chains.md).
-- Full uses the `cli_fallback` source chain.
-- Best uses the `cli_first` source chain.
-- Full and Best may take longer than Fast because they can run provider CLI checks.
-- Best usually provides more accurate and current Codex and Claude data because it starts provider CLI checks first.
-- Cursor uses its existing Cursor source and is not affected by source priority.
-
-The behavior section includes an information action. It opens the [Help page](help.md) on its Source priority section, which explains the Fast, Full, and Best modes, their source chains, the speed/accuracy tradeoff, and the provider scope. The no-fresh-data provider state links to the same Help section.
+The settings button opens a dropdown grouped into provider visibility, display, and other sections. The desktop application always uses the CLI-first source chain; source priority is not a user setting.
 
 The provider visibility section has toggles:
 
@@ -39,34 +16,39 @@ The display section has toggles:
 
 - Show limits
 - Show plan
+- Show source
+- Show update time
 
-These control the Limits and Plan sections of every provider block, defined in [provider-blocks.md](provider-blocks.md) and [provider-block-content.md](provider-block-content.md). They apply to all provider blocks at once; there is no per-provider override.
+These apply to every provider block at once; there is no per-provider override. Show limits and Show plan control the matching sections defined in [provider-blocks.md](provider-blocks.md) and [provider-block-content.md](provider-block-content.md). Show source and Show update time control the two parts of the source line.
 
 Defaults:
 
-- Show limits and Show plan are both on.
+- Show limits, Show plan, and Show update time are on; Show source is off.
 
 User experience:
 
-- Turning a display toggle off hides the matching section in every provider block immediately, without waiting for a refresh.
-- Turning a display toggle back on immediately shows the matching section again using the data already held for each provider, without triggering a refresh.
-- This differs from the provider visibility toggles below, whose effect on the next limits request only takes effect on the next refresh; display toggles never change what data is requested, only what is rendered from data already on hand.
+- Turning a display toggle off hides the matching content in every provider block immediately, without waiting for a refresh.
+- Turning a display toggle back on immediately shows the matching content again using the data already held for each provider, without triggering a refresh.
+- This differs from the provider visibility toggles below, whose effect on the next limits request takes effect on the next refresh; display toggles never change what data is requested, only what is rendered from data already on hand.
 
 ## Other
 
 The other section has toggles:
 
 - Notifications
+- Automatic updates
 - Dark theme
 
 Defaults:
 
 - Notifications, Cursor, Cloud, and Codex are on
+- Automatic updates are on
 - Dark theme follows the system theme until the user changes it manually
 
 User experience:
 
 - Notifications controls whether the app sends system limit alerts for every notification type in [../../notifications/content.md](../../notifications/content.md), including low remaining and 100% again
+- Automatic updates controls application-version checks and downloads; it does not control provider-limit refreshes
 - Cursor, Cloud, and Codex control which provider blocks are shown and which providers are included in the next limits request
 - Cloud corresponds to Claude
 - Changing a toggle saves the choice and hides disabled provider blocks, but does not start a refresh
@@ -78,7 +60,7 @@ Settings storage:
 - theme preference is saved in `localStorage` under `ai-limits-theme`.
 - per-provider update intervals are saved in `localStorage` under `ai-limits-provider-intervals`.
 - these saved settings are frontend state; they are not returned by the backend.
-- Show limits and Show plan are saved in `ai-limits-settings` alongside the other toggles; they are purely a rendering choice and are never sent to the backend as part of the limits request.
+- Show limits, Show plan, Show source, and Show update time are saved in `ai-limits-settings` alongside the other toggles; they are purely rendering choices and are never sent to the backend as part of the limits request.
 
 Settings request mapping:
 
@@ -88,6 +70,5 @@ Settings request mapping:
 | Cursor | `enabledCursor` |
 | Cloud | `enabledClaude` |
 | Codex | `enabledCodex` |
-| Source priority | `sourcePriority` |
 
-Show limits and Show plan have no command query field: they never affect what is requested from the backend, only what the frontend renders from the response it already has.
+Display settings have no command query field: they never affect what is requested from the backend, only what the frontend renders from the response it already has.

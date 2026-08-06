@@ -59,7 +59,7 @@ Module rules:
 - `cli/` formats terminal output from structured source reports and does not decide fallback order
 - `get_limits/` coordinates provider method selection and fallback logic
 - `get_limits/` owns provider fallback chains for default and best-source runs
-- `get_limits/` owns desktop source priority chains for Fast, Full, and Best modes
+- `get_limits/` selects the desktop CLI-first provider chains
 - `get_limits/` does not run processes or HTTP directly when that can be delegated to provider/infra
 - `get_limits/` does not format terminal output
 - `providers/` does not format terminal output

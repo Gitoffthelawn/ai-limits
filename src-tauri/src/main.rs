@@ -77,6 +77,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             commands::get_app_version,
             commands::get_single_provider_limits,
+            commands::get_cached_provider_limits,
             commands::open_external_url,
             commands::start_provider_cli_login,
             commands::get_cli_command,

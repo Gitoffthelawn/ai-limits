@@ -7,7 +7,7 @@ Purpose:
 - select enabled provider methods
 - call provider methods in the right order
 - apply provider fallback-chain logic for default and best-source runs
-- apply desktop source priority logic for Fast, Full, and Best modes
+- apply the desktop CLI-first source chain
 - assemble a shared result for the desktop and CLI
 
 Boundaries:
@@ -28,6 +28,6 @@ get_limits/
 ```
 
 - `mod.rs` — thin public facade (`get_source_plan_limits` / `get_source_limits`) and re-exports
-- `plan.rs` — `SourcePlan` / `SourcePriority` / UI plan options and chain constants
+- `plan.rs` — `SourcePlan`, UI plan options, and chain constants
 - `chain.rs` — fallback-chain runner and usable/unusable report selection
 - `freshness.rs` — local snapshot expiry policy for Codex/Claude local sources

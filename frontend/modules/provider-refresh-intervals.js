@@ -4,10 +4,14 @@ import { isProviderEnabled } from "./settings.js";
 const providerRefreshIntervals = new Map();
 const providerRefreshTimers = new Map();
 const providerNextRefreshAt = new Map();
-// Epoch ms of this provider's last successful fetch, as observed by this
-// frontend session — not parsed from the backend's `dataTimestamp`, which
-// arrives already formatted for display (e.g. "20:03") and isn't a reliable
-// instant to do interval math against.
+// Epoch ms of this provider's last actual collection. Seeded from the
+// backend's `collectedAt` (raw ISO, unlike `dataTimestamp` which arrives
+// pre-formatted for display) whenever it is known, so the schedule is based
+// on the shared collection instant rather than whenever this particular
+// window happened to observe a fetch resolve — both Main Window and Popover
+// compute the same next-refresh target from the same collection. Falls back
+// to this call's own Date.now() only when no `collectedAt` is available
+// (a failed fetch, or a snapshot that predates this field).
 const providerLastUpdateAt = new Map();
 
 function normalizeUpdateFrequency(frequency) {
@@ -97,13 +101,17 @@ export function stopProviderRefreshTimer(providerId) {
   providerRefreshTimers.delete(providerId);
 }
 
-// Marks `providerId` as having fresh data as of right now. Call this the
-// moment a fetch resolves (success), and also as the retry anchor after a
-// failed fetch — an attempt just happened either way, so the next one is a
-// full interval out rather than an immediate hot loop. Does not itself
-// (re)schedule anything; pair with restartProviderRefreshTimer.
-export function recordProviderUpdateNow(providerId) {
-  providerLastUpdateAt.set(providerId, Date.now());
+// Marks `providerId`'s last update instant. Pass the backend's raw
+// `collectedAt` when available, so the schedule is anchored to the actual
+// collection time shared by every surface; pass nothing (or an unparseable
+// value) to fall back to this call's own Date.now() — used as the retry
+// anchor after a failed fetch, where no collection happened at all: an
+// attempt just happened either way, so the next one is a full interval out
+// rather than an immediate hot loop. Does not itself (re)schedule anything;
+// pair with restartProviderRefreshTimer.
+export function recordProviderUpdateNow(providerId, collectedAt) {
+  const parsed = collectedAt ? Date.parse(collectedAt) : NaN;
+  providerLastUpdateAt.set(providerId, Number.isNaN(parsed) ? Date.now() : parsed);
 }
 
 // The next automatic refresh is always one interval after the provider's

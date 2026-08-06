@@ -9,22 +9,16 @@ The shared [limit data-state semantics](../../presentation/data-states.md) defin
 Copy:
 
 ```text
-No fresh limits' data. Try another source mode:
+No fresh limits' data.
 ```
 
-Show the same source priority segmented control used in settings:
-
-```text
-Fast | Full | Best
-```
-
-Below the control, show a text button:
+Below the empty-state message, show a text button:
 
 ```text
 More details
 ```
 
-The button opens the [Help page](help.md) on its Source priority section, which explains the Fast, Full, and Best modes and links to the Claude and Codex CLI setup guides.
+The button opens the [Help page](help.md) on its Data availability section, which explains the provider access and refresh steps.
 
 The setup links must open externally from the Tauri app:
 

@@ -1,5 +1,6 @@
 import {
   PROVIDER_IDS,
+  PROVIDER_UPDATED_EVENT,
 } from "./constants.js";
 import { isProviderEnabled, settingsToQuery } from "./settings.js";
 import { openHelp } from "./help.js";
@@ -27,6 +28,43 @@ export function initProviders(elements) {
       closeAllProviderSettingsMenus();
     }
   });
+
+  // Backend-emitted (not by any frontend module): fires after every
+  // successful actual collection, from whichever surface started it. Lets
+  // this window pick up a result the other open surface collected without
+  // starting a collection of its own — see PROVIDER_UPDATED_EVENT in
+  // constants.js and docs/desktop/ui/frontend-state.md.
+  window.__TAURI__?.event?.listen?.(PROVIDER_UPDATED_EVENT, (event) => {
+    applyRemoteProviderUpdate(event.payload);
+  });
+}
+
+// Applies a provider snapshot collected by *this window's own* in-flight
+// refresh is deliberately skipped here: refreshSingleProvider's own success
+// path already renders it, and rendering it twice from two code paths would
+// race. This only runs for a result collected elsewhere.
+function applyRemoteProviderUpdate(provider) {
+  if (!provider || typeof provider.id !== "string" || providerRefreshInFlight.has(provider.id)) {
+    return;
+  }
+
+  provider.pending = false;
+  cacheProviderData(provider);
+  recordProviderUpdateNow(provider.id, provider.collectedAt);
+
+  if (!isProviderEnabled(provider.id)) {
+    return;
+  }
+
+  const block = getProviderBlock(provider.id);
+  if (!block) {
+    return;
+  }
+
+  restartProviderRefreshTimer(provider.id, refreshSingleProvider);
+  updateProviderBlockData(block, provider, getProviderNextRefreshAt(provider.id));
+  attachSectionHandlers(block);
+  scheduleSectionSlotAlignment();
 }
 
 function closeAllProviderSettingsMenus() {
@@ -310,6 +348,27 @@ async function fetchSingleProviderLimits(providerId) {
   });
 }
 
+// Reads the shared structured-data snapshot another surface may already
+// have collected for `providerId`, without starting or joining a
+// collection. Returns null if nothing is cached yet (or outside Tauri),
+// which the caller treats the same as "needs its own collection".
+async function loadCachedProviderLimits(providerId) {
+  if (isScreenshotShowcase) {
+    return null;
+  }
+
+  const invoke = window.__TAURI__?.core?.invoke;
+  if (!invoke) {
+    return null;
+  }
+
+  try {
+    return await invoke("get_cached_provider_limits", { providerId });
+  } catch {
+    return null;
+  }
+}
+
 // A failed fetch previously rejected silently: providerRefreshInFlight was
 // still cleared in `finally`, but nothing told the user the click did
 // anything. Manual and scheduled refreshes share this function, so surfacing
@@ -343,7 +402,7 @@ async function refreshSingleProvider(providerId) {
     const provider = await fetchSingleProviderLimits(providerId);
     provider.pending = false;
     cacheProviderData(provider);
-    recordProviderUpdateNow(providerId);
+    recordProviderUpdateNow(providerId, provider.collectedAt);
 
     if (!isProviderEnabled(providerId)) {
       return;
@@ -373,7 +432,7 @@ async function refreshSingleProvider(providerId) {
   }
 }
 
-export function refreshEnabledProviders({ initial = false } = {}) {
+export async function refreshEnabledProviders({ initial = false } = {}) {
   removeDisabledProviderBlocks();
 
   const enabledProviders = PROVIDER_IDS.filter(isProviderEnabled);
@@ -387,12 +446,36 @@ export function refreshEnabledProviders({ initial = false } = {}) {
   clearStatusState();
 
   if (initial) {
+    // A provider the other open surface already collected this session
+    // renders from that shared snapshot immediately; mountProviderBlock's
+    // own restartProviderRefreshTimer call (fed that snapshot's collectedAt
+    // below) then decides whether it's due for another collection right
+    // now or can wait — the same schedule-based logic used everywhere else,
+    // rather than this window unconditionally forcing a fresh collection
+    // just because it is the one initializing.
+    const cachedSnapshots = await Promise.all(enabledProviders.map(loadCachedProviderLimits));
+    const providersNeedingCollection = [];
+
     providerList.replaceChildren(
-      ...enabledProviders.map((providerId) =>
-        mountProviderBlock(createEmptyProvider(providerId, getProviderInterval(providerId))),
-      ),
+      ...enabledProviders.map((providerId, index) => {
+        const snapshot = cachedSnapshots[index];
+        if (!snapshot) {
+          providersNeedingCollection.push(providerId);
+          return mountProviderBlock(createEmptyProvider(providerId, getProviderInterval(providerId)));
+        }
+
+        snapshot.pending = false;
+        cacheProviderData(snapshot);
+        recordProviderUpdateNow(providerId, snapshot.collectedAt);
+        return mountProviderBlock(snapshot);
+      }),
     );
     scheduleSectionSlotAlignment();
+
+    for (const providerId of providersNeedingCollection) {
+      refreshSingleProvider(providerId);
+    }
+    return;
   }
 
   for (const providerId of enabledProviders) {

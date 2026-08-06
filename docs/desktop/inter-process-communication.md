@@ -42,6 +42,8 @@ Related:
 4. An error or delay for one provider must not block or discard results for other providers
 5. A batch all-providers command may exist for other callers, but normal UI refresh must not depend on one combined response
 6. A disabled or unknown provider for the passed query fails the command
+7. Concurrent fetches for the same provider, from either surface, share one actual collection; a `get_cached_provider_limits` read never itself triggers a collection
+8. A successful collection is announced to every open surface via the `provider-updated` app event, so a surface does not need to fetch again to see a result another surface just collected — see [frontend-state.md](ui/frontend-state.md#shared-structured-data-cache)
 
 ### Utility commands
 

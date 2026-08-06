@@ -59,7 +59,7 @@ From the user's point of view, the system provides six core capabilities:
 
 5. Configure defaults and repeat checks
 
-   The user can select source priority, visible providers, notifications, a refresh interval, and which output kinds (limits, plan, usage) are shown for each provider in the desktop app. The terminal uses built-in defaults and explicit command-line options for a single query.
+   The user can select visible providers, notifications, a refresh interval, and which output kinds are shown in the desktop app. The desktop application uses the CLI-first source chain; the terminal uses built-in defaults and explicit command-line options for a single query.
 
 6. Receive notifications
 

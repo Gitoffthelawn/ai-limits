@@ -1,6 +1,8 @@
 use std::collections::HashSet;
 use std::sync::{Arc, Mutex};
 
+use tauri::Emitter;
+
 use ai_limits::get_limits::{
     get_source_plan_limits, ui_source_plan, SourcePlan, UiSourcePlanOptions,
 };
@@ -12,6 +14,15 @@ use super::provider_limits::{
     provider_error, provider_limits_from_structured, ProviderLimits, ProviderLimitsQuery,
 };
 use super::structured_cache::{CollectionCoordinator, StructuredInfoCache};
+
+/// Tauri app event emitted after every successful actual collection, payload
+/// the same `ProviderLimits` shape a direct `get_single_provider_limits`
+/// response carries. Lets every open surface (Main Window, Popover) pick up
+/// a result collected for another surface without starting its own
+/// collection — see docs/desktop/ui/frontend-state.md and
+/// docs/desktop/mac-popover.md#cross-window-sync. Forwarded to the Popover's
+/// non-Tauri-managed webview by `popover_panel::install_event_forwarding`.
+pub const PROVIDER_UPDATED_EVENT: &str = "provider-updated";
 
 pub(super) async fn collect_single_provider_limits(
     provider_id: &str,
@@ -66,12 +77,14 @@ async fn run_collection(
     tauri::async_runtime::spawn_blocking(move || match get_source_plan_limits(source_plan) {
         Ok(report) => {
             if notifications_enabled {
-                notify_for_report(&report, app, &sent_notifications, &remaining_store);
+                notify_for_report(&report, &app, &sent_notifications, &remaining_store);
             }
             let structured = report.data.structured;
             if let Ok(mut cache) = structured_cache.lock() {
-                cache.insert(id, structured.clone());
+                cache.insert(id.clone(), structured.clone());
             }
+            let payload = provider_limits_from_structured(&id, &structured);
+            let _ = app.emit(PROVIDER_UPDATED_EVENT, &payload);
             Ok(structured)
         }
         Err(error) => Err(error.to_string()),
@@ -90,7 +103,7 @@ fn source_plan_options(query: &ProviderLimitsQuery) -> UiSourcePlanOptions {
 
 fn notify_for_report(
     report: &SourceReport,
-    app: tauri::AppHandle,
+    app: &tauri::AppHandle,
     sent_notifications: &Arc<Mutex<HashSet<String>>>,
     remaining_store: &Arc<dyn PreviousRemainingStore>,
 ) {
@@ -98,7 +111,7 @@ fn notify_for_report(
         return;
     };
 
-    let delivery = crate::notifications::TauriNotificationDelivery::new(app);
+    let delivery = crate::notifications::TauriNotificationDelivery::new(app.clone());
     core_notifications::send_for_report_with_delivery(
         report,
         &mut sent,

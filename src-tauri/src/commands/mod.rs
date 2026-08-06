@@ -18,10 +18,13 @@ use ai_limits::types::CliAuthorization;
 
 use crate::windows::MAIN_WINDOW_LABEL;
 
+pub use collect::PROVIDER_UPDATED_EVENT;
 pub use provider_limits::{ProviderLimits, ProviderLimitsQuery};
 pub use structured_cache::{new_structured_info_cache, CollectionCoordinator, StructuredInfoCache};
 
 use collect::collect_single_provider_limits;
+use provider_limits::provider_limits_from_structured;
+use structured_cache::read_cached_structured_info;
 
 #[tauri::command]
 pub fn get_app_version() -> &'static str {
@@ -53,6 +56,21 @@ pub async fn get_single_provider_limits(
         coordinator,
     )
     .await
+}
+
+/// Reads the current shared structured-data snapshot for `provider_id`
+/// without starting or joining a collection — `None` if no surface has
+/// collected it yet this session. Lets a surface that is initializing (or
+/// showing a just-enabled provider) render another surface's already-current
+/// result immediately, deferring to its own scheduled/manual refresh for
+/// anything newer. See docs/desktop/ui/frontend-state.md.
+#[tauri::command]
+pub fn get_cached_provider_limits(
+    provider_id: String,
+    structured_cache: tauri::State<'_, StructuredInfoCache>,
+) -> Option<ProviderLimits> {
+    let structured = read_cached_structured_info(structured_cache.inner(), &provider_id)?;
+    Some(provider_limits_from_structured(&provider_id, &structured))
 }
 
 #[tauri::command]

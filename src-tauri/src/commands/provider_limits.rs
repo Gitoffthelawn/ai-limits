@@ -33,6 +33,13 @@ pub struct ProviderLimits {
     label: String,
     source_id: Option<String>,
     data_timestamp: Option<String>,
+    /// Raw ISO-8601 instant of the actual collection this snapshot came from
+    /// (`StructuredSourceInfo::collected_at`), unformatted — unlike
+    /// `data_timestamp`, which is pre-formatted for display. Frontend refresh
+    /// scheduling parses this to compute the next update time from the
+    /// shared collection instant rather than a per-window "just fetched"
+    /// clock reading; see docs/desktop/ui/refresh.md.
+    collected_at: Option<String>,
     selected_update_frequency: String,
     limits: Vec<ProviderLimitRow>,
     credits_remaining: Option<f64>,
@@ -110,6 +117,7 @@ pub(super) fn provider_limits_from_structured(
         id: id.to_string(),
         label: provider_label(id),
         source_id: Some(source_label_for_display(&info.source)),
+        collected_at: info.collected_at.clone(),
         data_timestamp: Some(
             info.data_as_of
                 .as_deref()
@@ -135,6 +143,7 @@ pub(super) fn provider_error(id: &str, message: String) -> ProviderLimits {
         id: id.to_string(),
         label: provider_label(id),
         source_id: None,
+        collected_at: None,
         data_timestamp: None,
         selected_update_frequency: "5 min".to_string(),
         limits: Vec::new(),
