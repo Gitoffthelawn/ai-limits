@@ -310,15 +310,13 @@
    `.limit-top` stays `display: contents` so its label/value spans become
    items of this grid directly.
 
-   Nothing here ever truncates: labels like "Cursor Models" and full
-   datestamp resets ("reset Aug 28, 2026, 14:00") can run much longer than
-   "7d"/"reset Aug 8, 16:44", and a clipped reset date is worse than an
-   extra line. Below the `--provider-card-one-line` container breakpoint
-   (grid.providers.css's --provider-card-min-width can go narrower than that)
-   the base rules stack the reset time onto its own full-width row instead of
-   squeezing it into a narrow middle column; text is always allowed to wrap
-   rather than being cut off, so an extreme case just grows the row instead
-   of losing text. */
+   Nothing here ever truncates: labels like "Cursor Models" and dated resets
+   ("reset Aug 28, 05:54") run longer than "7d"/"reset Aug 8, 16:44", and a
+   clipped reset date is worse than an extra line. Below the one-line
+   container breakpoint further down, the base rules stack the reset time
+   onto its own full-width row instead of squeezing it into a narrow middle
+   column; text is always allowed to wrap rather than being cut off, so an
+   extreme case just grows the row instead of losing text. */
 .limit-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -393,8 +391,16 @@
    column between label and value. It keeps `overflow-wrap: break-word`
    rather than an ellipsis, so a reset date that's still too long for that
    column wraps onto a second line instead of clipping — the one-line
-   layout is the common case at this width, not a guarantee. */
-@container provider-card (min-width: 380px) {
+   layout is the common case at this width, not a guarantee.
+
+   310px is a content-box figure (container queries measure inside the
+   card's own padding, not its border box) with headroom over the ~305px
+   the widest realistic row needs ("Cursor Models" + "reset Aug 28, 05:54"
+   + "82.7% left"). It's comfortably below the ~332px content width a card
+   gets even in the default three-card row at the window's max content
+   width, so the compact line is reachable there, not just when fewer
+   provider cards are showing. */
+@container provider-card (min-width: 310px) {
   .limit-row {
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: baseline;
