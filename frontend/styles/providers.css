@@ -46,22 +46,37 @@
 .provider-block[data-provider-id="claude"] {
   --provider-brand: var(--provider-brand-claude);
   --provider-brand-rgb: var(--provider-brand-claude-rgb);
+  --provider-name-text: var(--provider-name-claude-light);
 }
 
 .provider-block[data-provider-id="codex"] {
   --provider-brand: var(--provider-brand-codex);
   --provider-brand-rgb: var(--provider-brand-codex-rgb);
+  --provider-name-text: var(--provider-name-codex-light);
 }
 
 .provider-block[data-provider-id="cursor"] {
   --provider-brand: var(--provider-brand-cursor);
   --provider-brand-rgb: var(--provider-brand-cursor-rgb);
+  --provider-name-text: var(--provider-name-cursor-light);
 }
 
 :root[data-theme="dark"] .provider-block {
   --provider-brand-opacity: var(--provider-brand-opacity-dark);
   --provider-text: color-mix(in srgb, var(--provider-brand) var(--mix-provider-text-dark), var(--text));
   --provider-text-muted: color-mix(in srgb, var(--provider-brand) var(--mix-provider-text-muted-dark), var(--text-muted));
+}
+
+:root[data-theme="dark"] .provider-block[data-provider-id="claude"] {
+  --provider-name-text: var(--provider-name-claude-dark);
+}
+
+:root[data-theme="dark"] .provider-block[data-provider-id="codex"] {
+  --provider-name-text: var(--provider-name-codex-dark);
+}
+
+:root[data-theme="dark"] .provider-block[data-provider-id="cursor"] {
+  --provider-name-text: var(--provider-name-cursor-dark);
 }
 
 :root[data-theme="dark"] .provider-block[data-provider-id="cursor"] {
@@ -130,10 +145,40 @@
   text-align: center;
 }
 
+/* The header centers h2 by its own shrink-to-fit width (.provider-header's
+   justify-content: center above), so the icon is pulled out of flow with
+   position: absolute rather than laid out inline with the name — an inline
+   icon would widen the box the name is centered within and drag the name
+   text itself off-center. Out of flow, the icon contributes nothing to that
+   width: the name alone is what ends up centered, with the icon sitting
+   just to its left like a before-pseudo-element. Popover overrides this
+   back to a plain inline layout (see styles/popover.css), where the header
+   is left-aligned and there is no centered box for the icon to displace. */
 .provider-block h2 {
+  position: relative;
   margin: 0;
   font-size: var(--font-size-xl);
   line-height: var(--line-height-tight);
+}
+
+/* Name and mark share one dedicated color (--provider-name-text, set per
+   provider/theme in this file above): the brand hue itself where it clears
+   4.5:1 against the card's own tinted background, otherwise shifted toward
+   black/white just far enough to clear it — see the token comments in
+   tokens.css. Kept apart from --provider-text (h2's own color, and the
+   mixed-toward-muted tone the plan name still uses), which is tuned for
+   borders/icons elsewhere, not for AA body-text contrast. */
+.provider-name,
+.provider-brand-icon {
+  color: var(--provider-name-text);
+}
+
+.provider-brand-icon {
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  margin-right: var(--space-6);
+  transform: translateY(-50%);
 }
 
 /* The plan name folded into the header (see provider-rendering.js's

@@ -102,12 +102,23 @@
 
   --provider-brand-claude: #d97757;
   --provider-brand-claude-rgb: 217, 119, 87;
+  /* Card-name colors below are the brand hue, shifted toward black/white just
+     far enough to clear 4.5:1 contrast against that provider's own tinted
+     card background (verified against --provider-brand-opacity-light/-dark
+     mixed onto --surface, both themes) — never the raw brand hex, which
+     reads under ~3:1 on its own light-tinted card. */
+  --provider-name-claude-light: #9e5740;
+  --provider-name-claude-dark: #df8d72;
 
   --provider-brand-codex: #7a9dff;
   --provider-brand-codex-rgb: 122, 157, 255;
+  --provider-name-codex-light: #5269ab;
+  --provider-name-codex-dark: #83a4ff;
 
   --provider-brand-cursor: #26261e;
   --provider-brand-cursor-rgb: 38, 38, 30;
+  --provider-name-cursor-light: #26261e;
+  --provider-name-cursor-dark: #8a8a86;
   --provider-brand-opacity-cursor-dark: 0.38;
   --provider-border-cursor-dark: #6f6c52;
   --provider-border-overlay-cursor-dark: rgba(255, 207, 22, 0.18);

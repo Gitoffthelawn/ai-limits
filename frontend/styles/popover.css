@@ -300,11 +300,26 @@ body.popover-page {
   text-align: left;
 }
 
+/* The Main Window centers the name text and pulls the icon out of flow to
+   sit just left of it (see .provider-block h2 in styles/providers.css) —
+   but here the header is already left-aligned, so that trick would just
+   overlap the icon into the card's edge. Back to a plain inline flex row
+   with the icon taking part in the layout normally. */
 .popover-root .provider-block h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  justify-content: flex-start;
   font-size: 13px;
   font-weight: 590;
   letter-spacing: -0.01em;
   line-height: 18px;
+}
+
+.popover-root .provider-brand-icon {
+  position: static;
+  margin-right: 0;
+  transform: none;
 }
 
 /* The plan name rides on the same line as the provider name ("Codex Plus",
