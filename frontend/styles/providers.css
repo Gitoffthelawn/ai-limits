@@ -30,6 +30,8 @@
   --provider-card-drop-shadow: var(--shadow-none);
   --provider-text: color-mix(in srgb, var(--provider-brand) var(--mix-provider-text), var(--text));
   --provider-text-muted: color-mix(in srgb, var(--provider-brand) var(--mix-provider-text), var(--text-muted));
+  container-type: inline-size;
+  container-name: provider-card;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -99,14 +101,20 @@
   background: color-mix(in srgb, var(--provider-brand) var(--mix-provider-text), var(--surface));
 }
 
+/* Icon (currentColor, see buildRefreshCwIconSvg) follows the same
+   --provider-brand as the border on hover/expanded, instead of staying
+   pinned to the mostly-neutral --provider-text — otherwise the glyph reads
+   as a flat black/white mark sitting inside a suddenly brand-colored frame. */
 .provider-block .provider-settings-button:hover {
   border-color: var(--provider-brand);
   background: color-mix(in srgb, var(--provider-brand) var(--mix-hover-success), var(--surface));
+  color: var(--provider-brand);
 }
 
 .provider-block .provider-settings-button[aria-expanded="true"] {
   border-color: var(--provider-brand);
   background: color-mix(in srgb, var(--provider-brand) var(--mix-active-warning), var(--surface));
+  color: var(--provider-brand);
 }
 
 .provider-block .limit-row,
@@ -292,24 +300,63 @@
   gap: var(--space-12);
 }
 
+/* One line per limit when the card is wide enough — label left, reset time
+   trailing it in smaller muted text, percentage hard right — with the meter
+   on its own row underneath. Mirrors the Popover's label-left/value-right
+   idiom (styles/popover.css) but keeps the Main Window's own type scale:
+   label/value read a size up from the reset text instead of the Popover's
+   uniformly small menu-row type, since this surface has the room for it.
+   `.limit-top` stays `display: contents` so its label/value spans become
+   items of this grid directly.
+
+   Nothing here ever truncates: labels like "Cursor Models" and full
+   datestamp resets ("reset Aug 28, 2026, 14:00") can run much longer than
+   "7d"/"reset Aug 8, 16:44", and a clipped reset date is worse than an
+   extra line. Below the `--provider-card-one-line` container breakpoint
+   (grid.providers.css's --provider-card-min-width can go narrower than that)
+   the base rules stack the reset time onto its own full-width row instead of
+   squeezing it into a narrow middle column; text is always allowed to wrap
+   rather than being cut off, so an extreme case just grows the row instead
+   of losing text. */
 .limit-row {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--space-8);
+  row-gap: var(--space-4);
   width: 100%;
-  color: var(--text-muted);
-  font-size: var(--font-size-xs);
-  line-height: var(--line-height-compact);
 }
 
 .limit-top {
+  display: contents;
   color: var(--text);
   font-weight: var(--font-weight-semibold);
+}
+
+.limit-label {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  font-size: var(--font-size-sm);
+  overflow-wrap: break-word;
+}
+
+.limit-separator {
+  display: none;
+}
+
+.limit-value {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  text-align: right;
 }
 
 .meter {
   -webkit-appearance: none;
   appearance: none;
+  grid-column: 1 / -1;
+  grid-row: 3;
   border: 0;
   width: 100%;
   height: var(--meter-height);
@@ -332,7 +379,43 @@
 }
 
 .limit-reset {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  min-width: 0;
   color: var(--text-muted);
+  font-size: var(--font-size-xs);
+  overflow-wrap: break-word;
+}
+
+/* Once the card is comfortably wider than the longest realistic label +
+   reset + value combo, collapse back to one line: reset moves into a middle
+   column between label and value. It keeps `overflow-wrap: break-word`
+   rather than an ellipsis, so a reset date that's still too long for that
+   column wraps onto a second line instead of clipping — the one-line
+   layout is the common case at this width, not a guarantee. */
+@container provider-card (min-width: 380px) {
+  .limit-row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: baseline;
+    row-gap: var(--space-6);
+  }
+
+  .limit-label {
+    white-space: nowrap;
+  }
+
+  .limit-value {
+    grid-column: 3;
+  }
+
+  .limit-reset {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .meter {
+    grid-row: 2;
+  }
 }
 
 .credits-info {

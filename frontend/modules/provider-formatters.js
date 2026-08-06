@@ -2,20 +2,25 @@ const MONTH_NAMES = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
-// Theme-specific so the fill always has >=4.5:1 contrast against the
-// (possibly brand-tinted) card behind it: light picks fully-saturated, deep
-// tones that still read as red/gold/green rather than desaturating toward
-// grey-brown; dark picks bright ones for contrast against dark cards. Not
-// the shared --accent-* tokens (tokens.css), which stay tuned for
-// borders/focus rings, not meter fills. Full saturation is deliberate here:
-// on a light background, hitting 4.5:1 forces the lightness down regardless
-// (true yellow at 4.5:1 is physically impossible against white — its own
-// luminance is too high), so the fix is to keep saturation maxed at that
-// lightness rather than let it drift toward a desaturated, muddy brown.
+// Theme-specific so the fill has strong contrast against the (possibly
+// brand-tinted) card behind it: light picks fully-saturated, deep tones that
+// still read as red/gold/green rather than desaturating toward grey-brown;
+// dark picks bright ones for contrast against dark cards. Not the shared
+// --accent-* tokens (tokens.css), which stay tuned for borders/focus rings,
+// not meter fills. Full saturation is deliberate here: on a light
+// background, true yellow at 4.5:1 is physically impossible (its own
+// luminance is too high), so the fix is to keep saturation maxed at
+// whatever lightness the contrast budget allows rather than let it drift
+// toward a desaturated, muddy brown. `warning` spends most of that budget —
+// ~2.25:1 against white instead of 4.5:1 — to read as clean gold rather
+// than amber-brown; danger and success hold the full 4.5:1 since red and
+// green don't have yellow's luminance ceiling. Legibility isn't riding on
+// this color alone: the adjacent "N% left" text and the bar's own filled
+// length both carry the same information at full contrast.
 const METER_ACCENTS = {
   light: {
     danger: [214, 14, 0],
-    warning: [148, 111, 0],
+    warning: [219, 164, 0],
     success: [0, 133, 44],
   },
   dark: {
