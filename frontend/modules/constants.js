@@ -7,9 +7,8 @@ export const updateFrequencyOptions = [
   "1 hour",
 ];
 
-export const DEFAULT_UPDATE_FREQUENCY = "5 min";
+export const DEFAULT_UPDATE_FREQUENCY = "10 min";
 export const SETTINGS_STORAGE_KEY = "ai-limits-settings";
-export const PROVIDER_INTERVALS_STORAGE_KEY = "ai-limits-provider-intervals";
 export const THEME_STORAGE_KEY = "ai-limits-theme";
 export const PROVIDER_IDS = ["codex", "claude", "cursor"];
 
@@ -19,14 +18,14 @@ export const PROVIDER_IDS = ["codex", "claude", "cursor"];
 // without polling or a `storage` event (which does not fire in the same
 // window that wrote the value, and is unreliable cross-window timing-wise
 // for this app's needs). See handleSettingsChange/handleDisplaySettingsChange
-// in settings.js (emitters) and popover.js (listener).
+// /handleUpdateFrequencyChange in settings.js (emitters) and popover.js (listener).
 //
-// Payload shape: { kind: "visibility" | "display" }. `kind` documents which
-// handler fired for readers that care to distinguish, but listeners are free
-// to treat the two identically (re-derive their own state from
-// localStorage/settings.js either way) — that's what popover.js does, since
-// both a provider-visibility change (tab list) and a display-toggle change
-// (card sections) are cheap, idempotent, and safe to redo unconditionally.
+// Payload shape: { kind: "visibility" | "display" | "update-frequency" }.
+// `kind` documents which handler fired for readers that care to distinguish.
+// Listeners may treat them the same (re-derive state from localStorage) or
+// branch — popover.js reloads settings and re-renders on any kind, and also
+// reapplies refresh schedules so an update-frequency change takes effect
+// immediately.
 export const SETTINGS_CHANGED_EVENT = "settings-changed";
 
 // Tauri app-wide event emitted after a *manual* theme change is saved (the
@@ -87,6 +86,7 @@ export const DEFAULT_APP_SETTINGS = {
   showPlan: true,
   showSource: false,
   showUpdateTime: false,
+  updateFrequency: DEFAULT_UPDATE_FREQUENCY,
 };
 
 /// How long the app waits between automatic update checks while it stays open.

@@ -45,7 +45,7 @@
 - Lightweight desktop app for macOS, Windows, and Linux,
 - CLI with several output formats,
 - Native system notifications when limits reach configured thresholds,
-- Manual and flexible automatic data refresh.
+- Manual refresh of all data and one shared automatic refresh frequency.
 
 ## Alternatives
 

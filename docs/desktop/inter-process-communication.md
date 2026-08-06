@@ -15,7 +15,7 @@ Related:
 
 - expose the shared Rust core to the desktop UI without duplicating provider or notification logic
 - refresh providers independently so a slow source does not block other provider blocks
-- support planned per-provider update frequency controls
+- support one shared user-selected update frequency for all enabled providers
 - keep desktop-only utilities behind the same IPC boundary
 
 ---
@@ -26,7 +26,7 @@ Related:
 - frontend settings travel as command request parameters; they are not read from a shared backend config file
 - provider response fields are display-oriented and camelCase for the frontend
 - provider source, data timestamp, reset time, error state, and no-fresh-data state come from the backend response
-- provider update interval, pending state, and saved UI settings are frontend state
+- shared update frequency, pending state, and saved UI settings are frontend state
 - external URL opening is allowlisted in code
 - opening the CLI in a terminal is supported on macOS only; other platforms must fail as unsupported
 

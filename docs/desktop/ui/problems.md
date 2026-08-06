@@ -25,7 +25,7 @@ The setup links must open externally from the Tauri app:
 - Claude setup guide: <https://code.claude.com/docs/en/setup>
 - Codex CLI guide: <https://developers.openai.com/codex/cli>
 
-On the Main Window, this state also shows a `Retry` text button next to `More details` that triggers the same manual refresh as a provider's own `UPDATE NOW`. The Popover does not show `Retry` — see [provider-blocks.md](provider-blocks.md).
+On the Main Window, this state also shows a `Retry` text button next to `More details` that refreshes that provider. The Popover does not show `Retry` — see [provider-blocks.md](provider-blocks.md).
 
 ## CLI Authorization
 

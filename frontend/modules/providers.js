@@ -8,8 +8,8 @@ import { isProviderEnabled, settingsToQuery } from "./settings.js";
 import { openHelp } from "./help.js";
 import { openExternalUrl } from "./links.js";
 import { isScreenshotShowcase, SHOWCASE_PROVIDERS } from "./showcase.js";
-import { ensureProviderInterval, getProviderInterval, getProviderNextRefreshAt, recordProviderUpdateNow, restartProviderRefreshTimer, setProviderInterval, stopProviderRefreshTimer } from "./provider-refresh-intervals.js";
-import { createEmptyProvider, renderProvider, syncFrequencyOptions, updateProviderBlockData, updateProviderUpdateTimeText } from "./provider-rendering.js";
+import { getProviderNextRefreshAt, recordProviderUpdateNow, restartProviderRefreshTimer, stopProviderRefreshTimer } from "./provider-refresh-intervals.js";
+import { createEmptyProvider, renderProvider, updateProviderBlockData, updateProviderUpdateTimeText } from "./provider-rendering.js";
 
 export { initProviderIntervals } from "./provider-refresh-intervals.js";
 
@@ -44,12 +44,6 @@ export function initProviders(elements, { surface = "main" } = {}) {
   providerList = elements.providerList;
   statusLine = elements.statusLine;
   providerSurface = surface;
-  document.addEventListener("click", closeAllProviderSettingsMenus);
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      closeAllProviderSettingsMenus();
-    }
-  });
 
   // Backend-emitted (not by any frontend module): fires after every
   // successful actual collection, from whichever surface started it. Lets
@@ -102,8 +96,6 @@ function updateRefreshVisual(providerId) {
   for (const manualRefreshOption of block.querySelectorAll("[data-manual-refresh]")) {
     manualRefreshOption.disabled = isLoading;
   }
-
-  block.querySelector("[data-provider-settings-button]")?.setAttribute("aria-busy", String(isLoading));
 }
 
 // Plays a short, self-clearing "is-refreshing" flash for a card whose content
@@ -206,19 +198,6 @@ function applyRemoteProviderFailure(provider) {
   scheduleSectionSlotAlignment();
 }
 
-function closeAllProviderSettingsMenus() {
-  if (!providerList) {
-    return;
-  }
-
-  for (const dropdown of providerList.querySelectorAll("[data-provider-settings-dropdown]")) {
-    dropdown.hidden = true;
-  }
-  for (const button of providerList.querySelectorAll("[data-provider-settings-button]")) {
-    button.setAttribute("aria-expanded", "false");
-  }
-}
-
 function getProviderBlock(providerId) {
   return providerList.querySelector(`[data-provider-id="${providerId}"]`);
 }
@@ -280,38 +259,6 @@ export function scheduleSectionSlotAlignment() {
 }
 
 function attachProviderBlockHandlers(block, providerId) {
-  const settingsButton = block.querySelector("[data-provider-settings-button]");
-  const settingsDropdown = block.querySelector("[data-provider-settings-dropdown]");
-
-  settingsButton.addEventListener("click", (event) => {
-    event.stopPropagation();
-    const shouldOpen = settingsDropdown.hidden;
-    closeAllProviderSettingsMenus();
-    settingsDropdown.hidden = !shouldOpen;
-    settingsButton.setAttribute("aria-expanded", String(shouldOpen));
-  });
-
-  settingsDropdown.addEventListener("click", (event) => {
-    event.stopPropagation();
-  });
-
-  for (const option of block.querySelectorAll("[data-frequency-option]")) {
-    option.addEventListener("click", () => {
-      setProviderInterval(providerId, option.dataset.frequencyOption, refreshSingleProvider);
-      syncFrequencyOptions(block, option.dataset.frequencyOption);
-      updateProviderUpdateTimeText(
-        block,
-        providerDataCache.get(providerId) ?? { pending: true },
-        getProviderNextRefreshAt(providerId),
-      );
-      closeAllProviderSettingsMenus();
-    });
-  }
-
-  settingsDropdown.querySelector("[data-manual-refresh]")?.addEventListener("click", () => {
-    closeAllProviderSettingsMenus();
-    refreshSingleProvider(providerId);
-  });
   attachSectionHandlers(block, providerId);
 }
 
@@ -357,10 +304,7 @@ function attachPlanLinkHandlers(block) {
 
 // The card's inline "Retry" button (surface === "main" only) lives inside
 // `.provider-sections`, which updateProviderBlockData fully replaces on every
-// refresh, so it's rebound here rather than once at mount like the settings
-// dropdown's UPDATE NOW row. Scoped to `.provider-sections` so this never
-// re-binds the dropdown's own [data-manual-refresh], which is wired once in
-// attachProviderBlockHandlers and persists across re-renders.
+// refresh, so it's rebound here rather than once at mount.
 function attachRetryHandlers(block, providerId) {
   const sections = block.querySelector(".provider-sections");
   if (!sections) {
@@ -371,6 +315,30 @@ function attachRetryHandlers(block, providerId) {
     button.addEventListener("click", () => {
       refreshSingleProvider(providerId);
     });
+  }
+}
+
+// Recomputes every enabled provider's next-refresh target from the shared
+// update-frequency setting and last collection instant, and refreshes the
+// update-time line text. Does not itself start a fetch unless the recomputed
+// schedule says one is already due (see controls.md).
+export function applySharedUpdateFrequency() {
+  for (const providerId of PROVIDER_IDS) {
+    if (!isProviderEnabled(providerId)) {
+      continue;
+    }
+
+    restartProviderRefreshTimer(providerId, refreshSingleProvider);
+    const block = getProviderBlock(providerId);
+    if (!block) {
+      continue;
+    }
+
+    updateProviderUpdateTimeText(
+      block,
+      providerDataCache.get(providerId) ?? { pending: true },
+      getProviderNextRefreshAt(providerId),
+    );
   }
 }
 
@@ -418,9 +386,8 @@ async function startProviderCliLogin(provider) {
 }
 
 function mountProviderBlock(provider) {
-  ensureProviderInterval(provider.id, provider.selectedUpdateFrequency);
   restartProviderRefreshTimer(provider.id, refreshSingleProvider);
-  const block = renderProvider(provider, getProviderInterval(provider.id), getProviderNextRefreshAt(provider.id), providerSurface);
+  const block = renderProvider(provider, getProviderNextRefreshAt(provider.id), providerSurface);
   attachProviderBlockHandlers(block, provider.id);
   return block;
 }
@@ -493,7 +460,7 @@ export function restoreNewlyEnabledProviders(providerIds) {
       continue;
     }
 
-    const block = mountProviderBlock(createEmptyProvider(providerId, getProviderInterval(providerId)));
+    const block = mountProviderBlock(createEmptyProvider(providerId));
     insertProviderBlockInOrder(block, providerId);
     refreshSingleProvider(providerId);
   }
@@ -617,7 +584,7 @@ export async function refreshEnabledProviders({ initial = false } = {}) {
         const snapshot = cachedSnapshots[index];
         if (!snapshot) {
           providersNeedingCollection.push(providerId);
-          return mountProviderBlock(createEmptyProvider(providerId, getProviderInterval(providerId)));
+          return mountProviderBlock(createEmptyProvider(providerId));
         }
 
         snapshot.pending = false;

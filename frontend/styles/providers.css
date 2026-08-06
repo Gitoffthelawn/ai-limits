@@ -89,33 +89,8 @@
 }
 
 .provider-block h2,
-.provider-block .limit-top,
-.provider-block .provider-settings-button {
+.provider-block .limit-top {
   color: var(--provider-text);
-}
-
-/* The refresh trigger picks up the card's brand color instead of the
-   generic control styling, so it reads as part of the card. */
-.provider-block .provider-settings-button {
-  border-color: var(--provider-border-color);
-  background: color-mix(in srgb, var(--provider-brand) var(--mix-provider-text), var(--surface));
-  color: var(--provider-border-color);
-}
-
-/* Icon (currentColor, see buildRefreshCwIconSvg) follows the same
-   --provider-brand as the border on hover/expanded, instead of staying
-   pinned to the mostly-neutral --provider-text — otherwise the glyph reads
-   as a flat black/white mark sitting inside a suddenly brand-colored frame. */
-.provider-block .provider-settings-button:hover {
-  border-color: var(--provider-brand);
-  background: color-mix(in srgb, var(--provider-brand) var(--mix-hover-success), var(--surface));
-  color: var(--provider-brand);
-}
-
-.provider-block .provider-settings-button[aria-expanded="true"] {
-  border-color: var(--provider-brand);
-  background: color-mix(in srgb, var(--provider-brand) var(--mix-active-warning), var(--surface));
-  color: var(--provider-brand);
 }
 
 .provider-block .limit-row,
@@ -140,16 +115,12 @@
   padding-bottom: var(--space-14);
 }
 
-/* The refresh trigger sits top-right, on the same line as the title. It is
-   positioned absolutely so it never shifts the centered title horizontally
-   — the title's centering is computed against the header's full width, not
-   against the space left over after the button. */
+/* Provider name sits centered in the header. */
 .provider-header {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: var(--provider-refresh-button-size);
   margin-bottom: var(--space-16);
   text-align: center;
 }
@@ -196,13 +167,6 @@
    hidden here. */
 .provider-plan-name {
   display: none;
-}
-
-.provider-header .provider-settings-menu {
-  position: absolute;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
 }
 
 
@@ -516,79 +480,6 @@
   to {
     transform: translateX(720%) skewX(-30deg);
   }
-}
-
-.provider-settings-menu {
-  position: relative;
-  flex: 0 0 auto;
-}
-
-.provider-settings-button {
-  width: var(--provider-refresh-button-size);
-  height: var(--provider-refresh-button-size);
-}
-
-/* Opens downward, right-aligned to the trigger's right edge, so the
-   dropdown stays inside the card it configures, per
-   docs/desktop/ui/controls.md. */
-.provider-settings-dropdown {
-  min-width: var(--provider-settings-dropdown-min-width);
-}
-
-.manual-refresh-option {
-  width: 100%;
-  font-weight: var(--font-weight-bold);
-}
-
-/* Echoes the toolbar's "UPDATE ALL DATA NOW" hover treatment so the two refresh
-   actions read as the same kind of thing. */
-.manual-refresh-option:hover:not(:disabled) {
-  border-color: var(--accent-success);
-  background: color-mix(in srgb, var(--accent-success) var(--mix-hover-success), var(--surface));
-}
-
-.frequency-options {
-  display: grid;
-  gap: var(--space-2);
-}
-
-.frequency-option {
-  display: flex;
-  align-items: center;
-  gap: var(--space-6);
-  border: var(--border-width) solid transparent;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-semibold);
-  padding: var(--space-6) var(--space-8);
-  text-align: left;
-  cursor: pointer;
-}
-
-.refresh-icon {
-  flex: 0 0 auto;
-}
-
-.refresh-icon-badge {
-  font-family: inherit;
-}
-
-.frequency-option:hover {
-  background: var(--surface-hover);
-}
-
-.frequency-option:disabled {
-  color: var(--text-muted);
-  cursor: not-allowed;
-}
-
-.frequency-option[aria-pressed="true"] {
-  border-color: var(--accent-success);
-  background: color-mix(in srgb, var(--accent-success) var(--mix-hover-success), var(--surface));
-  color: var(--text);
 }
 
 .provider-message {

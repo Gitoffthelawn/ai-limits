@@ -6,8 +6,8 @@ Each provider block refreshes independently:
 
 - initial load starts refreshes for enabled providers in parallel
 - `UPDATE ALL DATA NOW` starts refreshes for enabled providers in parallel
-- `UPDATE NOW` in one provider block refreshes only that provider
-- scheduled refresh runs only for the provider whose interval fired
+- `UPDATE ALL DATA NOW` refreshes every enabled provider
+- scheduled refresh uses one user-selected interval for every enabled provider
 - a slow or failed provider must not block other provider blocks from updating
 - global loading should not hide or block provider blocks
 
@@ -15,7 +15,7 @@ The preferred integration model is one Tauri request per provider. The frontend 
 
 ## Shared Refresh Schedule
 
-Main Window and Menu Bar Popover each run their own per-provider refresh timers, but both compute the same next-refresh target: last actual collection instant (`ProviderLimits.collectedAt`, the backend's `collected_at`) plus the provider's selected update frequency — never a per-window "when did I last observe a fetch resolve" clock. A collection started by either surface, or by the other surface's `UPDATE NOW`/`UPDATE ALL DATA NOW`, updates both surfaces' schedules once its result is applied.
+Main Window and Menu Bar Popover each run their own refresh timers, but both use the same user-selected update interval for every enabled provider. The next-refresh target for a provider is its last actual collection instant (`ProviderLimits.collectedAt`, the backend's `collected_at`) plus that shared interval — never a per-window "when did I last observe a fetch resolve" clock. A collection started by either surface or by `UPDATE ALL DATA NOW` updates both surfaces' schedules once its result is applied.
 
 A surface applies `collectedAt` to its schedule from four places:
 

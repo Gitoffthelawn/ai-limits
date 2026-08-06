@@ -287,13 +287,6 @@ body.popover-page {
     0 3px 7px -2px rgba(0, 0, 0, 0.28);
 }
 
-/* Card Content decision (docs/desktop/mac-popover.md): the per-card
-   update-frequency dropdown is not part of the popover card — [update all]
-   in the top bar replaces it. */
-.popover-root .provider-settings-menu {
-  display: none;
-}
-
 /* Card Content decision (docs/desktop/mac-popover.md): the Main-Window-only
    "Fix access"/"Retry" recovery actions are gated to surface === "main" at
    render time, so they never appear in the real Popover panel. This rule is

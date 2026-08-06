@@ -111,10 +111,10 @@ Source API2, as of Jul 5, 22:12 Next upd 22:17
 The line has two parts:
 
 - source status: origin label, timestamp from `dataTimestamp`, rendered as `Source {origin label}, as of {timestamp}`
-- next update: `Next upd {time}`, the next time this provider's own update-frequency timer (see [controls.md](controls.md#update-frequency)) will fire, or `Manual upd only` when that provider's frequency is set to `Manual only`
+- next update: `Next upd {time}`, the next time this provider is refreshed according to the shared update-frequency setting (see [settings.md](settings.md#other))
 
-`Next upd` is always one interval after the provider's last update, from whatever source — the automatic timer, that provider's own `UPDATE NOW`, or the app-wide `UPDATE ALL DATA NOW` (see [controls.md](controls.md#update-frequency)). It is never computed from the moment a setting was changed or a button was clicked. If the provider has no known last update yet, or the computed time has already passed (e.g. the frequency just changed to something shorter than the time since the last update), the app fetches immediately instead of showing a stale future time.
+`Next upd` is always one shared interval after the provider's last update, from either the automatic timer or `UPDATE ALL DATA NOW` (see [settings.md](settings.md#other)). It is never computed from the moment a setting was changed or a button was clicked. If the provider has no known last update yet, or the computed time has already passed (e.g. the frequency just changed to something shorter than the time since the last update), the app fetches immediately instead of showing a stale future time.
 
 Possible origin labels: `Local files`, `CLI`, `API2`, `Unknown`.
 
-Each part is a non-breaking unit: `Source {origin label}, as of {timestamp}` and `Next upd {time}` (or `Manual upd only`) must not wrap in the middle. If the provider block is too narrow for the full line, the line may break only between these two units.
+Each part is a non-breaking unit: `Source {origin label}, as of {timestamp}` and `Next upd {time}` must not wrap in the middle. If the provider block is too narrow for the full line, the line may break only between these two units.

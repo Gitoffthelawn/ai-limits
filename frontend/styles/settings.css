@@ -1,34 +1,4 @@
-/* Floating dropdown chrome, still used by the per-provider update-frequency
-   menu (see .provider-settings-dropdown in providers.css and its markup in
-   provider-rendering.js) even though the Main Window settings page below no
-   longer floats. */
-.settings-dropdown {
-  position: absolute;
-  top: calc(100% + var(--space-8));
-  right: 0;
-  z-index: var(--dropdown-z-index);
-  display: grid;
-  gap: var(--space-10);
-  width: max-content;
-  min-width: var(--settings-dropdown-min-width);
-  max-width: calc(100vw - var(--settings-dropdown-max-width-offset));
-  max-height: calc(100vh - var(--settings-dropdown-max-height-offset));
-  overflow-y: auto;
-  border: var(--border-surface);
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  padding: var(--space-12);
-  box-shadow: var(--shadow-dropdown);
-}
-
-.settings-dropdown[hidden] {
-  display: none;
-}
-
-/* Main Window Settings page: the same section/toggle styling as the
-   dropdown above, laid out as a normal stacked page section instead of a
-   floating overlay. Visibility is handled by main.js's switchView, not by
-   the `hidden` attribute toggling here. */
+/* Main Window Settings page. Visibility is handled by main.js's switchView. */
 .settings-view {
   display: grid;
   gap: var(--space-16);
@@ -70,9 +40,6 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-16);
-}
-
-.settings-toggle {
   white-space: nowrap;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
@@ -112,4 +79,18 @@
 
 .settings-toggle input[type="checkbox"]:checked::before {
   transform: translateX(var(--toggle-knob-travel));
+}
+
+.settings-toggle select {
+  min-width: 7.5rem;
+  margin: 0;
+  border: var(--border-control);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-6) var(--space-8);
+  cursor: pointer;
 }

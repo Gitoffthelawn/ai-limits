@@ -9,12 +9,14 @@ Format: each version groups its entries under plain-text labels, in this order w
 New feature:
 - The macOS menu bar Popover
 - Shared live cache and refresh schedule between Main Window and Popover
+- One shared Update frequency dropdown in Settings → Other for all provider cards (default 10 min)
 
 Updated:
 - macOS opens the Main Window only on the first launch; later launches start from the menu bar
 - Main Window reworked into Overview, Settings, and Help
+- Provider cards no longer have their own refresh-frequency or per-card UPDATE NOW controls
 - Redesign:
-  - Surfaces over the page background get a light Liquid Glass lift
+  - Main Window surfaces use the Popover material palette, blur, and tile lift
 
 Fixed:
 - Cmd+W closes the Main Window from fullscreen

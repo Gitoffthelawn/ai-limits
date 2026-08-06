@@ -45,7 +45,7 @@
 - Application de bureau légère (macOS, Windows, Linux),
 - Interface CLI avec plusieurs formats de sortie,
 - Notifications système lorsque les seuils de limite sont atteints,
-- Actualisation des données manuelle et automatique flexible.
+- Actualisation manuelle de toutes les données et fréquence automatique commune.
 
 ## Alternatives
 

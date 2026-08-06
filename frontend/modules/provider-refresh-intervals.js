@@ -1,7 +1,5 @@
-import { DEFAULT_UPDATE_FREQUENCY, PROVIDER_IDS, PROVIDER_INTERVALS_STORAGE_KEY, updateFrequencyOptions } from "./constants.js";
-import { isProviderEnabled } from "./settings.js";
+import { getUpdateFrequency, isProviderEnabled } from "./settings.js";
 
-const providerRefreshIntervals = new Map();
 const providerRefreshTimers = new Map();
 const providerNextRefreshAt = new Map();
 // Epoch ms of this provider's last actual collection. Seeded from the
@@ -14,49 +12,12 @@ const providerNextRefreshAt = new Map();
 // (a failed fetch, or a snapshot that predates this field).
 const providerLastUpdateAt = new Map();
 
-function normalizeUpdateFrequency(frequency) {
-  if (typeof frequency !== "string") {
-    return DEFAULT_UPDATE_FREQUENCY;
-  }
+const LEGACY_PROVIDER_INTERVALS_STORAGE_KEY = "ai-limits-provider-intervals";
 
-  return updateFrequencyOptions.includes(frequency) ? frequency : DEFAULT_UPDATE_FREQUENCY;
-}
-
-function loadProviderIntervalsFromStorage() {
-  try {
-    const stored = localStorage.getItem(PROVIDER_INTERVALS_STORAGE_KEY);
-    if (!stored) {
-      return {};
-    }
-
-    const parsed = JSON.parse(stored);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      return {};
-    }
-
-    const intervals = {};
-    for (const providerId of PROVIDER_IDS) {
-      intervals[providerId] = normalizeUpdateFrequency(parsed[providerId]);
-    }
-    return intervals;
-  } catch {
-    return {};
-  }
-}
-
+// Drops the pre-shared-frequency per-provider intervals key if it is still
+// present from an earlier install. Safe to call every startup.
 export function initProviderIntervals() {
-  const stored = loadProviderIntervalsFromStorage();
-  for (const providerId of PROVIDER_IDS) {
-    providerRefreshIntervals.set(providerId, stored[providerId] ?? DEFAULT_UPDATE_FREQUENCY);
-  }
-}
-
-function saveProviderIntervals() {
-  const payload = {};
-  for (const providerId of PROVIDER_IDS) {
-    payload[providerId] = getProviderInterval(providerId);
-  }
-  localStorage.setItem(PROVIDER_INTERVALS_STORAGE_KEY, JSON.stringify(payload));
+  localStorage.removeItem(LEGACY_PROVIDER_INTERVALS_STORAGE_KEY);
 }
 
 function frequencyToMs(frequency) {
@@ -76,19 +37,9 @@ function frequencyToMs(frequency) {
   }
 }
 
-export function getProviderInterval(providerId) {
-  return providerRefreshIntervals.get(providerId) ?? DEFAULT_UPDATE_FREQUENCY;
-}
-
 // null means the next scheduled refresh is unknown or there is none (manual only).
 export function getProviderNextRefreshAt(providerId) {
   return providerNextRefreshAt.get(providerId) ?? null;
-}
-
-export function ensureProviderInterval(providerId, fallbackFrequency) {
-  if (!providerRefreshIntervals.has(providerId)) {
-    providerRefreshIntervals.set(providerId, normalizeUpdateFrequency(fallbackFrequency));
-  }
 }
 
 export function stopProviderRefreshTimer(providerId) {
@@ -130,7 +81,7 @@ export function restartProviderRefreshTimer(providerId, refreshProvider) {
     return;
   }
 
-  const intervalMs = frequencyToMs(getProviderInterval(providerId));
+  const intervalMs = frequencyToMs(getUpdateFrequency());
   if (intervalMs == null) {
     providerNextRefreshAt.set(providerId, null);
     return;
@@ -154,14 +105,4 @@ export function restartProviderRefreshTimer(providerId, refreshProvider) {
 
   const timerId = setTimeout(() => refreshProvider(providerId), delay);
   providerRefreshTimers.set(providerId, timerId);
-}
-
-export function setProviderInterval(providerId, frequency, refreshProvider) {
-  if (!updateFrequencyOptions.includes(frequency)) {
-    return;
-  }
-
-  providerRefreshIntervals.set(providerId, frequency);
-  saveProviderIntervals();
-  restartProviderRefreshTimer(providerId, refreshProvider);
 }

@@ -1,37 +1,5 @@
-import { updateFrequencyOptions } from "./constants.js";
 import { colorForRemaining, escapeHtml, extractPlanNameForHeader, formatDecimal, formatSourceStatusLine, formatTimestampForDisplay, formatUpdateTimeLine } from "./provider-formatters.js";
 import { isShowLimitsEnabled, isShowPlanEnabled, isShowSourceEnabled, isShowUpdateTimeEnabled } from "./settings.js";
-
-const FREQUENCY_ICON_BADGES = {
-  "Manual only": "X",
-  "1 min": "1",
-  "5 min": "5",
-  "10 min": "10",
-  "30 min": "30",
-  "1 hour": "60",
-};
-
-// Single glyph shared by the header trigger, the frequency options, and the
-// UPDATE NOW row: a refresh-cw arrow loop with an optional badge (minutes,
-// or "X" for manual-only) lettered into the open space at its center. The
-// arrows trace a wide ring near the icon's edge, so the center stays clear
-// almost to the icon's full radius — the badge can run large without
-// touching the strokes. Font size is set in viewBox units, so it scales
-// automatically with whatever pixel size the caller renders the icon at.
-export function buildRefreshCwIconSvg(badge, { size = 20 } = {}) {
-  const badgeMarkup = badge
-    ? `<text class="refresh-icon-badge" x="12" y="12.5" text-anchor="middle" dominant-baseline="middle" font-size="${badge.length > 1 ? 9.5 : 13}" font-weight="700" stroke="none" fill="currentColor">${escapeHtml(badge)}</text>`
-    : "";
-  return `
-    <svg class="settings-icon refresh-icon" xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-      <path d="M21 3v5h-5" />
-      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-      <path d="M8 16H3v5" />
-      ${badgeMarkup}
-    </svg>
-  `;
-}
 
 function providerLabel(providerId) {
   return providerId.charAt(0).toUpperCase() + providerId.slice(1);
@@ -61,7 +29,7 @@ function buildProviderBrandIconSvg(providerId) {
   return `<svg class="provider-brand-icon" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" fill-rule="evenodd" aria-hidden="true"><path d="${path}"/></svg>`;
 }
 
-export function createEmptyProvider(providerId, selectedUpdateFrequency) {
+export function createEmptyProvider(providerId) {
   return {
     id: providerId,
     label: providerLabel(providerId),
@@ -70,7 +38,6 @@ export function createEmptyProvider(providerId, selectedUpdateFrequency) {
     plan: { lines: [], links: [] },
     sourceId: null,
     dataTimestamp: null,
-    selectedUpdateFrequency,
     errorMessage: null,
     noFreshData: false,
     authorizationRequired: null,
@@ -136,9 +103,9 @@ function buildCliAuthorizationHtml(providerKey, surface) {
   `;
 }
 
-// The "Retry" button reuses the same data-manual-refresh mechanism as the
-// settings dropdown's UPDATE NOW row (see providers.js), just surfaced
-// directly on the card. Main Window only, same reasoning as buildCliAuthorizationHtml.
+// The "Retry" button reuses data-manual-refresh (see providers.js), surfaced
+// directly on the card for recovery states. Main Window only, same reasoning
+// as buildCliAuthorizationHtml.
 function buildNoFreshDataHtml(surface) {
   const retryHtml = surface === "main"
     ? `<button type="button" class="provider-link" data-manual-refresh>Retry</button>`
@@ -285,16 +252,6 @@ function buildProviderSectionsHtml(provider, surface) {
   ].join("");
 }
 
-function buildFrequencyOptionsHtml(selectedUpdateFrequency) {
-  return updateFrequencyOptions
-    .map((option) => `
-      <button type="button" class="frequency-option" data-frequency-option="${escapeHtml(option)}" aria-pressed="${option === selectedUpdateFrequency}">
-        ${buildRefreshCwIconSvg(FREQUENCY_ICON_BADGES[option] ?? "", { size: 18 })}<span class="frequency-option-label">${escapeHtml(option)}</span>
-      </button>
-    `)
-    .join("");
-}
-
 // The provider label, plus its plan name where a surface wants it folded
 // into the header instead of shown as its own section (see
 // `.provider-plan-name` in styles/popover.css) — hidden by default
@@ -314,42 +271,17 @@ function buildUpdateTimeLineHtml(provider, nextRefreshAt) {
   return `<p class="update-time-line" ${isShowUpdateTimeEnabled() ? "" : "hidden"}>${escapeHtml(formatUpdateTimeLine(provider, nextRefreshAt))}</p>`;
 }
 
-export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt, surface = "main") {
+export function renderProvider(provider, nextRefreshAt, surface = "main") {
   const block = document.createElement("article");
   block.className = "provider-block";
   block.dataset.providerId = provider.id;
   block.dataset.surface = surface;
-  const settingsDropdownId = `provider-settings-dropdown-${provider.id}`;
 
   block.innerHTML = `
     <div class="provider-refresh-glare" aria-hidden="true"></div>
     <div class="provider-content">
       <div class="provider-header">
         <h2>${buildProviderTitleHtml(provider)}</h2>
-        <div class="provider-settings-menu" data-provider-settings-menu>
-          <button
-            type="button"
-            class="settings-button provider-settings-button"
-            data-provider-settings-button
-            aria-label="${escapeHtml(provider.label)} update settings"
-            aria-haspopup="true"
-            aria-expanded="false"
-            aria-controls="${settingsDropdownId}"
-          >${buildRefreshCwIconSvg(FREQUENCY_ICON_BADGES[selectedUpdateFrequency] ?? "", { size: 20 })}</button>
-          <div class="settings-dropdown provider-settings-dropdown" id="${settingsDropdownId}" data-provider-settings-dropdown hidden>
-            <div class="settings-section">
-              <button type="button" class="frequency-option manual-refresh-option" data-manual-refresh>
-                ${buildRefreshCwIconSvg("", { size: 18 })}<span class="frequency-option-label">UPDATE NOW</span>
-              </button>
-            </div>
-            <div class="settings-section">
-              <p class="settings-section-label">UPDATE FREQUENCY</p>
-              <div class="frequency-options" role="group" aria-label="${escapeHtml(provider.label)} update frequency">
-                ${buildFrequencyOptionsHtml(selectedUpdateFrequency)}
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
       <div class="provider-sections">${buildProviderSectionsHtml(provider, surface)}</div>
     </div>
@@ -376,16 +308,5 @@ export function updateProviderUpdateTimeText(block, provider, nextRefreshAt) {
   const el = block.querySelector(".update-time-line");
   if (el) {
     el.textContent = formatUpdateTimeLine(provider, nextRefreshAt);
-  }
-}
-
-export function syncFrequencyOptions(block, selectedUpdateFrequency) {
-  for (const option of block.querySelectorAll("[data-frequency-option]")) {
-    option.setAttribute("aria-pressed", String(option.dataset.frequencyOption === selectedUpdateFrequency));
-  }
-
-  const settingsButton = block.querySelector("[data-provider-settings-button]");
-  if (settingsButton) {
-    settingsButton.innerHTML = buildRefreshCwIconSvg(FREQUENCY_ICON_BADGES[selectedUpdateFrequency] ?? "", { size: 20 });
   }
 }

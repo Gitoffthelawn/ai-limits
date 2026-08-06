@@ -20,7 +20,6 @@ export const SHOWCASE_PROVIDERS = {
     label: "Codex",
     sourceId: "codex-rpc",
     dataTimestamp: "16:34",
-    selectedUpdateFrequency: "5 min",
     limits: [
       { label: "7d", remainingPercentage: 23.2, resetTime: "Aug 8, 16:44" },
     ],
@@ -41,7 +40,6 @@ export const SHOWCASE_PROVIDERS = {
     label: "Claude",
     sourceId: "claude-rpc",
     dataTimestamp: "16:41",
-    selectedUpdateFrequency: "5 min",
     limits: [
       { label: "5h", remainingPercentage: 4.0, resetTime: "21:40" },
       { label: "7d", remainingPercentage: 79.0, resetTime: "Aug 11, 15:00" },
@@ -63,7 +61,6 @@ export const SHOWCASE_PROVIDERS = {
     label: "Cursor",
     sourceId: "cursor-api2",
     dataTimestamp: "16:34",
-    selectedUpdateFrequency: "5 min",
     limits: [
       { label: "Cursor Models", remainingPercentage: 82.7, resetTime: "Aug 28, 05:54" },
       { label: "Other Models", remainingPercentage: 74.8, resetTime: "Aug 28, 05:54" },

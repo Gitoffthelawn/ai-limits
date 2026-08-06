@@ -4,10 +4,12 @@ import {
   syncSettingsInputs,
   handleSettingsChange,
   handleDisplaySettingsChange,
+  handleUpdateFrequencyChange,
 } from "./settings.js";
 import { initAppUpdates, syncAppUpdateSchedule } from "./app-update.js";
 import { initHelp, renderHelpMenu, openHelp, selectHelpChapter } from "./help.js";
 import { DEFAULT_HELP_CHAPTER } from "./help-chapters.js";
+import { updateFrequencyOptions } from "./constants.js";
 import { setupScreenshotShowcase } from "./showcase.js";
 import {
   initProviders,
@@ -17,6 +19,7 @@ import {
   removeDisabledProviderBlocks,
   scheduleSectionSlotAlignment,
   restoreNewlyEnabledProviders,
+  applySharedUpdateFrequency,
 } from "./providers.js";
 
 const providerList = document.querySelector("#provider-list");
@@ -42,6 +45,7 @@ const settingInputs = {
   showPlan: document.querySelector("#setting-show-plan"),
   showSource: document.querySelector("#setting-show-source"),
   showUpdateTime: document.querySelector("#setting-show-update-time"),
+  updateFrequency: document.querySelector("#setting-update-frequency"),
   autoUpdate: document.querySelector("#setting-auto-update"),
   darkTheme: document.querySelector("#setting-dark-theme"),
 };
@@ -81,6 +85,15 @@ initSettings(settingInputs, {
   onDisplayChanged() {
     refreshProviderSectionsFromCache();
   },
+  onUpdateFrequencyChanged() {
+    applySharedUpdateFrequency();
+  },
+});
+for (const option of updateFrequencyOptions) {
+  settingInputs.updateFrequency.append(new Option(option, option));
+}
+settingInputs.updateFrequency.addEventListener("change", () => {
+  handleUpdateFrequencyChange(settingInputs.updateFrequency.value);
 });
 initAppUpdates(updateBannerEls);
 initHelp({ helpMenu, helpContent, helpView });
@@ -114,6 +127,10 @@ const displaySettingInputs = [
 ];
 
 for (const input of Object.values(settingInputs)) {
+  if (input === settingInputs.updateFrequency) {
+    continue;
+  }
+
   if (input === settingInputs.darkTheme) {
     input.addEventListener("change", (event) => {
       setManualTheme(event.target.checked);

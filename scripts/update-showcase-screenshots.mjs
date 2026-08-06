@@ -32,12 +32,12 @@ async function prepareWindow(page, { openSettings, openHelp }) {
   await page.locator(".provider-block").first().waitFor({ state: "visible" });
 
   if (openSettings) {
-    await page.locator("#settings-button").click();
-    await page.locator("#settings-dropdown:not([hidden])").waitFor({ state: "visible" });
+    await page.locator("#nav-settings").click();
+    await page.locator("#settings-view:not([hidden])").waitFor({ state: "visible" });
   }
 
   if (openHelp) {
-    await page.locator("#help-button").click();
+    await page.locator("#nav-help").click();
     await page.locator("#help-view:not([hidden])").waitFor({ state: "visible" });
   }
 }
@@ -69,6 +69,7 @@ async function main() {
             showPlan: false,
             showSource: false,
             showUpdateTime: false,
+            updateFrequency: "10 min",
           }),
         );
         localStorage.removeItem("ai-limits-provider-intervals");

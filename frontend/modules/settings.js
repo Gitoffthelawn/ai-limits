@@ -1,8 +1,10 @@
 import {
   DEFAULT_APP_SETTINGS,
+  DEFAULT_UPDATE_FREQUENCY,
   PROVIDER_IDS,
   SETTINGS_CHANGED_EVENT,
   SETTINGS_STORAGE_KEY,
+  updateFrequencyOptions,
 } from "./constants.js";
 import { getAppTheme } from "./theme.js";
 
@@ -10,11 +12,13 @@ let settingInputs = null;
 let appSettings = { ...DEFAULT_APP_SETTINGS };
 let onSettingsChanged = null;
 let onDisplaySettingsChanged = null;
+let onUpdateFrequencyChanged = null;
 
-export function initSettings(inputs, { onChanged, onDisplayChanged } = {}) {
+export function initSettings(inputs, { onChanged, onDisplayChanged, onUpdateFrequencyChanged: onFrequencyChanged } = {}) {
   settingInputs = inputs;
   onSettingsChanged = onChanged ?? null;
   onDisplaySettingsChanged = onDisplayChanged ?? null;
+  onUpdateFrequencyChanged = onFrequencyChanged ?? null;
   appSettings = loadAppSettings();
 }
 
@@ -44,6 +48,12 @@ function emitSettingsChanged(kind) {
   emit(SETTINGS_CHANGED_EVENT, { kind }).catch(() => {});
 }
 
+function normalizeStoredUpdateFrequency(frequency) {
+  return typeof frequency === "string" && updateFrequencyOptions.includes(frequency)
+    ? frequency
+    : DEFAULT_UPDATE_FREQUENCY;
+}
+
 function loadAppSettings() {
   try {
     const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
@@ -71,6 +81,7 @@ function loadAppSettings() {
         typeof parsed.showUpdateTime === "boolean"
           ? parsed.showUpdateTime
           : DEFAULT_APP_SETTINGS.showUpdateTime,
+      updateFrequency: normalizeStoredUpdateFrequency(parsed.updateFrequency),
     };
   } catch {
     return { ...DEFAULT_APP_SETTINGS };
@@ -92,6 +103,9 @@ export function syncSettingsInputs() {
   settingInputs.showSource.checked = appSettings.showSource;
   settingInputs.showUpdateTime.checked = appSettings.showUpdateTime;
   settingInputs.darkTheme.checked = getAppTheme().value === "dark";
+  if (settingInputs.updateFrequency) {
+    settingInputs.updateFrequency.value = appSettings.updateFrequency;
+  }
 }
 
 export function isShowLimitsEnabled() {
@@ -108,6 +122,10 @@ export function isShowSourceEnabled() {
 
 export function isShowUpdateTimeEnabled() {
   return appSettings.showUpdateTime;
+}
+
+export function getUpdateFrequency() {
+  return appSettings.updateFrequency;
 }
 
 export function settingsToQuery() {
@@ -173,4 +191,24 @@ export function handleDisplaySettingsChange() {
   saveAppSettings();
   onDisplaySettingsChanged?.();
   emitSettingsChanged("display");
+}
+
+// Shared update-frequency setting: saves the choice, reapplies the schedule
+// for every enabled provider, and does not itself start a data refresh
+// beyond what the recomputed schedule requires (see controls.md).
+export function handleUpdateFrequencyChange(frequency) {
+  if (!updateFrequencyOptions.includes(frequency) || frequency === appSettings.updateFrequency) {
+    return;
+  }
+
+  appSettings = {
+    ...appSettings,
+    updateFrequency: frequency,
+  };
+  saveAppSettings();
+  if (settingInputs.updateFrequency) {
+    settingInputs.updateFrequency.value = frequency;
+  }
+  onUpdateFrequencyChanged?.();
+  emitSettingsChanged("update-frequency");
 }

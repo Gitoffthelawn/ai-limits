@@ -45,7 +45,7 @@
 - Aplicação de ambiente de trabalho leve (macOS, Windows, Linux),
 - Interface CLI com vários formatos de saída,
 - Notificações do sistema ao atingir limiares de limite,
-- Atualização de dados manual e automática flexível.
+- Atualização manual de todos os dados e uma frequência automática compartilhada.
 
 ## Alternativas
 

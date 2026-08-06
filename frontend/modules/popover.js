@@ -21,6 +21,7 @@ import {
   initProviderIntervals,
   refreshEnabledProviders,
   refreshProviderSectionsFromCache,
+  applySharedUpdateFrequency,
 } from "./providers.js";
 import {
   buildPopoverHeaderHtml,
@@ -118,6 +119,7 @@ if (window.__TAURI__?.event?.listen) {
   window.__TAURI__.event.listen(SETTINGS_CHANGED_EVENT, () => {
     reloadAppSettings();
     refreshProviderSectionsFromCache();
+    applySharedUpdateFrequency();
   });
 
   // Same mechanism for the manual "Dark theme" toggle, which lives in
@@ -162,20 +164,13 @@ if (typeof window.ResizeObserver === "function") {
   heightObserver.observe(statusLine);
 }
 
-// Esc closes the panel, the way a system popover does. Registered in the
-// capture phase so it runs before providers.js's own bubbling Escape handler
-// (which closes a card's open dropdown): if a dropdown is open, Esc belongs
-// to it and this window stays up. `hide_popover` is a macOS-only Tauri
-// command; outside Tauri (browser/showcase) invoke resolves to null and this
-// is a no-op.
+// Esc closes the panel, the way a system popover does.
+// `hide_popover` is a macOS-only Tauri command; outside Tauri
+// (browser/showcase) invoke resolves to null and this is a no-op.
 document.addEventListener(
   "keydown",
   (event) => {
     if (event.key !== "Escape") {
-      return;
-    }
-
-    if (popoverRoot.querySelector("[data-provider-settings-dropdown]:not([hidden])")) {
       return;
     }
 

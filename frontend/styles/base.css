@@ -9,49 +9,6 @@ body {
   background: var(--app-bg);
 }
 
-/* Shared square icon control (reused by the per-provider settings button —
-   see .provider-settings-button in providers.css — which layers its own
-   brand-color overrides on top of this base). */
-.settings-button {
-  display: inline-flex;
-  width: var(--settings-button-size);
-  height: var(--settings-button-size);
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  border: var(--border-control);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  color: var(--text);
-  cursor: pointer;
-}
-
-.settings-button:hover {
-  background: var(--surface-hover);
-}
-
-/* Neutral controls warm to yellow in dark theme. See docs/desktop/ui/styleguide.md.
-   The icon itself (currentColor, see buildRefreshCwIconSvg) follows the same
-   border-color so the glyph and its frame warm to yellow together instead of
-   the icon staying a flat black/white against a yellow border. */
-:root[data-theme="dark"] .settings-button:hover,
-:root[data-theme="dark"] .help-menu-item:hover,
-:root[data-theme="dark"] .info-link:hover {
-  border-color: var(--accent-warning);
-  background: color-mix(in srgb, var(--accent-warning) var(--mix-hover-warning), var(--surface));
-  color: var(--accent-warning);
-}
-
-.settings-button[aria-expanded="true"] {
-  border-color: var(--accent-warning);
-  background: color-mix(in srgb, var(--accent-warning) var(--mix-active-warning), var(--surface));
-  color: var(--accent-warning);
-}
-
-.settings-icon {
-  display: block;
-}
-
 /* Shared primary surface action button. */
 .refresh-button {
   border: var(--border-control);
@@ -64,6 +21,7 @@ body {
   padding: var(--space-8) var(--space-14);
   text-align: center;
   cursor: pointer;
+  box-shadow: var(--shadow-control);
 }
 
 .refresh-button:hover:not(:disabled) {
@@ -76,8 +34,16 @@ body {
   cursor: not-allowed;
 }
 
+/* Neutral controls warm to yellow in dark theme. See docs/desktop/ui/styleguide.md. */
+:root[data-theme="dark"] .help-menu-item:hover,
+:root[data-theme="dark"] .info-link:hover {
+  border-color: var(--accent-warning);
+  background: color-mix(in srgb, var(--accent-warning) var(--mix-hover-warning), var(--surface));
+  color: var(--accent-warning);
+}
+
 .settings-toggle input[type="checkbox"]:focus-visible,
-.frequency-option:focus-visible,
+.settings-toggle select:focus-visible,
 .help-menu-item:focus-visible {
   outline: var(--border-width-focus) solid var(--focus);
   outline-offset: var(--space-2);

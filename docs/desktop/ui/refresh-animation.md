@@ -6,11 +6,11 @@ All of the state below lives in `frontend/modules/providers.js` and is per-windo
 
 ## The three animation states
 
-A provider card's busy state is the union of three independent, per-provider tracking sets, reconciled by `updateRefreshVisual(providerId)` into one `is-refreshing` class toggle (plus disabling that card's `UPDATE NOW`/manual-refresh controls and `aria-busy` on its settings button):
+A provider card's busy state is the union of three independent, per-provider tracking sets, reconciled by `updateRefreshVisual(providerId)` into one `is-refreshing` class toggle.
 
 | Set | Set when | Cleared when |
 | --- | --- | --- |
-| `providerRefreshInFlight` | this window itself started a collection for the provider (`refreshSingleProvider`) — covers the window's own manual refresh, `UPDATE ALL DATA NOW`/Popover `[update all]`, the scheduled per-provider timer, and cold start | the window's own `get_single_provider_limits` call resolves (success or failure) |
+| `providerRefreshInFlight` | this window itself started a collection for the provider (`refreshSingleProvider`) — covers `UPDATE ALL DATA NOW`/Popover `[update all]`, the scheduled shared-frequency refresh, and cold start | the window's own `get_single_provider_limits` call resolves (success or failure) |
 | `providerRemoteRefreshInFlight` | the `provider-refresh-started` backend event arrives for the provider, from a collection started in *this or another* surface | the matching `provider-updated`/`provider-refresh-failed` event arrives for the same provider |
 | `providerFlashRefreshing` | a `provider-updated`/`provider-refresh-failed` event applies new data or a new error to a card that was **not** already covered by `providerRemoteRefreshInFlight` (see [The flash](#the-flash)) | a fixed `REMOTE_UPDATE_FLASH_MS` (1800ms — one pass of the glare) timeout, or earlier reconciliation is not needed since the timeout is the only clearing path |
 
@@ -22,7 +22,7 @@ On initial load, a provider with no cached snapshot (`get_cached_provider_limits
 
 ## Refresh started in this window
 
-`refreshSingleProvider(providerId)` — called for a manual click, `UPDATE ALL DATA NOW`/`[update all]`, or a scheduled timer firing — adds the id to `providerRefreshInFlight` before the `get_single_provider_limits` call and removes it in `finally`, calling `updateRefreshVisual` both times. This is enough to animate the card in the window that started the refresh; no event is needed for a window to see its own action.
+`refreshSingleProvider(providerId)` — called by `UPDATE ALL DATA NOW`/`[update all]` or a scheduled timer firing — adds the id to `providerRefreshInFlight` before the `get_single_provider_limits` call and removes it in `finally`, calling `updateRefreshVisual` both times. This is enough to animate the card in the window that started the refresh; no event is needed for a window to see its own action.
 
 ## Refresh started in another surface
 

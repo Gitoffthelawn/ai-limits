@@ -45,7 +45,7 @@
 - Aplicación de escritorio ligera (macOS, Windows, Linux),
 - Interfaz CLI con varios formatos de salida,
 - Notificaciones del sistema al alcanzar umbrales de límite,
-- Actualización de datos manual y automática flexible.
+- Actualización manual de todos los datos y una frecuencia automática compartida.
 
 ## Alternativas
 

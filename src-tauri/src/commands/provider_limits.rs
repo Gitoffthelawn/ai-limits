@@ -40,7 +40,6 @@ pub struct ProviderLimits {
     /// shared collection instant rather than a per-window "just fetched"
     /// clock reading; see docs/desktop/ui/refresh.md.
     collected_at: Option<String>,
-    selected_update_frequency: String,
     limits: Vec<ProviderLimitRow>,
     credits_remaining: Option<f64>,
     available_limit_resets: Option<u64>,
@@ -124,7 +123,6 @@ pub(super) fn provider_limits_from_structured(
                 .map(|value| format_user_timestamp(value, &time_context))
                 .unwrap_or_else(|| "unknown".to_string()),
         ),
-        selected_update_frequency: "5 min".to_string(),
         limits,
         credits_remaining: info.account.credits_remaining,
         available_limit_resets: info.available_limit_resets,
@@ -145,7 +143,6 @@ pub(super) fn provider_error(id: &str, message: String) -> ProviderLimits {
         source_id: None,
         collected_at: None,
         data_timestamp: None,
-        selected_update_frequency: "5 min".to_string(),
         limits: Vec::new(),
         credits_remaining: None,
         available_limit_resets: None,

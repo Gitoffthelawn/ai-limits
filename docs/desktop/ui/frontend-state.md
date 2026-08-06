@@ -31,7 +31,7 @@ A surface that itself called `get_single_provider_limits` for the provider in qu
 
 The full cross-window animation lifecycle built on these three events — including the short flash played when a card's content changes without a `provider-refresh-started` signal ever reaching that surface — is documented separately in [refresh-animation.md](refresh-animation.md).
 
-On initializing its provider list (first load, or a provider newly re-enabled), a surface calls `get_cached_provider_limits` for each enabled provider before deciding whether to collect: a provider with an existing shared snapshot renders it immediately and only re-collects if its own update-frequency schedule (recomputed from that snapshot's `collectedAt`) says a refresh is already due; a provider with no shared snapshot yet collects normally. This is what lets a surface opened after the other has already collected data show it immediately, with no collection of its own.
+On initializing its provider list (first load, or a provider newly re-enabled), a surface calls `get_cached_provider_limits` for each enabled provider before deciding whether to collect: a provider with an existing shared snapshot renders it immediately and only re-collects if the shared update-frequency schedule (recomputed from that snapshot's `collectedAt`) says a refresh is already due; a provider with no shared snapshot yet collects normally. This is what lets a surface opened after the other has already collected data show it immediately, with no collection of its own.
 
 User-facing problem and recovery rules are documented in [problems.md](problems.md).
 
@@ -49,7 +49,6 @@ User-facing problem and recovery rules are documented in [problems.md](problems.
 | `sourceId` | origin label in `{label},`; possible values: `Local files`, `CLI`, `API2`, `Unknown` |
 | `dataTimestamp` | `as of {timestamp}`; missing value displays `unknown` |
 | `collectedAt` | raw ISO-8601 instant of the actual collection, not displayed; seeds the shared refresh schedule — see [refresh.md](refresh.md#shared-refresh-schedule) |
-| `selectedUpdateFrequency` | fallback default for provider interval if no local value exists |
 | `errorMessage` | marks refresh as failed and supplies fallback message outside no-fresh-data and CLI authorization states |
 | `noFreshData` | renders the no-fresh-data empty state with a link to data-availability help |
 | `authorizationRequired` | when `codex` or `claude`, renders the CLI authorization problem with Sign in and the manual login command |
@@ -66,12 +65,10 @@ These values are not returned by the backend:
 - `appSettings.showLimits`.
 - `appSettings.showPlan`.
 - `appTheme`, persisted separately from app settings.
-- provider update interval selected in the dropdown after local initialization.
+- the shared update-frequency setting.
 - provider refresh timers.
 - provider refresh in-flight markers.
 - which top-level page (Overview/Settings/Help) is current, tracked by `switchView()` in `main.js`.
 - the selected help chapter.
-
-`selectedUpdateFrequency` exists in the backend response and is currently always `"5 min"`, but persisted frontend intervals override it after the user changes a provider dropdown.
 
 `appSettings.showLimits` and `appSettings.showPlan` are `true` by default. They toggle the Limits and Plan sections of every provider block in place, without triggering a refresh; see [settings.md](settings.md#display) and [provider-blocks.md](provider-blocks.md).

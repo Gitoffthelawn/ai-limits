@@ -33,11 +33,14 @@ User experience:
 
 ## Other
 
-The other section has toggles:
+The other section has:
 
+- Update frequency (dropdown)
 - Notifications
 - Automatic updates
 - Dark theme
+
+Update frequency is one shared setting for provider-limit data. It affects every enabled provider card; there are no per-provider refresh-frequency settings. Its default value is `10 min`. Changing it saves the choice and applies it immediately to the shared refresh schedule. It does not itself start a data refresh.
 
 Defaults:
 
@@ -52,15 +55,14 @@ User experience:
 - Cursor, Cloud, and Codex control which provider blocks are shown and which providers are included in the next limits request
 - Cloud corresponds to Claude
 - Changing a toggle saves the choice and hides disabled provider blocks, but does not start a refresh
-- Saved choices apply on the next manual refresh or scheduled provider update
+- The update-frequency setting applies to every enabled provider; changing it does not start a refresh
 
 Settings storage:
 
 - settings are saved in `localStorage` under `ai-limits-settings`.
 - theme preference is saved in `localStorage` under `ai-limits-theme`.
-- per-provider update intervals are saved in `localStorage` under `ai-limits-provider-intervals`.
 - these saved settings are frontend state; they are not returned by the backend.
-- Show limits, Show plan, Show source, and Show update time are saved in `ai-limits-settings` alongside the other toggles; they are purely rendering choices and are never sent to the backend as part of the limits request.
+- Update frequency, Show limits, Show plan, Show source, and Show update time are saved in `ai-limits-settings` alongside the other settings; they are not sent to the backend as part of a limits request.
 
 Settings request mapping:
 
