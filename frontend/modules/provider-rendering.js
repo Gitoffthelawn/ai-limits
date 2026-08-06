@@ -91,47 +91,63 @@ function cliAuthorizationCopy(providerKey) {
   return { message: "You\u2019re not signed in to Codex CLI.", signInLabel: "Sign in to Codex", loginCommand: "codex login" };
 }
 
-function buildCliAuthorizationHtml(providerKey) {
+// "Fix access" only appears on the Main Window (surface === "main"): the
+// Popover has no room for a Help chapter to open into, and its rendered HTML
+// stays byte-for-byte the same as before this addition. See
+// docs/desktop/mac-popover.md#card-content.
+function buildCliAuthorizationHtml(providerKey, surface) {
   const copy = cliAuthorizationCopy(providerKey);
+  const fixAccessHtml = surface === "main"
+    ? `<button type="button" class="provider-link" data-open-help="permissions">Fix access</button>`
+    : "";
   return `
     <div class="cli-authorization">
       <p class="provider-message">${escapeHtml(copy.message)}</p>
       <button type="button" class="provider-link provider-link--external" data-provider-cli-login="${escapeHtml(providerKey)}">
         ${escapeHtml(copy.signInLabel)}
       </button>
+      ${fixAccessHtml}
       <p class="cli-authorization-manual">Or run manually: <code>${escapeHtml(copy.loginCommand)}</code></p>
     </div>
   `;
 }
 
-function buildNoFreshDataHtml() {
+// The "Retry" button reuses the same data-manual-refresh mechanism as the
+// settings dropdown's UPDATE NOW row (see providers.js), just surfaced
+// directly on the card. Main Window only, same reasoning as buildCliAuthorizationHtml.
+function buildNoFreshDataHtml(surface) {
+  const retryHtml = surface === "main"
+    ? `<button type="button" class="provider-link" data-manual-refresh>Retry</button>`
+    : "";
   return `
     <div class="no-fresh-data">
       <p>No fresh limits' data.</p>
       <button type="button" class="provider-link" data-open-data-errors>
         More details
       </button>
+      ${retryHtml}
     </div>
   `;
 }
 
-function buildLimitRowsHtml(provider) {
+function buildLimitRowsHtml(provider, surface) {
   if (!provider.limits.length) {
     if (provider.pending || provider.availableLimitResets != null) {
       return "";
     }
 
     if (provider.authorizationRequired) {
-      return buildCliAuthorizationHtml(provider.authorizationRequired);
+      return buildCliAuthorizationHtml(provider.authorizationRequired, surface);
     }
 
     if (provider.noFreshData) {
-      return buildNoFreshDataHtml();
+      return buildNoFreshDataHtml(surface);
     }
 
     const message = escapeHtml(provider.errorMessage || "No usable limit records from this source");
     const details = provider.errorMessage === "Local provider data is outdated" ? `<button type="button" class="provider-link" data-open-data-errors>More details</button>` : "";
-    return `<div><p class="provider-message">${message}</p>${details}</div>`;
+    const retryHtml = surface === "main" ? `<button type="button" class="provider-link" data-manual-refresh>Retry</button>` : "";
+    return `<div><p class="provider-message">${message}</p>${details}${retryHtml}</div>`;
   }
 
   return provider.limits.map((limit) => {
@@ -197,8 +213,8 @@ function buildProviderSectionHtml(kind, bodyHtml, pending) {
   `;
 }
 
-function buildLimitsBodyHtml(provider) {
-  const limitRowsHtml = buildLimitRowsHtml(provider);
+function buildLimitsBodyHtml(provider, surface) {
+  const limitRowsHtml = buildLimitRowsHtml(provider, surface);
   const creditsValue = formatCreditsValue(provider);
   const limitResetsHtml = buildLimitResetsHtml(provider);
 
@@ -238,9 +254,9 @@ function buildPlanBodyHtml(provider) {
   return `${buildPlanLinesHtml(provider.plan)}${buildPlanLinksHtml(provider.plan)}`;
 }
 
-function buildProviderSectionsHtml(provider) {
+function buildProviderSectionsHtml(provider, surface) {
   return [
-    isShowLimitsEnabled() ? buildProviderSectionHtml("limits", buildLimitsBodyHtml(provider), provider.pending) : "",
+    isShowLimitsEnabled() ? buildProviderSectionHtml("limits", buildLimitsBodyHtml(provider, surface), provider.pending) : "",
     isShowPlanEnabled() ? buildProviderSectionHtml("plan", buildPlanBodyHtml(provider), provider.pending) : "",
   ].join("");
 }
@@ -274,10 +290,11 @@ function buildUpdateTimeLineHtml(provider, nextRefreshAt) {
   return `<p class="update-time-line" ${isShowUpdateTimeEnabled() ? "" : "hidden"}>${escapeHtml(formatUpdateTimeLine(provider, nextRefreshAt))}</p>`;
 }
 
-export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt) {
+export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt, surface = "main") {
   const block = document.createElement("article");
   block.className = "provider-block";
   block.dataset.providerId = provider.id;
+  block.dataset.surface = surface;
   const settingsDropdownId = `provider-settings-dropdown-${provider.id}`;
 
   block.innerHTML = `
@@ -310,7 +327,7 @@ export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt)
           </div>
         </div>
       </div>
-      <div class="provider-sections">${buildProviderSectionsHtml(provider)}</div>
+      <div class="provider-sections">${buildProviderSectionsHtml(provider, surface)}</div>
     </div>
     <div class="provider-footer">
       ${buildUpdateTimeLineHtml(provider, nextRefreshAt)}
@@ -325,7 +342,7 @@ export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt)
 export function updateProviderBlockData(block, provider, nextRefreshAt) {
   block.querySelector(".provider-header h2").innerHTML = buildProviderTitleHtml(provider);
   const sections = block.querySelector(".provider-sections");
-  sections.innerHTML = buildProviderSectionsHtml(provider);
+  sections.innerHTML = buildProviderSectionsHtml(provider, block.dataset.surface || "main");
   applyMeterFillColors(sections);
   block.querySelector(".source-line").outerHTML = buildSourceLineHtml(provider);
   block.querySelector(".update-time-line").outerHTML = buildUpdateTimeLineHtml(provider, nextRefreshAt);

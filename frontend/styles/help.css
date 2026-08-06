@@ -8,16 +8,10 @@
 }
 
 .help-header {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: var(--space-16);
-}
-
-.help-back {
-  position: absolute;
-  left: 0;
 }
 
 .help-title {

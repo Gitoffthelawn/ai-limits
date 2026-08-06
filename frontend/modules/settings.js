@@ -136,11 +136,6 @@ export function isProviderEnabled(providerId) {
   }
 }
 
-export function setSettingsMenuOpen(isOpen, { settingsDropdown, settingsButton }) {
-  settingsDropdown.hidden = !isOpen;
-  settingsButton.setAttribute("aria-expanded", String(isOpen));
-}
-
 export function handleSettingsChange() {
   const previouslyEnabled = PROVIDER_IDS.filter(isProviderEnabled);
 

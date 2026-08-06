@@ -1,0 +1,43 @@
+/* Persistent top navigation for the Main Window: Overview / Settings / Help.
+   Styled as a native-macOS segmented control, using the shared
+   --segmented-* tokens from tokens.css. Main Window only — not loaded by
+   popover.html or popover.css. */
+.app-nav {
+  display: flex;
+  width: min(100%, var(--content-width));
+  margin: var(--space-0) auto var(--space-16);
+  gap: var(--space-2);
+  border: var(--border-width) solid var(--segmented-track-border);
+  border-radius: var(--radius-sm);
+  background: var(--segmented-track);
+  padding: var(--space-2);
+}
+
+.app-nav-tab {
+  flex: 1 1 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--segmented-unselected-text);
+  font: inherit;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-7) var(--space-10);
+  text-align: center;
+  cursor: pointer;
+}
+
+.app-nav-tab:hover {
+  color: var(--text);
+}
+
+.app-nav-tab[aria-current="page"] {
+  background: var(--segmented-selected-bg);
+  color: var(--text);
+  box-shadow: var(--shadow-control);
+}
+
+.app-nav-tab:focus-visible {
+  outline: var(--border-width-focus) solid var(--focus);
+  outline-offset: var(--space-2);
+}

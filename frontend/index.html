@@ -6,173 +6,128 @@
     <title>AI Limits</title>
     <link rel="icon" type="image/png" href="./favicon.png" />
     <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./styles/nav.css" />
   </head>
   <body>
     <main class="app">
-      <div class="view" id="home-view">
-      <section class="app-toolbar" aria-label="Refresh controls">
-        <div class="toolbar-actions">
-          <button
-            type="button"
-            class="help-button"
-            id="help-button"
-            aria-label="Help"
-          >
-            <svg
-              class="help-icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 16v-4" />
-              <path d="M12 8h.01" />
-            </svg>
-          </button>
+      <nav class="app-nav" id="app-nav" aria-label="Main navigation">
+        <button
+          type="button"
+          class="app-nav-tab"
+          id="nav-overview"
+          data-view="overview"
+          aria-current="page"
+        >
+          Overview
+        </button>
+        <button
+          type="button"
+          class="app-nav-tab"
+          id="nav-settings"
+          data-view="settings"
+          aria-current="false"
+        >
+          Settings
+        </button>
+        <button
+          type="button"
+          class="app-nav-tab"
+          id="nav-help"
+          data-view="help"
+          aria-current="false"
+        >
+          Help
+        </button>
+      </nav>
+
+      <div class="view" id="overview-view">
+        <div class="overview-actions">
           <button type="button" class="refresh-button" id="refresh-button">
             UPDATE ALL NOW
           </button>
-          <div class="settings-menu" id="settings-menu">
+        </div>
+
+        <section
+          class="update-banner"
+          id="update-banner"
+          aria-live="polite"
+          hidden
+        >
+          <span class="update-banner-text" id="update-banner-text"></span>
+          <div class="update-banner-actions">
+            <button type="button" class="update-restart-button" id="update-restart">
+              Restart now
+            </button>
             <button
               type="button"
-              class="settings-button"
-              id="settings-button"
-              aria-label="Settings"
-              aria-haspopup="true"
-              aria-expanded="false"
-              aria-controls="settings-dropdown"
+              class="update-dismiss-button"
+              id="update-dismiss"
+              aria-label="Dismiss update notice"
             >
-              <svg
-                class="settings-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path
-                  d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
-                />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
+              Later
             </button>
-            <div class="settings-dropdown" id="settings-dropdown" hidden>
-              <div class="settings-section">
-                <p class="settings-section-label">Providers</p>
-                <label class="settings-toggle">
-                  <span>Cursor</span>
-                  <input type="checkbox" id="setting-cursor" checked />
-                </label>
-                <label class="settings-toggle">
-                  <span>Cloud</span>
-                  <input type="checkbox" id="setting-cloud" checked />
-                </label>
-                <label class="settings-toggle">
-                  <span>Codex</span>
-                  <input type="checkbox" id="setting-codex" checked />
-                </label>
-              </div>
-              <div class="settings-section">
-                <p class="settings-section-label">Display</p>
-                <label class="settings-toggle">
-                  <span>Limits</span>
-                  <input type="checkbox" id="setting-show-limits" checked />
-                </label>
-                <label class="settings-toggle">
-                  <span>Plan</span>
-                  <input type="checkbox" id="setting-show-plan" checked />
-                </label>
-                <label class="settings-toggle">
-                  <span>Source</span>
-                  <input type="checkbox" id="setting-show-source" />
-                </label>
-                <label class="settings-toggle">
-                  <span>Update time</span>
-                  <input type="checkbox" id="setting-show-update-time" checked />
-                </label>
-              </div>
-              <div class="settings-section">
-                <p class="settings-section-label">Other</p>
-                <label class="settings-toggle">
-                  <span>Notifications</span>
-                  <input type="checkbox" id="setting-notifications" checked />
-                </label>
-                <label class="settings-toggle">
-                  <span>Automatic updates</span>
-                  <input type="checkbox" id="setting-auto-update" checked />
-                </label>
-                <label class="settings-toggle">
-                  <span>Dark theme</span>
-                  <input type="checkbox" id="setting-dark-theme" />
-                </label>
-              </div>
-            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section
-        class="update-banner"
-        id="update-banner"
-        aria-live="polite"
-        hidden
-      >
-        <span class="update-banner-text" id="update-banner-text"></span>
-        <div class="update-banner-actions">
-          <button type="button" class="update-restart-button" id="update-restart">
-            Restart now
-          </button>
-          <button
-            type="button"
-            class="update-dismiss-button"
-            id="update-dismiss"
-            aria-label="Dismiss update notice"
-          >
-            Later
-          </button>
-        </div>
-      </section>
+        <section class="providers" aria-label="Provider limits" id="provider-list"></section>
 
-      <section class="providers" aria-label="Provider limits" id="provider-list"></section>
-
-      <section class="status-line" aria-live="polite" id="status-line" hidden></section>
+        <section class="status-line" aria-live="polite" id="status-line" hidden></section>
       </div>
+
+      <section class="settings-view" id="settings-view" aria-label="Settings" hidden>
+        <div class="settings-section">
+          <p class="settings-section-label">Providers</p>
+          <label class="settings-toggle">
+            <span>Cursor</span>
+            <input type="checkbox" id="setting-cursor" checked />
+          </label>
+          <label class="settings-toggle">
+            <span>Cloud</span>
+            <input type="checkbox" id="setting-cloud" checked />
+          </label>
+          <label class="settings-toggle">
+            <span>Codex</span>
+            <input type="checkbox" id="setting-codex" checked />
+          </label>
+        </div>
+        <div class="settings-section">
+          <p class="settings-section-label">Display</p>
+          <label class="settings-toggle">
+            <span>Limits</span>
+            <input type="checkbox" id="setting-show-limits" checked />
+          </label>
+          <label class="settings-toggle">
+            <span>Plan</span>
+            <input type="checkbox" id="setting-show-plan" checked />
+          </label>
+          <label class="settings-toggle">
+            <span>Source</span>
+            <input type="checkbox" id="setting-show-source" />
+          </label>
+          <label class="settings-toggle">
+            <span>Update time</span>
+            <input type="checkbox" id="setting-show-update-time" checked />
+          </label>
+        </div>
+        <div class="settings-section">
+          <p class="settings-section-label">Other</p>
+          <label class="settings-toggle">
+            <span>Notifications</span>
+            <input type="checkbox" id="setting-notifications" checked />
+          </label>
+          <label class="settings-toggle">
+            <span>Automatic updates</span>
+            <input type="checkbox" id="setting-auto-update" checked />
+          </label>
+          <label class="settings-toggle">
+            <span>Dark theme</span>
+            <input type="checkbox" id="setting-dark-theme" />
+          </label>
+        </div>
+      </section>
 
       <section class="help-view" id="help-view" aria-label="Help" hidden>
         <header class="help-header">
-          <button
-            type="button"
-            class="help-back"
-            id="help-back"
-            aria-label="Back"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d="m15 18-6-6 6-6" />
-            </svg>
-          </button>
           <h1 class="help-title">Help</h1>
         </header>
         <div class="help-layout">

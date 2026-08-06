@@ -13,15 +13,17 @@ export { initProviderIntervals } from "./provider-refresh-intervals.js";
 
 let providerList = null;
 let statusLine = null;
+let providerSurface = "main";
 
 const providerRefreshInFlight = new Set();
 const providerDataCache = new Map();
 const SECTION_SLOT_KINDS = ["limits", "plan"];
 let sectionSlotAlignmentFrame = 0;
 
-export function initProviders(elements) {
+export function initProviders(elements, { surface = "main" } = {}) {
   providerList = elements.providerList;
   statusLine = elements.statusLine;
+  providerSurface = surface;
   document.addEventListener("click", closeAllProviderSettingsMenus);
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
@@ -63,7 +65,7 @@ function applyRemoteProviderUpdate(provider) {
 
   restartProviderRefreshTimer(provider.id, refreshSingleProvider);
   updateProviderBlockData(block, provider, getProviderNextRefreshAt(provider.id));
-  attachSectionHandlers(block);
+  attachSectionHandlers(block, provider.id);
   scheduleSectionSlotAlignment();
 }
 
@@ -169,11 +171,11 @@ function attachProviderBlockHandlers(block, providerId) {
     });
   }
 
-  block.querySelector("[data-manual-refresh]")?.addEventListener("click", () => {
+  settingsDropdown.querySelector("[data-manual-refresh]")?.addEventListener("click", () => {
     closeAllProviderSettingsMenus();
     refreshSingleProvider(providerId);
   });
-  attachSectionHandlers(block);
+  attachSectionHandlers(block, providerId);
 }
 
 function attachDataErrorsBlockHandlers(block) {
@@ -181,6 +183,18 @@ function attachDataErrorsBlockHandlers(block) {
   if (dataErrorsButton) {
     dataErrorsButton.addEventListener("click", () => {
       openHelp("data-errors");
+    });
+  }
+}
+
+// Generic counterpart to attachDataErrorsBlockHandlers's fixed
+// data-open-data-errors wiring: any card element carrying data-open-help
+// opens the named Help chapter (e.g. the CLI-not-signed-in state's "Fix
+// access" link, which opens the "permissions" chapter).
+function attachHelpLinkHandlers(block) {
+  for (const link of block.querySelectorAll("[data-open-help]")) {
+    link.addEventListener("click", () => {
+      openHelp(link.dataset.openHelp);
     });
   }
 }
@@ -204,7 +218,28 @@ function attachPlanLinkHandlers(block) {
   }
 }
 
-function attachSectionHandlers(block) {
+// The card's inline "Retry" button (surface === "main" only) lives inside
+// `.provider-sections`, which updateProviderBlockData fully replaces on every
+// refresh, so it's rebound here rather than once at mount like the settings
+// dropdown's UPDATE NOW row. Scoped to `.provider-sections` so this never
+// re-binds the dropdown's own [data-manual-refresh], which is wired once in
+// attachProviderBlockHandlers and persists across re-renders.
+function attachRetryHandlers(block, providerId) {
+  const sections = block.querySelector(".provider-sections");
+  if (!sections) {
+    return;
+  }
+
+  for (const button of sections.querySelectorAll("[data-manual-refresh]")) {
+    button.addEventListener("click", () => {
+      refreshSingleProvider(providerId);
+    });
+  }
+}
+
+function attachSectionHandlers(block, providerId) {
+  attachRetryHandlers(block, providerId);
+  attachHelpLinkHandlers(block);
   attachDataErrorsBlockHandlers(block);
   attachCliAuthorizationHandlers(block);
   attachPlanLinkHandlers(block);
@@ -222,7 +257,7 @@ export function refreshProviderSectionsFromCache() {
     }
 
     updateProviderBlockData(block, provider, getProviderNextRefreshAt(provider.id));
-    attachSectionHandlers(block);
+    attachSectionHandlers(block, provider.id);
   }
 
   scheduleSectionSlotAlignment();
@@ -248,7 +283,7 @@ async function startProviderCliLogin(provider) {
 function mountProviderBlock(provider) {
   ensureProviderInterval(provider.id, provider.selectedUpdateFrequency);
   restartProviderRefreshTimer(provider.id, refreshSingleProvider);
-  const block = renderProvider(provider, getProviderInterval(provider.id), getProviderNextRefreshAt(provider.id));
+  const block = renderProvider(provider, getProviderInterval(provider.id), getProviderNextRefreshAt(provider.id), providerSurface);
   attachProviderBlockHandlers(block, provider.id);
   return block;
 }
@@ -382,8 +417,7 @@ function setManualRefreshLoading(providerId, isLoading) {
 
   block.classList.toggle("is-refreshing", isLoading);
 
-  const manualRefreshOption = block.querySelector("[data-manual-refresh]");
-  if (manualRefreshOption) {
+  for (const manualRefreshOption of block.querySelectorAll("[data-manual-refresh]")) {
     manualRefreshOption.disabled = isLoading;
   }
 
@@ -415,7 +449,7 @@ async function refreshSingleProvider(providerId) {
     } else {
       restartProviderRefreshTimer(providerId, refreshSingleProvider);
       updateProviderBlockData(block, provider, getProviderNextRefreshAt(providerId));
-      attachSectionHandlers(block);
+      attachSectionHandlers(block, providerId);
     }
   } catch (error) {
     setErrorState(error?.message || String(error) || `Could not refresh ${providerId}.`);

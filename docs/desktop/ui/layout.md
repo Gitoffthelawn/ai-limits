@@ -10,9 +10,8 @@ The UI should remain compact and operational rather than marketing-oriented.
 
 The UI contains:
 
-- top action row with global manual update and settings
-- centered last update line below the top action row
-- provider blocks as the main content
+- a top nav bar with Overview, Settings, and Help tabs
+- on the Overview tab: global manual update above a centered last-update line, then provider blocks as the main content
 - three inline rounded squares for providers, in order:
   - Codex
   - Claude
@@ -22,22 +21,14 @@ Each provider square represents one provider and contains that provider's limit 
 
 The window must not show a visible `AI Limits` title in the content area.
 
+## Top Nav
+
+A persistent nav bar (`#app-nav`) sits above all page content, with three tabs: Overview (`#nav-overview`), Settings (`#nav-settings`), and Help (`#nav-help`). Each tab shows a real page — `#overview-view`, `#settings-view`, `#help-view` — rather than a floating panel; `main.js`'s `switchView(view)` shows the matching section, hides the other two, and marks the active tab's `aria-current`. `Escape` returns to Overview from either of the other tabs.
+
+Provider blocks, the global manual update action, and the last-update status line live on the Overview page. Settings and Help are their own pages instead of a dropdown/overlay on top of Overview.
+
 ## Top Actions
 
-Global update controls live above provider blocks.
+The Overview page's action row contains the `UPDATE ALL NOW` button, which takes the available row width. Its label is centered.
 
-The top action row contains:
-
-- help button
-- `UPDATE ALL NOW` button
-- settings button
-
-The `UPDATE ALL NOW` button takes all available row width except the help and settings button areas. Its label is centered.
-
-The help button is a small square button on the left side of the row, mirroring the settings button, with a Lucide `info` icon. It opens the [Help page](help.md).
-
-The settings button is a small square button on the right side of the same row.
-
-The last update text is shown under the top action row and above provider blocks, centered.
-
-The settings dropdown opens from the top settings button and must remain visible and usable across supported window sizes, including narrow and short windows.
+The last update text is shown under the action row and above provider blocks, centered.

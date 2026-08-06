@@ -3,27 +3,15 @@
   padding: var(--space-28);
 }
 
-.app-toolbar,
+.overview-actions,
 .status-line {
   width: min(100%, var(--content-width));
   margin: var(--space-0) auto var(--space-16);
 }
 
-.app-toolbar {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-10);
-}
-
-.toolbar-actions {
+.overview-actions {
   display: flex;
   align-items: stretch;
-  gap: var(--space-10);
-}
-
-.settings-menu {
-  position: relative;
-  flex: 0 0 auto;
 }
 
 .refresh-button {

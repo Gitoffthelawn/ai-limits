@@ -14,6 +14,8 @@ The two sections are the desktop rendering of two of the product's three output 
 
 Provider names follow the shared [provider naming rules](../../presentation/provider-names.md).
 
+The CLI-not-authorized and no-fresh-data/error states inside the Limits section (see [problems.md](problems.md)) show extra recovery actions — `Fix access` and `Retry` — on the Main Window only; the Popover never renders them. This mirrors the per-card settings gear noted above, which is likewise dropped from the Popover card — see [mac-popover.md#card-content](../mac-popover.md#card-content).
+
 ## Section Headings
 
 Each section opens with a horizontal divider carrying the section name centered in it:

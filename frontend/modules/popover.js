@@ -91,7 +91,7 @@ const headerHandlers = {
 // further down.
 initTheme(null);
 initSettings({});
-initProviders({ providerList, statusLine });
+initProviders({ providerList, statusLine }, { surface: "popover" });
 
 // The header is mounted once and never rebuilt, so its handlers are attached
 // once too.

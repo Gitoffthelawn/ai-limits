@@ -8,6 +8,8 @@ Every section opens with a labelled divider when it has content, as documented i
 
 Heading: `LIMITS`.
 
+When the Limits section falls back to the CLI-not-authorized, no-fresh-data, or generic-error state (see [problems.md](problems.md)), the Main Window additionally shows a `Fix access` or `Retry` text button on that state. The Popover shows the same state text but never these buttons.
+
 ### Limit Rows
 
 Each limit row is rendered as a vertical group:

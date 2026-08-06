@@ -1,3 +1,7 @@
+/* Floating dropdown chrome, still used by the per-provider update-frequency
+   menu (see .provider-settings-dropdown in providers.css and its markup in
+   provider-rendering.js) even though the Main Window settings page below no
+   longer floats. */
 .settings-dropdown {
   position: absolute;
   top: calc(100% + var(--space-8));
@@ -18,6 +22,26 @@
 }
 
 .settings-dropdown[hidden] {
+  display: none;
+}
+
+/* Main Window Settings page: the same section/toggle styling as the
+   dropdown above, laid out as a normal stacked page section instead of a
+   floating overlay. Visibility is handled by main.js's switchView, not by
+   the `hidden` attribute toggling here. */
+.settings-view {
+  display: grid;
+  gap: var(--space-16);
+  width: min(100%, var(--content-width));
+  margin: var(--space-0) auto;
+  border: var(--border-surface);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: var(--space-16);
+  box-shadow: var(--shadow-control);
+}
+
+.settings-view[hidden] {
   display: none;
 }
 

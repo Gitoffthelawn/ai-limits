@@ -271,6 +271,17 @@ body.popover-page {
   display: none;
 }
 
+/* Card Content decision (docs/desktop/mac-popover.md): the Main-Window-only
+   "Fix access"/"Retry" recovery actions are gated to surface === "main" at
+   render time, so they never appear in the real Popover panel. This rule is
+   only a safety net for the ?showcase=popover preview, which relocates the
+   Main Window's already-rendered #provider-list (surface "main") into
+   .popover-root instead of re-rendering it — see showcase.js. */
+.popover-root [data-open-help],
+.popover-root [data-manual-refresh] {
+  display: none;
+}
+
 .popover-root .provider-content {
   padding-bottom: 0;
 }

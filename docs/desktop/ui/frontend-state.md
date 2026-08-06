@@ -59,8 +59,8 @@ These values are not returned by the backend:
 - provider update interval selected in the dropdown after local initialization.
 - provider refresh timers.
 - provider refresh in-flight markers.
-- settings dropdown open/closed state.
-- help view open/closed state and the selected help chapter.
+- which top-level page (Overview/Settings/Help) is current, tracked by `switchView()` in `main.js`.
+- the selected help chapter.
 
 `selectedUpdateFrequency` exists in the backend response and is currently always `"5 min"`, but persisted frontend intervals override it after the user changes a provider dropdown.
 

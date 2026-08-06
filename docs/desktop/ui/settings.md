@@ -2,7 +2,7 @@
 
 ## Settings
 
-The settings button opens a dropdown grouped into provider visibility, display, and other sections. The desktop application always uses the CLI-first source chain; source priority is not a user setting.
+The Settings page, reached from the top nav, is grouped into provider visibility, display, and other sections. The desktop application always uses the CLI-first source chain; source priority is not a user setting.
 
 The provider visibility section has toggles:
 

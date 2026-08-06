@@ -9,10 +9,10 @@ body {
   background: var(--app-bg);
 }
 
-/* Shared square icon controls (settings, help, help back). */
-.settings-button,
-.help-button,
-.help-back {
+/* Shared square icon control (reused by the per-provider settings button —
+   see .provider-settings-button in providers.css — which layers its own
+   brand-color overrides on top of this base). */
+.settings-button {
   display: inline-flex;
   width: var(--settings-button-size);
   height: var(--settings-button-size);
@@ -22,25 +22,16 @@ body {
   border: var(--border-control);
   border-radius: var(--radius-sm);
   background: var(--surface);
+  color: var(--text);
   cursor: pointer;
 }
 
-.settings-button,
-.help-button,
-.help-back {
-  color: var(--text);
-}
-
-.settings-button:hover,
-.help-button:hover,
-.help-back:hover {
+.settings-button:hover {
   background: var(--surface-hover);
 }
 
 /* Neutral controls warm to yellow in dark theme. See docs/desktop/ui/styleguide.md. */
 :root[data-theme="dark"] .settings-button:hover,
-:root[data-theme="dark"] .help-button:hover,
-:root[data-theme="dark"] .help-back:hover,
 :root[data-theme="dark"] .help-menu-item:hover,
 :root[data-theme="dark"] .info-link:hover {
   border-color: var(--accent-warning);
@@ -54,8 +45,7 @@ body {
   color: var(--text);
 }
 
-.settings-icon,
-.help-icon {
+.settings-icon {
   display: block;
 }
 
@@ -83,7 +73,6 @@ body {
   cursor: not-allowed;
 }
 
-.help-back:focus-visible,
 .settings-toggle input[type="checkbox"]:focus-visible,
 .frequency-option:focus-visible,
 .help-menu-item:focus-visible {

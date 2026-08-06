@@ -464,8 +464,6 @@
 }
 
 .no-fresh-data {
-  display: grid;
-  gap: var(--space-10);
   color: var(--text-muted);
   font-size: var(--font-size-xs);
   line-height: var(--line-height-normal);
@@ -509,4 +507,21 @@
 
 .provider-link:hover {
   text-decoration: underline;
+}
+
+/* Main Window only: groups a state's secondary text actions (e.g. "More
+   details" and "Retry", or a sign-in button and "Fix access") on one row
+   instead of the default one-per-line stack. See provider-rendering.js's
+   surface === "main" gating — the Popover never renders these elements at
+   all, so it needs no equivalent rule. */
+.no-fresh-data,
+.provider-message + .provider-link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-10);
+}
+
+.no-fresh-data p {
+  width: 100%;
 }

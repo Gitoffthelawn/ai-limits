@@ -5,15 +5,11 @@ import { openExternalSetup } from "./links.js";
 let helpMenu = null;
 let helpContent = null;
 let helpView = null;
-let homeView = null;
-let closeSettingsMenu = null;
 
-export function initHelp(elements, { onCloseSettings }) {
+export function initHelp(elements) {
   helpMenu = elements.helpMenu;
   helpContent = elements.helpContent;
   helpView = elements.helpView;
-  homeView = elements.homeView;
-  closeSettingsMenu = onCloseSettings;
 }
 
 function findHelpChapter(chapterId) {
@@ -139,30 +135,24 @@ async function runCliCommand(button) {
   }, 1500);
 }
 
-export function isHelpOpen() {
-  return Boolean(helpView) && !helpView.hidden;
-}
-
 // The Popover has no Help view of its own (see Roles in
-// docs/desktop/mac-popover.md) and never calls initHelp, so helpView/homeView
-// stay null there. Provider cards can still trigger openHelp (e.g. the
-// "More details" link on a data-errors state, shared via providers.js) —
-// when there's no local Help view to switch to, defer to whatever bridge the
+// docs/desktop/mac-popover.md) and never calls initHelp, so helpView stays
+// null there. Provider cards can still trigger openHelp (e.g. the "More
+// details" link on a data-errors state, shared via providers.js) — when
+// there's no local Help view to switch to, defer to whatever bridge the
 // native layer has wired up to open it in the Main Window instead. See
 // window.__openMainWindowHelp in popover.js.
+//
+// selectHelpChapter is exported separately so callers that already own view
+// switching (main.js's switchView) can pick the chapter without this module
+// reaching back into view-visibility state itself.
 export function openHelp(chapterId = DEFAULT_HELP_CHAPTER) {
-  if (!helpView || !homeView) {
+  if (!helpView) {
     window.__openMainWindowHelp?.(chapterId);
     return;
   }
 
-  closeSettingsMenu?.();
   selectHelpChapter(chapterId);
-  homeView.hidden = true;
-  helpView.hidden = false;
 }
 
-export function closeHelp() {
-  helpView.hidden = true;
-  homeView.hidden = false;
-}
+export { selectHelpChapter };

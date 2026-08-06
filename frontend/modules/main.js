@@ -2,12 +2,11 @@ import { initTheme, applyAppTheme, setManualTheme, syncSystemTheme } from "./the
 import {
   initSettings,
   syncSettingsInputs,
-  setSettingsMenuOpen,
   handleSettingsChange,
   handleDisplaySettingsChange,
 } from "./settings.js";
 import { initAppUpdates, syncAppUpdateSchedule } from "./app-update.js";
-import { initHelp, renderHelpMenu, openHelp, closeHelp, isHelpOpen } from "./help.js";
+import { initHelp, renderHelpMenu, openHelp } from "./help.js";
 import { setupScreenshotShowcase } from "./showcase.js";
 import {
   initProviders,
@@ -22,14 +21,17 @@ import {
 const providerList = document.querySelector("#provider-list");
 const statusLine = document.querySelector("#status-line");
 const refreshButton = document.querySelector("#refresh-button");
-const settingsButton = document.querySelector("#settings-button");
-const settingsDropdown = document.querySelector("#settings-dropdown");
-const helpButton = document.querySelector("#help-button");
+const overviewView = document.querySelector("#overview-view");
+const settingsView = document.querySelector("#settings-view");
 const helpView = document.querySelector("#help-view");
-const homeView = document.querySelector("#home-view");
 const helpMenu = document.querySelector("#help-menu");
 const helpContent = document.querySelector("#help-content");
-const helpBack = document.querySelector("#help-back");
+const navTabs = document.querySelectorAll(".app-nav-tab");
+const views = {
+  overview: overviewView,
+  settings: settingsView,
+  help: helpView,
+};
 const settingInputs = {
   notifications: document.querySelector("#setting-notifications"),
   cursor: document.querySelector("#setting-cursor"),
@@ -50,10 +52,21 @@ const updateBannerEls = {
   dismissButton: document.querySelector("#update-dismiss"),
 };
 
-const menuEls = { settingsDropdown, settingsButton };
+// Shows the requested top-level section and hides the other two, and marks
+// the matching nav tab current. This is the single place view visibility is
+// decided — help.js/settings.js only render into their sections, they never
+// toggle `hidden` themselves.
+function switchView(view) {
+  for (const [name, section] of Object.entries(views)) {
+    section.hidden = name !== view;
+  }
+  for (const tab of navTabs) {
+    tab.setAttribute("aria-current", tab.dataset.view === view ? "page" : "false");
+  }
+}
 
-function closeSettingsMenu() {
-  setSettingsMenuOpen(false, menuEls);
+function currentView() {
+  return Object.keys(views).find((name) => !views[name].hidden) ?? "overview";
 }
 
 initTheme(settingInputs.darkTheme);
@@ -69,37 +82,23 @@ initSettings(settingInputs, {
   },
 });
 initAppUpdates(updateBannerEls);
-initHelp(
-  { helpMenu, helpContent, helpView, homeView },
-  { onCloseSettings: closeSettingsMenu },
-);
+initHelp({ helpMenu, helpContent, helpView });
 
-settingsButton.addEventListener("click", (event) => {
-  event.stopPropagation();
-  setSettingsMenuOpen(settingsDropdown.hidden, menuEls);
-});
-
-settingsDropdown.addEventListener("click", (event) => {
-  event.stopPropagation();
-});
-
-helpButton.addEventListener("click", (event) => {
-  event.stopPropagation();
-  openHelp();
-});
-
-helpBack.addEventListener("click", () => {
-  closeHelp();
-});
+for (const tab of navTabs) {
+  tab.addEventListener("click", () => {
+    switchView(tab.dataset.view);
+  });
+}
 
 // Bridge for the macOS native Help menu (see src-tauri/src/main.rs).
 window.__openHelpFromNative = (chapterId) => {
+  switchView("help");
   openHelp(chapterId);
 };
 
 // Bridge for the macOS native AI Limits > Settings… menu item (see src-tauri/src/main.rs).
 window.__openSettingsFromNative = () => {
-  setSettingsMenuOpen(true, menuEls);
+  switchView("settings");
 };
 
 const displaySettingInputs = [
@@ -132,16 +131,9 @@ if (typeof window.matchMedia === "function") {
 
 window.addEventListener("resize", scheduleSectionSlotAlignment);
 
-document.addEventListener("click", () => {
-  closeSettingsMenu();
-});
-
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    closeSettingsMenu();
-    if (isHelpOpen()) {
-      closeHelp();
-    }
+  if (event.key === "Escape" && currentView() !== "overview") {
+    switchView("overview");
   }
 });
 

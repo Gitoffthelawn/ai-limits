@@ -6,13 +6,13 @@ The Help page collects short reference sections for the desktop app. Each sectio
 
 ## Layout
 
-The Help page replaces the main content while open. It contains:
+The Help page is one of the three top-level pages reached from the [top nav](layout.md#top-nav). It contains:
 
-- a header with a back button on the left and a centered `Help` title
+- a header with a centered `Help` title
 - a narrow left menu listing the available sections
 - a content panel on the right showing the selected section
 
-The back button returns to the main content. `Escape` also closes the page.
+The Help tab in the nav bar is how the user returns to the other pages; `Escape` also switches back to Overview.
 
 On narrow windows the menu stacks above the content panel.
 
@@ -22,8 +22,9 @@ The available sections are listed in [help-sections.md](help-sections.md).
 
 The Help page opens from:
 
-- the help button in the [top action row](layout.md), which opens the first section
+- the Help tab in the [top nav](layout.md#top-nav), which opens the first section
 - the no-fresh-data provider state, which opens the `data-errors` section
+- the CLI-not-authorized provider state's "Fix access" button, which opens the `permissions` section (Main Window only — see [provider-blocks.md](provider-blocks.md))
 - on macOS, the `Help` menu bar items, which mirror the section list
 
 ## macOS Menu Bar
