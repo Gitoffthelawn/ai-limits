@@ -16,20 +16,27 @@ const shots = [
   { file: "linux.png", platform: "linux", theme: "dark" },
   { file: "macos-light-settings.png", platform: "macos", theme: "light", openSettings: true },
   { file: "macos-help.png", platform: "macos", theme: "dark", openHelp: true },
+  { file: "macos-popover-dark.png", platform: "popover", theme: "dark" },
+  { file: "macos-popover-light.png", platform: "popover", theme: "light" },
 ];
 
-async function prepareWindow(page, { openSettings, openHelp }) {
-  const windowFrame = page.locator(".showcase-window");
-  await windowFrame.waitFor({ state: "visible" });
+async function prepareShot(page, { platform, openSettings, openHelp }) {
+  const target = page.locator(platform === "popover" ? ".popover-root" : ".showcase-window");
+  await target.waitFor({ state: "visible" });
   await page.evaluate(() => {
     document.body.style.background = "transparent";
     document.body.style.backgroundImage = "none";
   });
-  await windowFrame.evaluate((el) => {
+  await page.locator(".provider-block").first().waitFor({ state: "visible" });
+
+  if (platform === "popover") {
+    return target;
+  }
+
+  await target.evaluate((el) => {
     el.style.width = "1010px";
     el.style.boxShadow = "none";
   });
-  await page.locator(".provider-block").first().waitFor({ state: "visible" });
 
   if (openSettings) {
     await page.locator("#nav-settings").click();
@@ -40,6 +47,8 @@ async function prepareWindow(page, { openSettings, openHelp }) {
     await page.locator("#nav-help").click();
     await page.locator("#help-view:not([hidden])").waitFor({ state: "visible" });
   }
+
+  return target;
 }
 
 async function main() {
@@ -75,8 +84,8 @@ async function main() {
         localStorage.removeItem("ai-limits-provider-intervals");
       }, { themeValue: shot.theme });
       await page.goto(`${baseUrl}/?showcase=${shot.platform}`, { waitUntil: "networkidle" });
-      await prepareWindow(page, shot);
-      await page.locator(".showcase-window").screenshot({
+      const target = await prepareShot(page, shot);
+      await target.screenshot({
         path: join(outputDir, shot.file),
         type: "png",
         omitBackground: true,

@@ -260,11 +260,11 @@ body.screenshot-showcase {
   justify-self: start;
   padding: 44px 52px;
   border-radius: 20px;
-  background: linear-gradient(150deg, #cfe0f5 0%, #e7dcf2 45%, #f6e3d8 100%);
+  background: #e8e8ed;
 }
 
 :root[data-theme="dark"] .showcase-capture-area--popover {
-  background: linear-gradient(150deg, #1b2333 0%, #2a2038 45%, #3a2630 100%);
+  background: #1c1c1e;
 }
 
 /* Stand-in for the native window shadow (src-tauri/src/main.rs), which the

@@ -524,7 +524,7 @@ body.popover-page {
 
 .popover-root .source-line,
 .popover-root .update-time-line {
-  text-align: left;
+  display: none;
 }
 
 .popover-menu-item {
