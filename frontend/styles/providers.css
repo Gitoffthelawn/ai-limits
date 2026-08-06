@@ -222,7 +222,7 @@
 /* Deliberately identical across providers and never provider-accented: the
    headings exist so the eye can compare the same metric across cards. */
 .section-heading-label {
-  color: var(--text-muted);
+  color: var(--provider-border-color);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.08em;
