@@ -99,6 +99,7 @@
 .provider-block .provider-settings-button {
   border-color: var(--provider-border-color);
   background: color-mix(in srgb, var(--provider-brand) var(--mix-provider-text), var(--surface));
+  color: var(--provider-border-color);
 }
 
 /* Icon (currentColor, see buildRefreshCwIconSvg) follows the same
