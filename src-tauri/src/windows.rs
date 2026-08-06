@@ -7,12 +7,6 @@
 /// tauri.conf.json's single unnamed window entry).
 pub const MAIN_WINDOW_LABEL: &str = "main";
 
-/// Label of the macOS menu bar Popover window (see
-/// docs/desktop/mac-popover.md). Not `cfg`-gated: looking the window up on a
-/// platform where it is never created simply yields `None`, which every
-/// caller already treats as "nothing to do".
-pub const POPOVER_WINDOW_LABEL: &str = "popover";
-
 /// Popover width in logical pixels. Matches the width the Popover frontend
 /// lays out against (frontend/styles/popover.css).
 pub const POPOVER_WIDTH: f64 = 348.0;

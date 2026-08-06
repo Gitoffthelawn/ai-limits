@@ -6,6 +6,9 @@ Format: each version groups its entries under plain-text labels, in this order w
 
 ## Unreleased
 
+Fixed:
+- The macOS Popover now opens over another app's full-screen window after AI Limits has used full screen
+
 ## [v0.4.0](https://github.com/md2it/ai-limits/releases/tag/v0.4.0) — 2026-08-04
 
 Updated:

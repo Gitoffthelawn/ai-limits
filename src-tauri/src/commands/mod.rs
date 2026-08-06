@@ -15,9 +15,7 @@ use ai_limits::infra::os_access::{
 use ai_limits::notifications::PreviousRemainingStore;
 use ai_limits::types::CliAuthorization;
 
-use crate::windows::{
-    MAIN_WINDOW_LABEL, POPOVER_MAX_HEIGHT, POPOVER_MIN_HEIGHT, POPOVER_WIDTH, POPOVER_WINDOW_LABEL,
-};
+use crate::windows::MAIN_WINDOW_LABEL;
 
 pub use provider_limits::{ProviderLimits, ProviderLimitsQuery};
 
@@ -148,8 +146,11 @@ pub fn open_main_window_help(app: tauri::AppHandle, chapter: Option<String>) -> 
 }
 
 /// Hides the Popover without destroying it — backs the Popover frontend's
-/// Escape-key handler. No-op if the Popover does not exist (any non-macOS
-/// platform).
+/// Escape-key handler (now usually unreachable directly, since the Popover's
+/// own native Escape monitor in `popover_panel` calls straight into
+/// `popover_panel::hide()`; this command remains the entry point for every
+/// other caller, e.g. `show_and_focus_main_window` below). No-op if the
+/// Popover does not exist (any non-macOS platform).
 #[tauri::command]
 pub fn hide_popover(app: tauri::AppHandle) -> Result<(), String> {
     hide_popover_window(&app);
@@ -164,25 +165,22 @@ pub fn hide_popover(app: tauri::AppHandle) -> Result<(), String> {
 /// Contract with the frontend (see docs/desktop/mac-popover.md#window-size):
 /// pass the full desired *outer* height of the panel, including its own
 /// padding; the width is owned by the native side and never changes. Values
-/// outside [`POPOVER_MIN_HEIGHT`, `POPOVER_MAX_HEIGHT`] are clamped rather
-/// than rejected, so an over-tall panel scrolls internally instead of running
-/// off the screen. The window grows downwards from its anchor under the tray
+/// outside `[POPOVER_MIN_HEIGHT, POPOVER_MAX_HEIGHT]` are clamped rather than
+/// rejected, so an over-tall panel scrolls internally instead of running off
+/// the screen. The window grows downwards from its anchor under the tray
 /// icon, so a resize never needs a reposition. Calling this repeatedly is
-/// cheap and idempotent; a non-finite height is ignored.
+/// cheap and idempotent; a non-finite height is ignored. On a non-macOS
+/// build there is no Popover panel and this is a silent no-op.
 #[tauri::command]
-pub fn set_popover_height(app: tauri::AppHandle, height: f64) -> Result<(), String> {
+pub fn set_popover_height(height: f64) -> Result<(), String> {
     if !height.is_finite() {
         return Err("Popover height must be a finite number".to_string());
     }
 
-    let Some(popover) = app.get_webview_window(POPOVER_WINDOW_LABEL) else {
-        return Ok(());
-    };
+    #[cfg(target_os = "macos")]
+    crate::popover_panel::set_height(height);
 
-    let height = height.clamp(POPOVER_MIN_HEIGHT, POPOVER_MAX_HEIGHT);
-    popover
-        .set_size(tauri::LogicalSize::new(POPOVER_WIDTH, height))
-        .map_err(|error| error.to_string())
+    Ok(())
 }
 
 /// Shared show+focus logic for the three commands above. No-op if `"main"`
@@ -195,16 +193,25 @@ fn show_and_focus_main_window(app: &tauri::AppHandle) {
     let _ = window.show();
     let _ = window.set_focus();
 
-    // Focusing "main" also takes focus away from the Popover, so its
-    // `Focused(false)` handler (install_popover_window in main.rs) would hide
-    // it anyway — but the OS decides when that notification lands, and this
-    // makes the Popover's disappearance part of the same user action instead.
     hide_popover_window(app);
 }
 
+///
+/// Also tears down the native dismiss monitors installed by
+/// `install_popover_dismiss_monitors` in main.rs (outside-click, Escape,
+/// Space-change — see its doc comment for why they exist), if any are
+/// currently installed. This makes `hide_popover_window` the single funnel
+/// every hide path goes through: the tray icon's own toggle-off click, the
+/// Escape/outside-click/Space-change monitors themselves (each calls the
+/// public `hide_popover` command, which calls this), and this function's own
+/// other callers below. Without this, hiding the Popover by any path other
+/// than the monitors' own dismissal would leak them running in the
+/// background against an already-hidden window.
 fn hide_popover_window(app: &tauri::AppHandle) {
-    if let Some(popover) = app.get_webview_window(POPOVER_WINDOW_LABEL) {
-        let _ = popover.hide();
+    let _ = app;
+    #[cfg(target_os = "macos")]
+    {
+        crate::popover_panel::hide();
     }
 }
 

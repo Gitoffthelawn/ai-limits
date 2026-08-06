@@ -21,9 +21,48 @@ tauri-plugin-updater = "2"
 # Reuses the exact objc2/objc2-app-kit versions Tauri's own macOS backend
 # already resolves (see Cargo.lock) rather than adding a second, potentially
 # incompatible copy or an older `cocoa`/`objc` crate family. Used directly in
-# src/main.rs to set NSWindow.collectionBehavior on the Popover window (see
+# src/popover_panel.rs to build the Popover's native NSPanel (see
 # docs/desktop/mac-popover.md) — something Tauri's own WebviewWindow API does
 # not expose a wrapper for.
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2 = "0.6.4"
-objc2-app-kit = { version = "0.3.2", default-features = false, features = ["std", "NSResponder", "NSWindow"] }
+# "NSPanel"/"NSVisualEffectView"/"NSScreen" back the Popover's native window
+# and vibrancy material (src/popover_panel.rs); "NSEvent" + "NSWorkspace" +
+# "block2" back the global mouse/keyboard monitors and the Space-change
+# notification used to dismiss the Popover — see
+# docs/desktop/mac-popover.md#dismissal.
+objc2-app-kit = { version = "0.3.2", default-features = false, features = [
+  "std",
+  "NSResponder",
+  "NSWindow",
+  "NSPanel",
+  "NSView",
+  "NSVisualEffectView",
+  "NSScreen",
+  "NSColor",
+  "NSApplication",
+  "NSEvent",
+  "NSWorkspace",
+  "block2",
+  "objc2-quartz-core",
+] }
+# Renders the panel's rounded-corner mask on its NSVisualEffectView's layer
+# (src/popover_panel.rs's `build_vibrancy_view`) — the same crate objc2-app-kit
+# itself already depends on for `NSView::layer()`'s return type.
+objc2-quartz-core = { version = "0.3.2", default-features = false, features = ["std", "CALayer", "objc2-core-foundation"] }
+# Same version tauri-runtime-wry/tao already resolve (see Cargo.lock) — reused
+# rather than pulling in a second copy, same rationale as objc2/objc2-app-kit
+# above.
+block2 = "0.6.2"
+# Needed directly (not just transitively through objc2-app-kit) to name
+# `NSNotificationCenter`/`NSNotification`/`NSNotificationName` for the
+# `NSWorkspaceActiveSpaceDidChangeNotification` subscription.
+objc2-foundation = { version = "0.3.2", default-features = false, features = ["std", "NSNotification", "NSOperation", "NSObject", "NSString"] }
+# Hosts the Popover's webview (src/popover_panel.rs): the same WebKit
+# embedding engine tauri-runtime-wry already uses for the Main Window,
+# reused directly via its public `WebViewBuilder::build_as_child` API to
+# attach a WKWebView to the native NSPanel this crate builds — see the
+# module doc comment for why a raw hand-written WKWebView was not used
+# instead. Version pinned to the one tauri-runtime-wry 2.11.4 already
+# resolves (see Cargo.lock).
+wry = "0.55.1"
