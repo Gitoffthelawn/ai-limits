@@ -62,24 +62,17 @@ window.__openMainApplication = () => {
   tauriInvoke()?.("open_main_window").catch(() => {});
 };
 
-// Handlers for the panel's action controls. Pulled out of the attach calls
-// below so buildAndAttachToolbar() (used both at load and to rebuild the tab
-// list on a cross-window settings change) can reattach the same handlers to
-// freshly-rendered markup without duplicating them.
-const toolbarHandlers = {
-  // Real, local behavior: refreshes this window's own mounted provider
-  // cards. No cross-window IPC is needed for this button.
-  onUpdateAll() {
-    refreshEnabledProviders();
-  },
-};
-
 // [info], [gear] and "Open Application" are pure navigation into the Main
 // Window (see docs/desktop/mac-popover.md#toolbar) — the Popover renders no
-// Help or Settings UI itself.
+// Help or Settings UI itself. [update all] is real, local behavior:
+// refreshes this window's own mounted provider cards, no cross-window IPC
+// needed.
 const footerHandlers = {
   onOpenApp() {
     window.__openMainApplication?.();
+  },
+  onUpdateAll() {
+    refreshEnabledProviders();
   },
   onInfo() {
     window.__openMainWindowHelp?.();
@@ -102,7 +95,7 @@ function buildAndAttachToolbar(selectedTab) {
 
   toolbarMount.innerHTML = buildPopoverToolbarHtml(enabledProviderIds);
   applyPopoverTabFilter(popoverRoot, nextSelectedTab);
-  attachPopoverToolbarHandlers(popoverRoot, toolbarHandlers);
+  attachPopoverToolbarHandlers(popoverRoot);
 }
 
 function currentlySelectedTab() {

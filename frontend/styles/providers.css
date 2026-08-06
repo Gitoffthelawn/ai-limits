@@ -136,6 +136,14 @@
   line-height: var(--line-height-tight);
 }
 
+/* The plan name folded into the header (see provider-rendering.js's
+   buildProviderTitleHtml) is a Popover-only idiom — the Main Window already
+   shows the plan in full in its own Subscription section, so it stays
+   hidden here. */
+.provider-plan-name {
+  display: none;
+}
+
 .provider-header .provider-settings-menu {
   position: absolute;
   top: 50%;

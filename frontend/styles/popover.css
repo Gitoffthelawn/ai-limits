@@ -135,30 +135,12 @@ body.popover-page {
   display: contents;
 }
 
-/* Top bar: app name + [update all] on one line, the segmented view control
-   below it. Both sit directly on the material — no container, no separator. */
+/* Top bar: just the segmented view control, sitting directly on the
+   material — no container, no separator, no app name / [update all] row
+   above it ([update all] lives in the footer's icon row instead). */
 .popover-topbar {
   flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px 10px 8px;
-}
-
-.popover-titlebar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  height: 22px;
-  padding-left: 2px;
-}
-
-.popover-app-name {
-  font-size: 13px;
-  font-weight: 590;
-  letter-spacing: -0.01em;
-  color: var(--pop-text);
+  padding: 10px 10px 8px;
 }
 
 /* Borderless 22x22 icon buttons: nothing in the resting state, a rounded
@@ -346,6 +328,16 @@ body.popover-page {
   line-height: 18px;
 }
 
+/* The plan name rides on the same line as the provider name ("Codex Plus",
+   "Claude Pro") instead of the Subscription section below the limits, which
+   is dropped entirely in the Popover — see `.provider-section--plan` below.
+   Hidden everywhere else by styles/providers.css. */
+.popover-root .provider-plan-name {
+  display: inline;
+  color: var(--pop-text-secondary);
+  font-weight: 400;
+}
+
 .popover-root .provider-sections {
   gap: 6px;
 }
@@ -369,16 +361,14 @@ body.popover-page {
 /* Section headings.
 
    The Main Window opens each section with its name centered in a horizontal
-   rule. That is a desktop-card device: it costs two lines per section and is
-   the single strongest "this is an app window" signal inside the tile. The
-   rules are dropped here, and the two sections are handled differently
-   because they carry different weight:
-
-   - Limits: the heading goes away entirely. Its rows are self-describing
-     (a period, a percentage and a meter), so the label was pure overhead.
-   - Subscription: the heading becomes the left-hand key of a key-value row,
-     with the plan lines as its right-hand value — the same idiom every other
-     row in the tile now uses, at the cost of no extra line at all. */
+   rule — a desktop-card device costing two lines per section and the
+   strongest "this is an app window" signal inside the tile, so it is dropped
+   here. Limits: the heading goes away entirely, since its rows are
+   self-describing (a period, a percentage and a meter). Subscription: the
+   whole section is dropped — the plan name now rides in the header instead
+   (`.provider-plan-name` above), and the rest of what it carried (price,
+   renewal date, management links) was not worth a section of its own at
+   this scale. */
 .popover-root .section-heading::before,
 .popover-root .section-heading::after {
   display: none;
@@ -389,37 +379,7 @@ body.popover-page {
 }
 
 .popover-root .provider-section--plan {
-  display: grid;
-  align-items: baseline;
-  grid-template-columns: auto minmax(0, 1fr);
-  column-gap: 10px;
-}
-
-.popover-root .provider-section--plan .section-heading {
-  margin: 0;
-}
-
-/* The shared markup spells the label "PLAN"; as a key in a key-value row it
-   wants sentence case, which takes lowercasing the whole word and raising
-   the first letter back (`capitalize` alone cannot undo the source casing). */
-.popover-root .provider-section--plan .section-heading-label {
-  color: var(--pop-text-secondary);
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: lowercase;
-}
-
-.popover-root .provider-section--plan .section-heading-label::first-letter {
-  text-transform: uppercase;
-}
-
-.popover-root .provider-section--plan .provider-section-body {
-  text-align: right;
-}
-
-.popover-root .provider-section--plan .plan-links {
-  justify-content: flex-end;
+  display: none;
 }
 
 /* Limit row, in the system key-value idiom: the period on the left, the

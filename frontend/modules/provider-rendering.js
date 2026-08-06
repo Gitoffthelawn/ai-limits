@@ -1,5 +1,5 @@
 import { updateFrequencyOptions } from "./constants.js";
-import { colorForRemaining, escapeHtml, formatDecimal, formatSourceStatusLine, formatTimestampForDisplay, formatUpdateTimeLine } from "./provider-formatters.js";
+import { colorForRemaining, escapeHtml, extractPlanNameForHeader, formatDecimal, formatSourceStatusLine, formatTimestampForDisplay, formatUpdateTimeLine } from "./provider-formatters.js";
 import { isShowLimitsEnabled, isShowPlanEnabled, isShowSourceEnabled, isShowUpdateTimeEnabled } from "./settings.js";
 
 const FREQUENCY_ICON_BADGES = {
@@ -255,6 +255,17 @@ function buildFrequencyOptionsHtml(selectedUpdateFrequency) {
     .join("");
 }
 
+// The provider label, plus its plan name where a surface wants it folded
+// into the header instead of shown as its own section (see
+// `.provider-plan-name` in styles/popover.css) — hidden by default
+// (styles/providers.css) so the Main Window's own Subscription section stays
+// the only place the plan name appears there.
+function buildProviderTitleHtml(provider) {
+  const planName = extractPlanNameForHeader(provider.plan);
+  const planNameHtml = planName ? ` <span class="provider-plan-name">${escapeHtml(planName)}</span>` : "";
+  return `${escapeHtml(provider.label)}${planNameHtml}`;
+}
+
 function buildSourceLineHtml(provider) {
   return `<p class="source-line" ${isShowSourceEnabled() ? "" : "hidden"}>${escapeHtml(formatSourceStatusLine(provider))}</p>`;
 }
@@ -273,7 +284,7 @@ export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt)
     <div class="provider-refresh-glare" aria-hidden="true"></div>
     <div class="provider-content">
       <div class="provider-header">
-        <h2>${escapeHtml(provider.label)}</h2>
+        <h2>${buildProviderTitleHtml(provider)}</h2>
         <div class="provider-settings-menu" data-provider-settings-menu>
           <button
             type="button"
@@ -312,6 +323,7 @@ export function renderProvider(provider, selectedUpdateFrequency, nextRefreshAt)
 }
 
 export function updateProviderBlockData(block, provider, nextRefreshAt) {
+  block.querySelector(".provider-header h2").innerHTML = buildProviderTitleHtml(provider);
   const sections = block.querySelector(".provider-sections");
   sections.innerHTML = buildProviderSectionsHtml(provider);
   applyMeterFillColors(sections);

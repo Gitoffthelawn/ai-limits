@@ -66,28 +66,26 @@ export function buildPopoverTabsHtml(providerIds) {
   `;
 }
 
-// Top bar: the app name and [update all] on one line, the segmented view
-// control below it. [info]/[gear] are not here — they are navigation *out* of
-// the panel and live in the footer, the way system panels put their
-// "… Settings" row at the bottom. See docs/desktop/mac-popover.md#toolbar.
+// Top bar: just the segmented view control — no app name / [update all] row
+// above it, so the tabs sit at the very top of the panel. [update all] moved
+// into the footer's icon-button row (see buildPopoverFooterHtml); [info]/
+// [gear] are still navigation *out* of the panel, the way system panels put
+// their "… Settings" row at the bottom. See docs/desktop/mac-popover.md#toolbar.
 export function buildPopoverToolbarHtml(providerIds) {
   return `
     <div class="popover-topbar">
-      <div class="popover-titlebar">
-        <span class="popover-app-name">AI&nbsp;Limits</span>
-        <button type="button" class="popover-icon-button" data-popover-update-all aria-label="Update all">${POPOVER_UPDATE_ALL_ICON_SVG}</button>
-      </div>
       ${buildPopoverTabsHtml(providerIds)}
     </div>
   `;
 }
 
-// Footer: a hairline, then the "Open Application" menu row with the two
-// navigation icon buttons at its right edge.
+// Footer: a hairline, then the "AI Limits" menu row and three icon buttons —
+// update, info, settings — at its right edge.
 export function buildPopoverFooterHtml() {
   return `
     <div class="popover-footer">
-      <button type="button" class="popover-menu-item" data-popover-open-app>Open AI Limits</button>
+      <button type="button" class="popover-menu-item" data-popover-open-app>AI&nbsp;Limits</button>
+      <button type="button" class="popover-icon-button" data-popover-update-all aria-label="Update all">${POPOVER_UPDATE_ALL_ICON_SVG}</button>
       <button type="button" class="popover-icon-button" data-popover-info aria-label="Help">${POPOVER_INFO_ICON_SVG}</button>
       <button type="button" class="popover-icon-button" data-popover-gear aria-label="Settings">${POPOVER_GEAR_ICON_SVG}</button>
     </div>
@@ -106,17 +104,15 @@ export function applyPopoverTabFilter(root, selectedTab) {
   }
 }
 
-// Wires the top bar: tab switching plus [update all]. Safe to call again
-// after the toolbar markup is rebuilt (settings change) — every element it
-// binds to is part of that rebuilt markup, so no listener outlives it.
-export function attachPopoverToolbarHandlers(root, { onUpdateAll } = {}) {
+// Wires the top bar's tab switching. Safe to call again after the toolbar
+// markup is rebuilt (settings change) — every element it binds to is part of
+// that rebuilt markup, so no listener outlives it.
+export function attachPopoverToolbarHandlers(root) {
   for (const tabButton of root.querySelectorAll("[data-popover-tab]")) {
     tabButton.addEventListener("click", () => {
       applyPopoverTabFilter(root, tabButton.dataset.popoverTab);
     });
   }
-
-  root.querySelector("[data-popover-update-all]")?.addEventListener("click", () => onUpdateAll?.());
 }
 
 // Marks the card area while there is still content below the fold, so the
@@ -151,12 +147,13 @@ export function observePopoverScroll(root) {
   sync();
 }
 
-// Wires the footer's three actions. Separate from the toolbar because the
+// Wires the footer's four actions. Separate from the toolbar because the
 // footer is mounted once and never rebuilt — calling this on every toolbar
 // rebuild would stack duplicate listeners. Callbacks are optional so callers
 // without real behavior (the showcase preview) get no-ops.
-export function attachPopoverFooterHandlers(root, { onOpenApp, onInfo, onGear } = {}) {
+export function attachPopoverFooterHandlers(root, { onOpenApp, onUpdateAll, onInfo, onGear } = {}) {
   root.querySelector("[data-popover-open-app]")?.addEventListener("click", () => onOpenApp?.());
+  root.querySelector("[data-popover-update-all]")?.addEventListener("click", () => onUpdateAll?.());
   root.querySelector("[data-popover-info]")?.addEventListener("click", () => onInfo?.());
   root.querySelector("[data-popover-gear]")?.addEventListener("click", () => onGear?.());
 }

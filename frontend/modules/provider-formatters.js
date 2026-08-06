@@ -121,3 +121,24 @@ function isSameLocalDay(a, b) {
 function pad2(value) {
   return String(value).padStart(2, "0");
 }
+
+// Pulls just the plan name (e.g. "Pro", "Plus") out of the Subscription
+// section's first line, for surfaces that fold the plan into the provider
+// header instead of showing it as its own section — see the Popover's
+// `.provider-plan-name` (docs/desktop/mac-popover.md#visual-layer). The line
+// itself comes pre-formatted from the backend (plan_display_lines in
+// src/presentation/sections/plan.rs) as one of: "Pro ≈ $20.00 /mo" (plan +
+// price), "Plus" (plan alone), "≈ $20.00 /mo" (price alone, no plan), or
+// "renews <date>" (only when neither plan nor price is present). Only the
+// first two carry a plan name.
+const PLAN_PRICE_SEPARATOR = " ≈";
+
+export function extractPlanNameForHeader(plan) {
+  const firstLine = plan?.lines?.[0];
+  if (!firstLine || firstLine.startsWith("renews ") || firstLine.startsWith("≈")) {
+    return "";
+  }
+
+  const separatorIndex = firstLine.indexOf(PLAN_PRICE_SEPARATOR);
+  return separatorIndex === -1 ? firstLine : firstLine.slice(0, separatorIndex);
+}
