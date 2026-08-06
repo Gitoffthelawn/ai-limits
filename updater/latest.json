@@ -1,15 +1,15 @@
 {
-  "version": "0.4.0",
-  "notes": "Updated:\n- Release builds are size-optimized workspace-wide:\n  - Link-time optimization, stripped symbols, abort on panic\n  - Windows and Linux binaries shrink too\n- macOS now ships as two downloads, Apple Silicon and Intel. The installed macOS app is much smaller:\n  - Apple Silicon: 32.5 MB to 5.9 MB (-82%)\n  - Intel: 32.5 MB to 6.5 MB (-80%)\n- The auto-update manifest points each architecture at its own signed archive:\n  - Installs from the previous universal build need a one-time manual reinstall",
-  "pub_date": "2026-08-04T15:24:21.260291Z",
+  "version": "0.5.0",
+  "notes": "New feature:\n- The macOS menu bar Popover\n- Shared live cache and refresh schedule between Main Window and Popover\n- One shared Update frequency dropdown in Settings \u2192 Other for all provider cards (default 10 min)\n\nUpdated:\n- macOS opens the Main Window only on the first launch; later launches start from the menu bar\n- Main Window reworked into Overview, Settings, and Help\n- Provider cards no longer have their own refresh-frequency or per-card UPDATE NOW controls\n- Redesign:\n  - Main Window navigation and Help share quiet grouped controls in both themes\n  - Main Window actions now share one glass state pattern for rest, hover and press\n\nFixed:\n- Cmd+W closes the Main Window from fullscreen\n- Popover no longer flickers when switching Spaces",
+  "pub_date": "2026-08-06T19:44:00.658701Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSRlRCRXlmWko4Q21yeVZDOUNaZEhObnNlVHFPS3dWdG1VVGZwaVRwQXJhZ3NyLzlxTnFYelQvUmlIVTlLcGpkemZkSEp6QUdXcG50Y0VHejdNTm11NUtvMkhyNThKWndJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1ODU2ODk5CWZpbGU6QUkgTGltaXRzLmFwcC50YXIuZ3oKTTBPQk1GQW1FU1ZMN0JKUGRYRmhsako4ejdPcmt3ZU41VlRTMk83SUdlcytGQ0UxTm9SQ3ZCdnp0OGxZRHhndUx6d25aazJPZThBMzNaMlpUMzNnQkE9PQo=",
-      "url": "https://github.com/md2it/ai-limits/releases/download/v0.4.0/AI-Limits-v0.4.0-macos-arm64.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSRlRCRXlmWko4Q3Q2ZUtLWVk4WHBXb25FNmNYblBiTU50YnlaTnhpOTdyQ3JncHNNTTNzek9iNFQ0K0ZxMjF1SERSeGV6ZE5DVjJFWHM5RDRxMXZsdGt2cVpFS3AyNkFVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MDQ1Mjc5CWZpbGU6QUkgTGltaXRzLmFwcC50YXIuZ3oKOGFHOTNKZi9RUjFxK0FyL1ZmK2hoTVUrZmJ6OVYrN3Fkb21DSFpFaHE5Z2lSMlZBb2tlUGZrdzhEOWlONWpnZmc1RnFTcDNTT0hZS0s4U1V4QnZoQ3c9PQo=",
+      "url": "https://github.com/md2it/ai-limits/releases/download/v0.5.0/AI-Limits-v0.5.0-macos-arm64.app.tar.gz"
     },
     "darwin-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSRlRCRXlmWko4Q3JuY0VRNkFMOXFRM2g0ajlaNmljOCt4MGFVMXppSTZIWUNXR29RajdVY0k1bkM3aWV5WnB4NldEaVE4cnBrNHRaRTIzTkhnV2VFY05UWEZZYXo1R1FFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg1ODU2OTg3CWZpbGU6QUkgTGltaXRzLmFwcC50YXIuZ3oKcnlJMVFobEtiNWQxbHJ6SVJIME5lZDhOOSs4MlJ2c0V5WmFEYzJUa3BRek9qenB5OXNmMVBZWkdFS2MrQVAvMFpySzJwZDUrTk5BWEluMTNvYVdjREE9PQo=",
-      "url": "https://github.com/md2it/ai-limits/releases/download/v0.4.0/AI-Limits-v0.4.0-macos-intel.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSRlRCRXlmWko4Q3VYSEQ3TEI4d1Uvazh4czdQNFRpVUhxREErT1BxcjRaeFpYODlLZTY1ODZiZUhaRHhCdzcyVVJxTndXcnFEQWZvOXZod0x1NU9hTDZjNTdmcVp0ZXdRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg2MDQ1MzQzCWZpbGU6QUkgTGltaXRzLmFwcC50YXIuZ3oKSEZadjNOdlFWbVh1NWFnbkJSK2poTCtPWXlmTGpjS2FwQkpHaHlYbzNteE5OeUl4akxyWmhlSkFNQk9nemVFQmhUdkVMTkVDcTVSY2hiSThIZVhIREE9PQo=",
+      "url": "https://github.com/md2it/ai-limits/releases/download/v0.5.0/AI-Limits-v0.5.0-macos-intel.app.tar.gz"
     }
   }
 }
