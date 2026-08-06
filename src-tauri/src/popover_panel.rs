@@ -80,10 +80,12 @@ use objc2::{class, msg_send, sel, MainThreadOnly};
 use objc2_app_kit::{
     NSBackingStoreType, NSColor, NSEvent, NSEventMask, NSPanel, NSScreen,
     NSVisualEffectBlendingMode, NSVisualEffectMaterial, NSVisualEffectState, NSVisualEffectView,
-    NSWindowCollectionBehavior, NSWindowStyleMask, NSWorkspace,
-    NSWorkspaceActiveSpaceDidChangeNotification,
+    NSWindow, NSWindowCollectionBehavior, NSWindowDidExitFullScreenNotification, NSWindowStyleMask,
+    NSWorkspace, NSWorkspaceActiveSpaceDidChangeNotification,
 };
-use objc2_foundation::{MainThreadMarker, NSNotification, NSPoint, NSRect, NSSize};
+use objc2_foundation::{
+    MainThreadMarker, NSNotification, NSNotificationCenter, NSPoint, NSRect, NSSize,
+};
 use serde_json::{json, Value as JsonValue};
 use tauri::Listener;
 use tauri::Manager;
@@ -208,7 +210,16 @@ struct DismissMonitors {
     space_change: Retained<objc2::runtime::ProtocolObject<dyn objc2::runtime::NSObjectProtocol>>,
 }
 
+type NotificationObserver =
+    Retained<objc2::runtime::ProtocolObject<dyn objc2::runtime::NSObjectProtocol>>;
+
 static POPOVER: OnceLock<Mutex<MainThreadOnlyBox<Panel>>> = OnceLock::new();
+
+/// The observer token lives for the application's lifetime. It watches only
+/// the Main Window's fullscreen exit, the transition that otherwise leaves a
+/// reused panel associated with AI Limits' former fullscreen Space.
+static MAIN_WINDOW_FULLSCREEN_OBSERVER: OnceLock<Mutex<MainThreadOnlyBox<NotificationObserver>>> =
+    OnceLock::new();
 
 fn with_panel<R>(f: impl FnOnce(&mut Panel) -> R) -> Option<R> {
     let cell = POPOVER.get()?;
@@ -631,20 +642,100 @@ pub fn finish_install(app: &tauri::AppHandle) {
     install_event_forwarding(app);
 }
 
-/// `NSWindow.collectionBehavior` flags making the panel present on whichever
-/// Space is active (instead of switching the user back to wherever the
-/// app's other windows live) and reachable over another app's Fullscreen
-/// Space. `CanJoinAllApplications` is deliberately the only fullscreen
-/// collection behavior: AppKit makes it mutually exclusive with
-/// `FullScreenAuxiliary`, and the latter can bind a panel to AI Limits'
-/// own fullscreen Space after the Main Window has entered fullscreen. See
-/// docs/desktop/mac-popover.md#native-panel for the full rationale.
+/// Resets the panel's Space membership after the Main Window leaves native
+/// fullscreen. AppKit can retain the panel as an auxiliary of that fullscreen
+/// Space when it was shown there; simply setting the same behavior again on
+/// a later show does not detach that association.
+pub fn install_main_window_fullscreen_observer(app: &tauri::App) {
+    let Some(main_window) = app.get_webview_window(crate::windows::MAIN_WINDOW_LABEL) else {
+        return;
+    };
+    let Ok(main_window_ptr) = main_window.ns_window() else {
+        return;
+    };
+    // SAFETY: Tauri returned the live NSWindow pointer for the application's
+    // always-alive Main Window. The observer is installed during setup and is
+    // removed only when the process exits, after AppKit has stopped sending
+    // window notifications.
+    let main_window = unsafe { &*main_window_ptr.cast::<NSWindow>() };
+    let block = RcBlock::new(move |_notification: NonNull<NSNotification>| {
+        reset_space_membership_after_main_fullscreen();
+    });
+    // SAFETY: the observer is scoped to the live Main Window; `queue: None`
+    // invokes the block synchronously on AppKit's main thread.
+    let observer = unsafe {
+        NSNotificationCenter::defaultCenter().addObserverForName_object_queue_usingBlock(
+            Some(NSWindowDidExitFullScreenNotification),
+            Some(main_window.as_ref()),
+            None,
+            &block,
+        )
+    };
+    MAIN_WINDOW_FULLSCREEN_OBSERVER
+        .set(Mutex::new(MainThreadOnlyBox(observer)))
+        .unwrap_or_else(|_| panic!("Main Window fullscreen observer installed more than once"));
+    #[cfg(debug_assertions)]
+    eprintln!("Popover: installed Main Window fullscreen-exit observer");
+}
+
+fn reset_space_membership_after_main_fullscreen() {
+    #[cfg(debug_assertions)]
+    eprintln!("Popover: Main Window exited fullscreen; resetting panel Space membership");
+    hide();
+    with_panel(|panel| {
+        #[cfg(debug_assertions)]
+        eprintln!(
+            "Popover: collection behavior before reset: {:?}",
+            panel.panel.collectionBehavior()
+        );
+        panel
+            .panel
+            .setCollectionBehavior(NSWindowCollectionBehavior::Default);
+        set_collection_behavior(&panel.panel);
+        #[cfg(debug_assertions)]
+        eprintln!(
+            "Popover: collection behavior after reset: {:?}",
+            panel.panel.collectionBehavior()
+        );
+    });
+}
+
+/// `NSWindow.collectionBehavior` flags controlling which Space(s) the panel
+/// belongs to.
+///
+/// Previously this used `CanJoinAllSpaces`, which makes AppKit's window
+/// server genuinely render the panel on *every* Space simultaneously. That
+/// caused a real, reproduced-on-device bug: swiping to a different Space
+/// while the panel was open showed it briefly on the destination Space
+/// before `install_dismiss_monitors`' `NSWorkspaceActiveSpaceDidChangeNotification`
+/// handler could hide it — that notification fires only after the Space
+/// switch (and its first rendered frame) has already completed, so the
+/// app-side `hide()` always lands one frame too late.
+///
+/// `MoveToActiveSpace` (paired with `CanJoinAllApplications`, still needed
+/// for the Fullscreen-Space-of-another-app case) instead moves the panel
+/// onto whichever single Space is active *at the moment it is shown* —
+/// `reposition_near_tray`/`makeKeyAndOrderFront` in `show_near_tray`, below —
+/// rather than joining every Space persistently. The panel is then never
+/// present on a Space the user swipes to after opening it, so there is
+/// nothing for the window server to render there and nothing for the
+/// dismiss-on-Space-change handler to race against. That handler is kept
+/// as-is: it still hides the panel so a swipe back to the original Space
+/// doesn't leave it open there either.
+///
+/// `IgnoresCycle` is unrelated to Space membership (see
+/// docs/desktop/mac-popover.md#native-panel, "Not in Cmd+Tab or the Window
+/// menu") and is unchanged. `Stationary` (unaffected by Exposé/Mission
+/// Control) is dropped: `Managed`/`Transient`/`Stationary` are mutually
+/// exclusive, and the panel's non-normal window level already makes
+/// `Transient` (hidden by Exposé, which is what a menu-bar popup should do)
+/// the default when none of the three is set explicitly.
+///
 /// Re-applied on every show, mirroring the defensive re-application used by
 /// the earlier implementation.
 fn set_collection_behavior(panel: &NSPanel) {
     panel.setCollectionBehavior(
-        NSWindowCollectionBehavior::CanJoinAllSpaces
-            | NSWindowCollectionBehavior::Stationary
+        NSWindowCollectionBehavior::MoveToActiveSpace
             | NSWindowCollectionBehavior::IgnoresCycle
             | NSWindowCollectionBehavior::CanJoinAllApplications,
     );

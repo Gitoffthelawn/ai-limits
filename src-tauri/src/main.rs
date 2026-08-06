@@ -63,6 +63,7 @@ fn main() {
                 install_main_window_close_guard(app);
                 popover_panel::install(app.handle());
                 popover_panel::finish_install(app.handle());
+                popover_panel::install_main_window_fullscreen_observer(app);
                 install_tray_icon(app)?;
             }
             Ok(())
