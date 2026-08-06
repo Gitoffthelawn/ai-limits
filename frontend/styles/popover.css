@@ -261,14 +261,30 @@ body.popover-page {
   border-radius: 9px;
   padding: 8px 10px 9px;
   background-color: var(--pop-tile);
-  background-image: none;
-  box-shadow: none;
+  /* A hairline-thin light-catch along the top edge plus a very soft drop
+     shadow, both barely perceptible, so the tile reads as a sliver above the
+     vibrancy material rather than flat and printed onto it (a light Liquid
+     Glass cue) without competing with the meters for attention. */
+  box-shadow:
+    0 0.5px 0 0 rgba(255, 255, 255, 0.6) inset,
+    0 1px 2px 0 rgba(0, 0, 0, 0.06),
+    0 3px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 :root[data-theme="dark"] .popover-root .provider-block[data-provider-id="cursor"] {
   --provider-border-color: var(--pop-hairline);
   --provider-border-overlay-color: transparent;
   --provider-card-drop-shadow: 0 0 0 transparent;
+}
+
+/* Dark theme has no light source to catch, so the lift reads through a
+   near-black drop shadow (against the dark vibrancy material) and a faint
+   white top edge instead of the light theme's bright wash. */
+:root[data-theme="dark"] .popover-root .provider-block {
+  box-shadow:
+    0 0.5px 0 0 rgba(255, 255, 255, 0.12) inset,
+    0 1px 2px 0 rgba(0, 0, 0, 0.22),
+    0 3px 7px -2px rgba(0, 0, 0, 0.28);
 }
 
 /* Card Content decision (docs/desktop/mac-popover.md): the per-card
