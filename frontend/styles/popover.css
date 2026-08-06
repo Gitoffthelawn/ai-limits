@@ -392,6 +392,17 @@ body.popover-page {
   gap: 6px;
 }
 
+/* The limits body stacks three independent blocks — the meter rows, "Available
+   credits", "Available resets" — that used to sit flush against each other
+   once the Main Window's own credits-info margin was zeroed out below for the
+   label-left/value-right layout. A flex gap here restores a consistent,
+   visible break between all of them regardless of which are present. */
+.popover-root .provider-section--limits .provider-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .popover-root .limit-row {
   display: grid;
   align-items: baseline;
