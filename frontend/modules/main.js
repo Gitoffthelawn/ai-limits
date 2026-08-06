@@ -6,7 +6,8 @@ import {
   handleDisplaySettingsChange,
 } from "./settings.js";
 import { initAppUpdates, syncAppUpdateSchedule } from "./app-update.js";
-import { initHelp, renderHelpMenu, openHelp } from "./help.js";
+import { initHelp, renderHelpMenu, openHelp, selectHelpChapter } from "./help.js";
+import { DEFAULT_HELP_CHAPTER } from "./help-chapters.js";
 import { setupScreenshotShowcase } from "./showcase.js";
 import {
   initProviders,
@@ -86,7 +87,11 @@ initHelp({ helpMenu, helpContent, helpView });
 
 for (const tab of navTabs) {
   tab.addEventListener("click", () => {
-    switchView(tab.dataset.view);
+    const view = tab.dataset.view;
+    switchView(view);
+    if (view === "help") {
+      selectHelpChapter(DEFAULT_HELP_CHAPTER);
+    }
   });
 }
 
